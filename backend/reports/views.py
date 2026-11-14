@@ -1,4 +1,5 @@
 """Report endpoints (docs/03 R1; R2–R5 come in T10/T11)."""
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, inline_serializer
 from rest_framework import serializers
 from rest_framework.response import Response
@@ -6,6 +7,7 @@ from rest_framework.views import APIView
 
 from core.api import astronaut_for, parse_query, today
 from core.schema import NOT_AUTHENTICATED, error_response
+from scoring import config
 
 from . import services
 
@@ -77,3 +79,69 @@ class BodyMapView(APIView):
         astronaut = astronaut_for(request, pk)
         as_of = parse_query(AsOfSerializer, request).get("as_of") or today()
         return Response(services.body_map(astronaut, as_of))
+
+
+# --- T10 ----------------------------------------------------------------------------
+
+class TrendsQuerySerializer(AsOfSerializer):
+    days = serializers.IntegerField(required=False, min_value=1, max_value=config.TRENDS_MAX_DAYS,
+                                    default=config.TRENDS_DEFAULT_DAYS)
+
+
+VISION_POINT = {"date": "2026-11-13", "mission_day": 91, "near_vision_left": 6, "near_vision_right": 8,
+                "contrast_left": 5, "contrast_right": 6, "level": "RED"}
+TRENDS_EXAMPLE = {
+    "astronaut_id": 1, "period": {"from": "2026-08-17", "to": "2026-11-14", "days": 90},
+    "baseline": {"near_vision_left": 8.0, "near_vision_right": 8.33, "contrast_left": 6.0, "contrast_right": 6.0},
+    "vision": [{"date": "2026-08-21", "mission_day": 7, "near_vision_left": 8, "near_vision_right": 8,
+                "contrast_left": 6, "contrast_right": 6, "level": "GREEN"}, VISION_POINT],
+    "cabin_co2": [{"date": "2026-11-01", "mission_day": 79, "co2_mmhg": 4.62}],
+    "daily": [{"date": "2026-11-14", "mission_day": 92, "sodium_mg": 3900, "exercise_min": 62, "sleep_hours": 7.5,
+               "mood": 5, "resting_hr_bpm": 60, "systolic_mmhg": 116, "diastolic_mmhg": 73}],
+    "events": [{"mission_day": 78, "type": "CO2_HIGH_START", "text": "Cabin CO₂ above normal"},
+               {"mission_day": 89, "type": "CO2_HIGH_END", "text": "Cabin CO₂ back to normal"},
+               {"mission_day": 91, "type": "ESCALATED", "text": "Red result: sent to the flight surgeon"}],
+}
+ENGAGEMENT_EXAMPLE = {
+    "astronaut_id": 1, "as_of": "2026-11-14", "streak_weeks": 13, "tests_completed": 14,
+    "next_test_due": "2026-11-15", "overdue": False,
+    "badges": [{"code": code, "name": name, "earned": True} for code, name in services.BADGES],
+    "mission_progress": {"day": 92, "planned": 900, "pct": 10.2},
+}
+FORBIDDEN = error_response("Crew can only see their own data.", "PERMISSION_DENIED",
+                           "You don't have access to this astronaut's data.")
+AS_OF = OpenApiParameter("as_of", str, description="YYYY-MM-DD. Default: today (finished missions: their last day).")
+
+
+class TrendsView(APIView):
+    @extend_schema(
+        tags=["Reports"], summary="Trends (chart series by mission day)",
+        description=(
+            "The last `days` days (default 90) up to `as_of`: vision (one point per day with a test), cabin CO₂, "
+            "daily logs and events, all keyed by `mission_day` so the charts line up. Events: `CO2_HIGH_START` "
+            "(first day above the high mark after a normal day), `CO2_HIGH_END`, `ESCALATED` (RED result)."
+        ),
+        parameters=[OpenApiParameter("days", int, description=f"1–{config.TRENDS_MAX_DAYS}, default {config.TRENDS_DEFAULT_DAYS}."), AS_OF],
+        responses={200: OpenApiTypes.OBJECT, 400: error_response("Bad parameter.", "VALIDATION_ERROR",
+                   "Some fields are invalid.", {"days": ["Ensure this value is greater than or equal to 1."]}),
+                   401: NOT_AUTHENTICATED, 403: FORBIDDEN},
+        examples=[OpenApiExample("Osei", value=TRENDS_EXAMPLE, response_only=True)],
+    )
+    def get(self, request, pk):
+        astronaut = astronaut_for(request, pk)
+        query = parse_query(TrendsQuerySerializer, request)
+        return Response(services.trends(astronaut, query["days"], query.get("as_of") or today()))
+
+
+class EngagementView(APIView):
+    @extend_schema(
+        tags=["Reports"], summary="Engagement (streak, badges, next test)",
+        description="Rules in docs/04 §6. `streak_weeks` counts 7-day windows back from `as_of` with ≥1 scored test.",
+        parameters=[AS_OF],
+        responses={200: OpenApiTypes.OBJECT, 401: NOT_AUTHENTICATED, 403: FORBIDDEN},
+        examples=[OpenApiExample("Osei", value=ENGAGEMENT_EXAMPLE, response_only=True)],
+    )
+    def get(self, request, pk):
+        astronaut = astronaut_for(request, pk)
+        as_of = parse_query(AsOfSerializer, request).get("as_of") or today()
+        return Response(services.engagement(astronaut, as_of))
