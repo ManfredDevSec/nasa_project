@@ -36,6 +36,13 @@ if not SECRET_KEY:
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
+# Render sets this automatically (e.g. "sightline-api.onrender.com"), so the
+# public address works without typing it into DJANGO_ALLOWED_HOSTS.
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")  # admin login form
+
 INSTALLED_APPS = [
     "jazzmin",  # admin theme; must come before django.contrib.admin
     "django.contrib.admin",
@@ -61,6 +68,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "core.middleware.HealthCheckMiddleware",  # first: answers /api/health/ before the host check
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -198,6 +206,13 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
+# `check --deploy` warnings we leave on purpose:
+# - W008 SECURE_SSL_REDIRECT: Render already redirects HTTP to HTTPS at its edge;
+#   redirecting again in Django can break Render's internal health check.
+# - W004 HSTS: tells browsers to force HTTPS for the domain and is hard to undo;
+#   not worth it for a hackathon *.onrender.com address.
+SILENCED_SYSTEM_CHECKS = ["security.W004", "security.W008"]
+
 # --- DRF + API docs ---------------------------------------------------------
 
 REST_FRAMEWORK = {
@@ -233,7 +248,11 @@ LOGGING = {
     "formatters": {"simple": {"format": "{levelname} {name}: {message}", "style": "{"}},
     "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "simple"}},
     "root": {"handlers": ["console"], "level": "INFO"},
-    "loggers": {"django": {"handlers": [], "level": "INFO", "propagate": True}},
+    "loggers": {
+        "django": {"handlers": [], "level": "INFO", "propagate": True},
+        # Bots probing with fake Host headers get a 400; don't print a traceback for each.
+        "django.security.DisallowedHost": {"handlers": [], "propagate": False},
+    },
 }
 
 # --- Admin theme (jazzmin) --------------------------------------------------

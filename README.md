@@ -81,6 +81,30 @@ option with comments. The important ones:
 | `FRONTEND_URL` | `http://localhost:5173` | the frontend's URL (password-reset links) |
 | `EMAIL_HOST` … | unset → emails print to the console | SMTP settings |
 
+## Deploy (Render + Neon)
+
+Production runs on **Render** (free web service) with a **Neon** Postgres database. The service is defined in
+[`render.yaml`](render.yaml): it deploys the `main` branch from `backend/`, and every merge to `main` redeploys.
+
+1. **Neon:** create a project in region **AWS Europe Central (Frankfurt)**, same as Render. Create a database
+   `sightline` and copy the **pooled** connection string (host contains `-pooler`, ends with `?sslmode=require`).
+2. **Render:** New → **Blueprint** → pick this repo → it reads `render.yaml` → paste the Neon string when asked
+   for `DATABASE_URL` → Apply. Build = install + collectstatic + migrate; start = gunicorn.
+3. **Check:** `https://<service>.onrender.com/api/health/` → `"database": "ok"`, then `/api/docs/`.
+
+**Admin user and seed:** Render's free plan has **no Shell**, so run management commands **from your laptop
+against Neon**:
+```bash
+cd backend && source .venv/bin/activate
+DATABASE_URL='<neon pooled connection string>' python manage.py createsuperuser
+DATABASE_URL='<neon pooled connection string>' python manage.py seed_mission --reset   # after T8
+```
+
+**Free plan notes:** the service sleeps after 15 min without traffic, and the first request then takes about
+a minute. **Open the URL a few minutes before a demo.** Password-reset emails print in the Render logs until
+`EMAIL_HOST` etc. are set. Add the deployed frontend's URL to `CORS_ALLOWED_ORIGINS` and `FRONTEND_URL` in the
+Render dashboard once it exists.
+
 ## What's built so far
 
 | Task (see [`docs/06_BACKEND_TASKS.md`](docs/06_BACKEND_TASKS.md)) | Status |
