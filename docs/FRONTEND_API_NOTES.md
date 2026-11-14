@@ -18,7 +18,7 @@ and how to wire the real API in.
 | Mission, crew list/detail, baseline, eye test submit + history, daily logs, cabin logs | ✅ live (T7) | **Real API** |
 | Body map, trends, engagement | ⏳ T9–T10 | **Keep mocks** |
 | Crew overview, weekly Earth report | ⏳ T11 | **Keep mocks** |
-| Demo logins (osei, mensah, adjei, surgeon) | ⏳ T8 seed | Create test users in `/admin` for now (see §8) |
+| Demo logins (12 astronauts + surgeon + admin) | ✅ T8 seed | See §8 |
 
 So: **auth + the T7 areas use the real API now; body map, trends, engagement, crew overview and the weekly
 report stay on mocks** until we tell you they're live.
@@ -261,15 +261,21 @@ Mock files should keep the **exact shapes from spec 03**, so the switch is painl
 
 ---
 
-## 8. Test accounts until the seed exists (T8)
+## 8. Demo accounts
 
-1. `make superuser` → an **ADMIN** login. Log in to the frontend with it to test auth.
-2. For a **FLIGHT_SURGEON** test user: `/admin` → Users → Add (role Flight surgeon, no astronaut).
-3. For a **CREW** test user: `/admin` → first add a **Mission**, then an **Astronaut**, then a User with
-   role Crew linked to that astronaut.
+`seed_mission` creates these (password `sightline-demo` locally; ask the backend for the live one):
 
-After T8, the demo logins from `05_SEED_DATA_SPEC.md` exist (osei, mensah, adjei, surgeon, admin; password
-from `SEED_DEMO_PASSWORD`), so your quick-login buttons will work.
+| Username | Role | Use it to show |
+|---|---|---|
+| `osei` | CREW, Ares Transit 1 | the RED case; her day-92 eye test is left for the live demo |
+| `mensah`, `asante`, `appiah` | CREW | healthy (GREEN) crew |
+| `owusu` | CREW | an AMBER "watch" status |
+| `adjei` | MEDICAL_OFFICER, Ares Transit 1 | the crew dashboard |
+| `surgeon` | FLIGHT_SURGEON | read-only Earth view of everyone |
+| `admin` | ADMIN | everything |
+| `frimpong`, `agyeman`, `quaye` / `bonsu`, `sarpong`, `tetteh` | Moon base / space station crews (finished missions) | history on other missions |
+
+Quick-login buttons: Commander Osei (`osei`), Medical Officer Adjei (`adjei`), Flight Surgeon (`surgeon`).
 
 ---
 
