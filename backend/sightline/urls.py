@@ -10,6 +10,10 @@ from .exceptions import api_not_found
 # All endpoints from docs/03_API_SPECIFICATION.md go here, one include per app.
 api_v1_patterns = [
     path("auth/", include("accounts.urls")),
+    path("", include("missions.urls")),  # missions/active/, cabin-logs/
+    path("", include("crew.urls")),      # astronauts/...
+    path("", include("checks.urls")),    # checks/...
+    path("", include("vitals.urls")),    # daily-logs/
     # Must stay last: unknown /api/v1/ paths -> standard NOT_FOUND JSON.
     re_path(r"^.*$", api_not_found),
 ]
