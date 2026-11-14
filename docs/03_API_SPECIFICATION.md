@@ -328,6 +328,11 @@ Arrays ready for charts (one point per day where data exists).
   "events": [ { "mission_day": 78, "type": "CO2_HIGH_START", "text": "Cabin CO₂ above normal" } ]
 }
 ```
+As built (additions): `?days=` 1–1000 (default 90) and `?as_of=YYYY-MM-DD` (default today). Also returns
+`astronaut_id` and `period: {from, to, days}`. One vision point per day (the day's last test); `baseline` is
+null before any baseline check. Events: `CO2_HIGH_START` (first day above the CO₂ high mark after a normal
+day), `CO2_HIGH_END` (first day back at/below it), `ESCALATED` (a RED result). For a finished mission "today"
+is its last planned day, so its charts aren't empty.
 
 ### R3 `GET /astronauts/{id}/engagement/` (gamification, computed)
 ```json
@@ -346,7 +351,8 @@ Arrays ready for charts (one point per day where data exists).
   "mission_progress": { "day": 92, "planned": 900, "pct": 10.2 }
 }
 ```
-Rules in `04_SCORING_RULES.md` §6.
+Rules in `04_SCORING_RULES.md` §6. As built: also `astronaut_id` and `as_of`; `?as_of=` works as in R2
+(finished missions: their last day, so progress shows 100 %). Badge thresholds live in `scoring/config.py`.
 
 ### R4 `GET /crew/overview/`
 ```json
