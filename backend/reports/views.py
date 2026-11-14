@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.response import Response
@@ -17,7 +18,16 @@ from .selectors import (
     get_all_astronaut_summaries,
     get_astronaut_history,
 )
-from .serializers import EnvLogSerializer, VisionCheckCreateSerializer
+from .serializers import (
+    AstronautOutSerializer,
+    CheckResultSerializer,
+    EnvLogSerializer,
+    ErrorSerializer,
+    HistoryOutSerializer,
+    MissionOutSerializer,
+    VisionCheckCreateSerializer,
+    WeeklyReportOutSerializer,
+)
 
 
 def _astronaut_or_404(pk):
@@ -65,14 +75,28 @@ def _check_row(check):
     return row
 
 
-@extend_schema(tags=["Astronauts"], summary="List all astronauts with current summary")
 class AstronautListView(APIView):
+    serializer_class = AstronautOutSerializer
+
+    @extend_schema(
+        operation_id="astronauts_list",
+        tags=["Astronauts"],
+        summary="List all astronauts with current summary",
+        responses={200: AstronautOutSerializer(many=True)},
+    )
     def get(self, request):
         return Response(get_all_astronaut_summaries())
 
 
-@extend_schema(tags=["Astronauts"], summary="Retrieve a single astronaut summary")
 class AstronautDetailView(APIView):
+    serializer_class = AstronautOutSerializer
+
+    @extend_schema(
+        operation_id="astronauts_detail",
+        tags=["Astronauts"],
+        summary="Retrieve a single astronaut summary",
+        responses={200: AstronautOutSerializer, 404: ErrorSerializer},
+    )
     def get(self, request, pk):
         astronaut = _astronaut_or_404(pk)
         if astronaut is None:
@@ -80,8 +104,15 @@ class AstronautDetailView(APIView):
         return Response(build_astronaut_summary(astronaut))
 
 
-@extend_schema(tags=["Astronauts"], summary="Full check and env history for an astronaut")
 class AstronautHistoryView(APIView):
+    serializer_class = HistoryOutSerializer
+
+    @extend_schema(
+        operation_id="astronauts_history",
+        tags=["Astronauts"],
+        summary="Full check and env history for an astronaut",
+        responses={200: HistoryOutSerializer, 404: ErrorSerializer},
+    )
     def get(self, request, pk):
         astronaut = _astronaut_or_404(pk)
         if astronaut is None:
@@ -94,12 +125,16 @@ class AstronautHistoryView(APIView):
         })
 
 
-@extend_schema(
-    tags=["Checks"],
-    summary="Submit a new vision check",
-    request=VisionCheckCreateSerializer,
-)
 class CheckCreateView(APIView):
+    serializer_class = VisionCheckCreateSerializer
+
+    @extend_schema(
+        operation_id="checks_create",
+        tags=["Checks"],
+        summary="Submit a new vision check",
+        request=VisionCheckCreateSerializer,
+        responses={201: CheckResultSerializer, 400: ErrorSerializer},
+    )
     def post(self, request):
         ser = VisionCheckCreateSerializer(data=request.data)
         if not ser.is_valid():
@@ -131,15 +166,19 @@ class CheckCreateView(APIView):
         )
 
 
-@extend_schema(
-    tags=["Environment"],
-    summary="List environment logs",
-    parameters=[
-        OpenApiParameter("from", str, description="Start date YYYY-MM-DD"),
-        OpenApiParameter("to", str, description="End date YYYY-MM-DD"),
-    ],
-)
 class EnvListView(APIView):
+    serializer_class = EnvLogSerializer
+
+    @extend_schema(
+        operation_id="env_list",
+        tags=["Environment"],
+        summary="List environment logs",
+        parameters=[
+            OpenApiParameter("from", OpenApiTypes.DATE, description="Start date YYYY-MM-DD"),
+            OpenApiParameter("to", OpenApiTypes.DATE, description="End date YYYY-MM-DD"),
+        ],
+        responses={200: EnvLogSerializer(many=True)},
+    )
     def get(self, request):
         qs = EnvLog.objects.all()
         from_date = request.query_params.get("from")
@@ -151,9 +190,11 @@ class EnvListView(APIView):
         return Response(EnvLogSerializer(qs, many=True).data)
 
     @extend_schema(
+        operation_id="env_create",
         tags=["Environment"],
         summary="Create an environment log",
         request=EnvLogSerializer,
+        responses={201: EnvLogSerializer, 400: ErrorSerializer},
     )
     def post(self, request):
         ser = EnvLogSerializer(data=request.data)
@@ -163,8 +204,15 @@ class EnvListView(APIView):
         return Response(EnvLogSerializer(log).data, status=201)
 
 
-@extend_schema(tags=["Mission"], summary="Mission-wide summary and crew status counts")
 class MissionView(APIView):
+    serializer_class = MissionOutSerializer
+
+    @extend_schema(
+        operation_id="mission_retrieve",
+        tags=["Mission"],
+        summary="Mission-wide summary and crew status counts",
+        responses={200: MissionOutSerializer, 404: ErrorSerializer},
+    )
     def get(self, request):
         today = timezone.localdate()
         earliest = Astronaut.objects.order_by("mission_start").first()
@@ -208,14 +256,22 @@ class MissionView(APIView):
         })
 
 
-@extend_schema(
-    tags=["Reports"],
-    summary="Weekly crew vision report",
-    parameters=[
-        OpenApiParameter("end", str, description="End date YYYY-MM-DD (default today)")
-    ],
-)
 class WeeklyReportView(APIView):
+    serializer_class = WeeklyReportOutSerializer
+
+    @extend_schema(
+        operation_id="report_weekly",
+        tags=["Reports"],
+        summary="Weekly crew vision report",
+        parameters=[
+            OpenApiParameter(
+                "end",
+                OpenApiTypes.DATE,
+                description="End date YYYY-MM-DD (default today)",
+            )
+        ],
+        responses={200: WeeklyReportOutSerializer, 400: ErrorSerializer},
+    )
     def get(self, request):
         today = timezone.localdate()
         end_str = request.query_params.get("end")
