@@ -14,6 +14,7 @@ api_v1_patterns = [
     path("", include("crew.urls")),      # astronauts/...
     path("", include("checks.urls")),    # checks/...
     path("", include("vitals.urls")),    # daily-logs/
+    path("", include("reports.urls")),   # astronauts/{id}/body-map/ (T9), more in T10/T11
     # Must stay last: unknown /api/v1/ paths -> standard NOT_FOUND JSON.
     re_path(r"^.*$", api_not_found),
 ]

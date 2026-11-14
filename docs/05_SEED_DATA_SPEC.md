@@ -111,6 +111,26 @@ Generated through the **same `submit_check` service the API uses**, so Assessmen
   Checks: 42 scored, 9 baseline · Osei latest: RED (day 91)
   ```
 
+## 8b. Extended crew (added 14 Nov 2026, on request)
+
+The demo now has **12 astronauts on 3 missions**; sections 1–8 still describe the core story unchanged.
+Definitions live in `backend/core/seed_data.py`.
+
+| Mission | Gravity | State | Crew (username) |
+|---|---|---|---|
+| Ares Transit 1 | 0.00 (transit) | **active**, today = day 92 | osei, mensah, adjei (MO), asante, owusu, appiah |
+| Artemis Base 2 | 0.17 (Moon) | finished, 120 days | frimpong, agyeman, quaye (MO) |
+| Gateway Station 9 | 0.00 (station) | finished, 180 days | bonsu, sarpong, tetteh (MO) |
+
+Extras are mostly healthy: **Owusu** ends AMBER on day 91 (contrast dip); **Agyeman** has AMBER days 70–84
+(downward trend) then GREEN on the Moon, where a 1-line drift is under the gravity-adjusted threshold;
+**Bonsu** goes RED on day 154 (new Amsler marks, right eye, during a station CO₂ spike, days 140–158) and recovers.
+Every astronaut has a login (username above, role CREW or MEDICAL_OFFICER), same password.
+
+Agreed fixes to the numbers above: healthy sleep is **7.0–8.2 h** (not 6.8) and Adjei's days 40–48 are
+**5.0–6.0 h** (not 4.8), so the acceptance checks below always hold. The summary prints the real check count
+(the §7 schedule gives 41 for the core three, not 42). `--reset` never deletes superusers.
+
 ## 9. Acceptance Checks (after seeding)
 
 - [ ] `GET /crew/overview/` → Osei RED, Mensah GREEN, Adjei GREEN

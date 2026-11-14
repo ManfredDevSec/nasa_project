@@ -40,8 +40,8 @@ makemigrations: ## Create new migrations
 collectstatic: ## Collect static files
 	$(COMPOSE) exec backend python manage.py collectstatic --noinput
 
-seed: ## Seed demo data (seed_mission returns in task T8)
-	$(COMPOSE) exec backend python manage.py seed_mission
+seed: ## Wipe mission data and seed the demo story (12 astronauts, 3 missions; superusers kept)
+	$(COMPOSE) exec backend python manage.py seed_mission --reset
 
 test: ## Run tests (use app=<name> to target an app)
 	$(COMPOSE) exec backend python manage.py test $(app)
@@ -59,8 +59,9 @@ reset-db: ## Destroy the database volume and start fresh (migrations run on star
 	@printf "This will delete all data. Continue? [y/N] " && read ans && [ "$${ans}" = "y" ]
 	$(COMPOSE) $(FRONTEND) down -v
 	$(COMPOSE) $(FRONTEND) up -d --wait
+	$(COMPOSE) exec backend python manage.py seed_mission
 
 frontend-deps: ## Reinstall frontend packages inside the container (run after npm install)
 	docker compose --profile frontend up -d --build --renew-anon-volumes frontend
 
-fresh: build up ## One-command setup for new teammates (build → up; seed is added back in T8)
+fresh: build up seed ## One-command setup for new teammates (build → up → seed)

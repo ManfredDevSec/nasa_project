@@ -19,8 +19,7 @@ This repo holds the **backend** (Django REST API). The frontend (React) talks to
 **Needs:** Docker + `make`. On Windows use WSL.
 
 ```bash
-make fresh        # build images, start backend + Redis, run migrations, wait until healthy
-make superuser    # create an admin login
+make fresh        # build images, start backend + Redis, run migrations, load the demo data
 ```
 
 ## Quick start (plain Python)
@@ -33,11 +32,30 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 python manage.py migrate
-python manage.py createsuperuser
+python manage.py seed_mission     # demo data + logins (see below)
 python manage.py runserver
 ```
 
 Without Docker there is no Redis; the app falls back to an in-memory cache automatically.
+
+## Demo data and logins
+
+`seed_mission` loads a simulated story (docs/05): **Ares Transit 1** (active Mars transit, today = day 92),
+plus two finished missions, **Artemis Base 2** (Moon) and **Gateway Station 9** (station): 12 astronauts.
+Commander Osei's left eye drifts after a CO₂ scrubber problem (AMBER day 84, RED day 91); her day-92 test is
+left for the live demo.
+
+| Login | Role |
+|---|---|
+| `osei`, `mensah`, `asante`, `owusu`, `appiah` | Crew, Ares Transit 1 |
+| `adjei` | Medical Officer, Ares Transit 1 |
+| `frimpong`, `agyeman` / `quaye` (MO) | Artemis Base 2 (Moon) |
+| `bonsu`, `sarpong` / `tetteh` (MO) | Gateway Station 9 |
+| `surgeon` | Flight surgeon on Earth (read-only, all missions) |
+| `admin` | Admin + Django admin |
+
+Password for all: `sightline-demo`, or whatever `SEED_DEMO_PASSWORD` is set to. Rerun with
+`seed_mission --reset` (keeps superusers, e.g. your own admin). All crew data is simulated.
 
 ## URLs
 
@@ -64,7 +82,7 @@ Without Docker there is no Redis; the app falls back to an in-memory cache autom
 | `make superuser` | Create an admin login |
 | `make shell` / `make bash` | Django shell / shell inside the backend container |
 | `make reset-db` | **Delete** the local database and start fresh |
-| `make seed` | Demo data. **Not available yet** (comes back in task T8) |
+| `make seed` | Wipe mission data and load the demo story (12 astronauts, 3 missions). Superusers are kept |
 
 ## Configuration
 
@@ -97,7 +115,7 @@ against Neon**:
 ```bash
 cd backend && source .venv/bin/activate
 DATABASE_URL='<neon pooled connection string>' python manage.py createsuperuser
-DATABASE_URL='<neon pooled connection string>' python manage.py seed_mission --reset   # after T8
+SEED_DEMO_PASSWORD='<pick one>' DATABASE_URL='<neon pooled connection string>' python manage.py seed_mission --reset
 ```
 
 **Free plan notes:** the service sleeps after 15 min without traffic, and the first request then takes about
@@ -111,9 +129,11 @@ Render dashboard once it exists.
 |---|---|
 | T1 Project skeleton, error format, `/api/v1/`, Swagger | ✅ |
 | T2 Users, roles, token auth, password change/reset, user admin, permissions | ✅ |
-| T3–T6 Models, scoring engine, `submit_check` | in progress ([hand-off](docs/HANDOFF_T3_T6.md)) |
-| T7–T11 Endpoints, seed, body map, trends, crew overview, Earth report | to do |
-| T12 Deploy (Render + Neon) | to do |
+| T3–T6 Models, scoring engine, `submit_check` | ✅ |
+| T7 Core endpoints (mission, crew, checks, daily/cabin logs) | ✅ |
+| T8 Demo data (`seed_mission`) | ✅ |
+| T9–T11 Body map, trends, engagement, crew overview, Earth report | to do |
+| T12 Deploy (Render + Neon) | ✅ (seed the live DB from your laptop) |
 
 ### Endpoints available now
 

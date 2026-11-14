@@ -303,6 +303,15 @@ Drives the clickable figure. Each part: status + info card text.
 ```
 Rules: EYES from latest Assessment; HEART = worse of heart & BP; SLEEP and MIND from latest DailyLog. No data → `level: "UNKNOWN"`. Info text is static (kept in `reports/content.py`).
 
+As built (additions, nothing above changed):
+- `?as_of=YYYY-MM-DD` (default today): the map as it was on that date, using only data up to then.
+  The response echoes `as_of`.
+- Each part uses the most recent daily log that **has** its values (a mood-only log doesn't blank SLEEP).
+- Extra per-part fields: `guidance` (advice for the current level: the top action for EYES, the vitals rule
+  text for the others; null when UNKNOWN) and `read_more_url` (the NASA risk page, docs/08 R1).
+- `last_updated`: the eye test's `taken_at`; for HEART/SLEEP/MIND the start of the logged day (UTC); null if no data.
+- Permissions as C2: crew only their own (403 otherwise).
+
 ### R2 `GET /astronauts/{id}/trends/?days=90`
 Arrays ready for charts (one point per day where data exists).
 ```json
