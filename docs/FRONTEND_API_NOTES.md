@@ -141,7 +141,7 @@ On `/login?expired=1`, show "Your session expired. Please log in again."
 }
 ```
 Save `token` and `user` (localStorage). Then route by role (as in the guide): `CREW` / `MEDICAL_OFFICER`
-→ `/home`; `FLIGHT_SURGEON` → `/crew`; `ADMIN` → your choice.
+→ `/home`; `FLIGHT_SURGEON` → `/crew`; `ADMIN` → `/crew` (suggested, see §9).
 - `astronaut_id` is **null** for flight surgeons and admins. Don't build "my body map" links for them.
 - **New fields** vs the original spec: `email`, `first_name`, `last_name`.
 - Errors: 400 `INVALID_CREDENTIALS`, 400 `VALIDATION_ERROR` (empty fields), 429 `THROTTLED`.
@@ -272,11 +272,61 @@ from `SEED_DEMO_PASSWORD`), so your quick-login buttons will work.
 
 ---
 
-## 9. Still to agree on
+## 9. Who sees which screens (one app, role-based navigation)
+
+Not four apps. There are two views: an **astronaut view** (my body, my test, my trends) and a
+**mission-control view** (whole crew, alerts, Earth report). The **Medical Officer** is an astronaut with
+medical duty, so they get **both**. Read the role from the stored `user.role`.
+
+| Screen | CREW | MEDICAL_OFFICER | FLIGHT_SURGEON | ADMIN |
+|---|---|---|---|---|
+| Landing page after login | `/home` | `/home` | `/crew` | `/crew` (suggested) |
+| `/home` body map (own) | ✅ | ✅ | — (no astronaut) | — (no astronaut) |
+| `/test` eye test → `/result` | ✅ own | ✅ own (API also allows crew members) | — read-only | ✅ |
+| Log today's vitals | ✅ own | ✅ | — | ✅ |
+| `/trends/:id` | **own only** | whole crew | everyone | everyone |
+| `/crew` crew dashboard + alerts | — | ✅ | ✅ | ✅ |
+| `/report` weekly Earth report | — | ✅ | ✅ | ✅ |
+| Log cabin CO₂ | — | ✅ | — | ✅ |
+| `/learn` | ✅ | ✅ | ✅ | ✅ |
+| Forgot / change password, profile | ✅ | ✅ | ✅ | ✅ |
+| User management (optional, §6) | — | — | — | ✅ |
+
+In short: **Crew** = own health only · **Medical Officer** = own health + crew dashboard, everyone's trends,
+report · **Flight Surgeon** = dashboard, trends, report, **read-only** · **Admin** = everything.
+
+A small helper keeps the menu and route guards in one place:
+```js
+// src/lib/roles.js
+const ASTRONAUT = ["CREW", "MEDICAL_OFFICER"];
+const MISSION_CONTROL = ["MEDICAL_OFFICER", "FLIGHT_SURGEON", "ADMIN"];
+
+export const landingPage = (role) => (ASTRONAUT.includes(role) ? "/home" : "/crew");
+
+export const can = {
+  ownHealth: (u) => ASTRONAUT.includes(u.role) && u.astronaut_id != null, // /home, /test, vitals
+  crewDashboard: (u) => MISSION_CONTROL.includes(u.role),                  // /crew, /report
+  viewTrends: (u, astronautId) =>
+    MISSION_CONTROL.includes(u.role) || u.astronaut_id === Number(astronautId),
+  logCabinCO2: (u) => ["MEDICAL_OFFICER", "ADMIN"].includes(u.role),
+  manageUsers: (u) => u.role === "ADMIN",
+};
+```
+Use `can.*` to hide menu items and to guard routes (redirect to `landingPage(role)` if not allowed).
+
+**Hiding screens is for a clean experience, not security.** The backend enforces the same rules: a crew member
+opening another astronaut or `/crew` gets **403 `PERMISSION_DENIED`**. A missed check in the frontend can't
+leak data; the user just sees an error.
+
+---
+
+## 10. Still to agree on
 
 | Question | Default if we don't hear back |
 |---|---|
 | Route of the "Log today's vitals" form (body map buttons link to it) | `/vitals` |
+| Where an **ADMIN** lands in the app (not in the original guide) | `/crew`; admins manage people in Django `/admin` |
+| A **cabin CO₂ entry form** for the Medical Officer (API E1 exists, guide has no screen) | Skip for the demo: the seed provides CO₂ data; `/admin` works for manual entry |
 | Should body-map cards show a NASA "Read more" link (the backend has one per part)? | Not sent yet; would be an extra `read_more_url` field |
 | Frontend production URL (for CORS + password-reset links) | needed for deploy (T12) |
 
