@@ -1,0 +1,22 @@
+{
+  "EYES": {
+    "function": "Your eyes focus light and send what you see to your brain.",
+    "space_effect": "Weightlessness shifts body fluids toward the head. NASA links spaceflight to SANS: swelling of the optic disc, a flattened back of the eye and a shift toward farsightedness, which could change vision during or after a mission.",
+    "what_to_do": "Take your weekly eye test on time and tell your Crew Medical Officer if your vision feels different."
+  },
+  "HEART": {
+    "function": "Your heart pumps blood around your body.",
+    "space_effect": "The headward fluid shift in weightlessness changes blood volume, flow and pressure. Over time the heart and blood vessels can decondition, which can make it hard to stay upright after landing and lowers exercise capacity.",
+    "what_to_do": "Log your resting heart rate and blood pressure each day."
+  },
+  "SLEEP": {
+    "function": "Sleep keeps you alert. NASA names sleep loss as one of the critical causes of fatigue.",
+    "space_effect": "Shifting work schedules, noise, temperature and the dim, unchanging lighting on board can cut sleep short and throw off your body clock.",
+    "what_to_do": "Log your sleep hours each morning."
+  },
+  "MIND": {
+    "function": "Your mind covers your mood, your thinking and how you work with your crew.",
+    "space_effect": "Living with a small group in a tight space for a long time changes how people behave, and help from Earth gets harder to reach the farther you travel.",
+    "what_to_do": "Log how you feel each day and talk to your Crew Medical Officer if something changes."
+  }
+}

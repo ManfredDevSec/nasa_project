@@ -1,364 +1,183 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ChevronLeft } from 'lucide-react'
-import { LineChart, Line, YAxis, ResponsiveContainer } from 'recharts'
-import StatusBadge from '../components/StatusBadge'
-import Loading from '../components/Loading'
-import ErrorBox from '../components/ErrorBox'
-import { getWeeklyReport } from '../api/client'
+import { Link } from 'react-router-dom'
+import { getErrorMessage, getWeeklyReport, isForbidden } from '../api/index.js'
+import { ArrowLeftIcon, LogoMark, PrinterIcon } from '../components/Icons.jsx'
+import { DemoChip } from '../components/Layout.jsx'
+import { AccessDenied } from '../components/StateViews.jsx'
+import StatusBadge from '../components/StatusBadge.jsx'
+import { INSIGHT_CAPTION } from '../content/learn.js'
+import { LEVELS } from '../utils/status.js'
+import { fieldsOf, inlineObject, labelFor, tableColumns, textOf } from '../utils/report.js'
+import { useApi } from '../utils/useApi.js'
 
-function formatNearChange(lines) {
-  if (lines == null) return '—'
-  if (lines === 0) return 'Stable'
-  return lines > 0
-    ? `-${lines} line${lines !== 1 ? 's' : ''}`
-    : `+${Math.abs(lines)} line${Math.abs(lines) !== 1 ? 's' : ''}`
-}
+// The report is rendered exactly as the API returns it: keys become labels, values are shown as-is.
+// So if the backend adds a column or field, it appears here without code changes.
 
-function formatContrastChange(val) {
-  if (val == null) return '—'
-  if (val === 0) return 'Stable'
-  return val > 0 ? `+${val}%` : `${val}%`
-}
-
-function Sparkline({ history = [] }) {
-  if (!history.length) return <span style={{ color: '#6b7280', fontSize: 12 }}>—</span>
-  return (
-    <ResponsiveContainer width={100} height={36}>
-      <LineChart data={history}>
-        <YAxis reversed hide domain={['auto', 'auto']} />
-        <Line
-          type="monotone"
-          dataKey="near_vision"
-          stroke="#9ca3af"
-          strokeWidth={1.25}
-          dot={false}
-          isAnimationActive={false}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  )
-}
-
-function MiniAmsler({ marks = [], label }) {
-  const SIZE = 10
-  const CELL = 7
-  const marked = new Set(
-    marks.map(([r, c]) => `${Math.floor(r / 2)},${Math.floor(c / 2)}`)
-  )
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      <p style={{ fontSize: 10, color: '#6b7280' }}>{label}</p>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${SIZE}, ${CELL}px)`,
-          gap: 1,
-          backgroundColor: '#d1d5db',
-          padding: 1,
-        }}
-      >
-        {Array.from({ length: SIZE * SIZE }, (_, i) => {
-          const r = Math.floor(i / SIZE)
-          const c = i % SIZE
-          const isCenter = r === 4 && c === 4
-          return (
-            <div
-              key={i}
-              style={{
-                width: CELL,
-                height: CELL,
-                backgroundColor: isCenter
-                  ? '#9ca3af'
-                  : marked.has(`${r},${c}`)
-                  ? '#d97706'
-                  : 'white',
-              }}
-            />
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-function EnvRow({ label, value, unit = '' }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f3f4f6' }}>
-      <span style={{ fontSize: 13, color: '#6b7280' }}>{label}</span>
-      <span style={{ fontSize: 13, fontFamily: 'IBM Plex Mono, monospace', color: '#111827' }}>
-        {value != null ? `${value}${unit}` : '—'}
-      </span>
-    </div>
-  )
+// Status levels become badges; everything else becomes plain text.
+function Value({ value }) {
+  if (typeof value === 'string' && LEVELS[value]) return <StatusBadge level={value} size="sm" tone="light" pulse={false} />
+  if (value === null || value === undefined || value === '') return '–'
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+  if (Array.isArray(value)) return value.join(', ')
+  if (typeof value === 'object') return inlineObject(value)
+  return String(value)
 }
 
 export default function EarthReport() {
-  const navigate = useNavigate()
-  const [report, setReport] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    let cancelled = false
-    getWeeklyReport()
-      .then(data => { if (!cancelled) { setReport(data); setLoading(false) } })
-      .catch(e => { if (!cancelled) { setError(e); setLoading(false) } })
-    return () => { cancelled = true }
-  }, [])
-
-  if (loading) return (
-    <div className="min-h-screen bg-bg text-ink">
-      <Loading label="Generating report…" />
-    </div>
-  )
-
-  if (error) return (
-    <div className="min-h-screen bg-bg text-ink">
-      <ErrorBox error={error} onRetry={() => window.location.reload()} />
-    </div>
-  )
-
-  const { generated_at, mission_day, period, crew = [], environment, insights = [] } = report
-
-  const crewWithAmsler = crew.filter(
-    m => m.latest_amsler?.left?.length > 0 || m.latest_amsler?.right?.length > 0
-  )
-
-  const latestStatus = m =>
-    typeof m.latest_status === 'string' ? m.latest_status : m.latest_status?.level
-
-  const statusReason = m =>
-    typeof m.latest_status === 'object' ? m.latest_status?.reason : null
+  const { data, loading, error, reload } = useApi(getWeeklyReport)
 
   return (
-    <>
-      <style>{`
-        @media print {
-          .no-print { display: none !important; }
-          body { background: white !important; }
-          @page { size: A4; margin: 20mm; }
-        }
-      `}</style>
-
-      <div className="no-print min-h-screen bg-bg">
-        <div
-          className="flex items-center gap-4 px-4 py-3"
-          style={{ borderBottom: '1px solid var(--line)' }}
-        >
+    <div className="min-h-dvh bg-slate-100 text-slate-900 print:bg-white">
+      <div className="sticky top-0 z-10 border-b border-slate-200 bg-white print:hidden">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Link
+              to="/crew"
+              className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-slate-300 px-4 font-medium hover:bg-slate-50 focus-visible:outline-sky-600"
+            >
+              <ArrowLeftIcon className="size-5" /> Back to crew
+            </Link>
+            <DemoChip tone="light" />
+          </div>
           <button
-            onClick={() => navigate('/crew')}
-            className="flex items-center justify-center w-10 h-10 text-muted hover:text-ink transition-colors duration-150"
-            aria-label="Back"
+            type="button"
+            onClick={() => window.print()}
+            disabled={!data}
+            className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-slate-900 px-5 font-semibold text-white hover:bg-slate-700 focus-visible:outline-sky-600 disabled:opacity-40"
           >
-            <ChevronLeft size={18} strokeWidth={1.5} />
+            <PrinterIcon className="size-5" /> Print / Save as PDF
           </button>
-          <span className="font-mono text-xs tracking-[0.2em] text-ink">SIGHTLINE</span>
-        </div>
-
-        <div className="px-4 py-6">
-          <ReportDocument
-            generated_at={generated_at}
-            mission_day={mission_day}
-            period={period}
-            crew={crew}
-            environment={environment}
-            insights={insights}
-            crewWithAmsler={crewWithAmsler}
-            latestStatus={latestStatus}
-            statusReason={statusReason}
-          />
         </div>
       </div>
 
-      <div className="hidden print:block">
-        <ReportDocument
-          generated_at={generated_at}
-          mission_day={mission_day}
-          period={period}
-          crew={crew}
-          environment={environment}
-          insights={insights}
-          crewWithAmsler={crewWithAmsler}
-          latestStatus={latestStatus}
-          statusReason={statusReason}
-        />
-      </div>
-    </>
+      <article className="mx-auto my-6 max-w-5xl bg-white p-10 shadow-sm print:m-0 print:max-w-none print:p-0 print:shadow-none">
+        {loading && (
+          <p className="py-20 text-center text-slate-500" role="status">
+            Loading weekly report…
+          </p>
+        )}
+        {error && isForbidden(error) && <AccessDenied />}
+        {error && !isForbidden(error) && (
+          <div role="alert" className="flex flex-col items-center gap-4 py-16 text-center">
+            <p className="text-lg font-semibold">Could not load the weekly report</p>
+            <p className="text-slate-600">{getErrorMessage(error)}</p>
+            <button type="button" onClick={reload} className="min-h-12 rounded-xl bg-slate-900 px-5 font-semibold text-white">
+              Try again
+            </button>
+          </div>
+        )}
+        {data && <ReportBody report={data} />}
+      </article>
+    </div>
   )
 }
 
-function ReportDocument({ generated_at, mission_day, period, crew, environment, insights, crewWithAmsler, latestStatus, statusReason }) {
-  return (
-    <div
-      style={{
-        backgroundColor: 'white',
-        color: '#111827',
-        maxWidth: 768,
-        margin: '0 auto',
-        padding: '2rem',
-        fontFamily: 'IBM Plex Sans, sans-serif',
-      }}
-    >
-      {/* Document header block */}
-      <div style={{ borderBottom: '2px solid #e5e7eb', paddingBottom: '1.25rem', marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 10, letterSpacing: '0.15em', color: '#9ca3af', marginBottom: 4 }}>
-              SIGHTLINE · WEEKLY VISION REPORT
-            </p>
-            <p style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>Crew vision status</p>
-          </div>
-          <div style={{ textAlign: 'right', fontFamily: 'IBM Plex Mono, monospace', fontSize: 11, color: '#6b7280', lineHeight: 1.6 }}>
-            <p>Prepared by: SightLine onboard</p>
-            {generated_at && <p>{new Date(generated_at).toLocaleString()}</p>}
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: '2rem', marginTop: '0.75rem', fontFamily: 'IBM Plex Mono, monospace', fontSize: 11, color: '#6b7280' }}>
-          <span>Mission day: {mission_day ?? '—'}</span>
-          {period && <span>Period: {period.start} – {period.end}</span>}
-        </div>
-      </div>
+function ReportBody({ report }) {
+  const { mission = {}, crew_summary = [], environment = {}, insights = [], recommendations_for_surgeon = [] } = report
+  const columns = tableColumns(crew_summary)
 
-      {/* Crew summary table */}
-      <section style={{ marginBottom: '2rem' }}>
-        <p style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', letterSpacing: '0.08em', marginBottom: '0.75rem', fontFamily: 'IBM Plex Mono, monospace' }}>
-          CREW SUMMARY
-        </p>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '2px solid #e5e7eb', color: '#6b7280', fontSize: 11 }}>
-                <th style={{ textAlign: 'left', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Name</th>
-                <th style={{ textAlign: 'left', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Role</th>
-                <th style={{ textAlign: 'left', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Status</th>
-                <th style={{ textAlign: 'right', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Near</th>
-                <th style={{ textAlign: 'right', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Contrast</th>
-                <th style={{ textAlign: 'right', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Tests</th>
-                <th style={{ textAlign: 'left', paddingBottom: 8, fontWeight: 600 }}>Trend</th>
-                <th style={{ textAlign: 'left', paddingBottom: 8, fontWeight: 600 }}>Note</th>
-              </tr>
-            </thead>
-            <tbody>
-              {crew.map(m => (
-                <tr key={m.id} style={{ borderBottom: '1px solid #f3f4f6', verticalAlign: 'middle' }}>
-                  <td style={{ padding: '8px 16px 8px 0', fontWeight: 500 }}>{m.name}</td>
-                  <td style={{ padding: '8px 16px 8px 0', color: '#6b7280' }}>{m.role ?? '—'}</td>
-                  <td style={{ padding: '8px 16px 8px 0' }}>
-                    <StatusBadge level={latestStatus(m)} />
-                  </td>
-                  <td style={{
-                    padding: '8px 16px 8px 0',
-                    textAlign: 'right',
-                    fontFamily: 'IBM Plex Mono, monospace',
-                    fontSize: 12,
-                    color: (m.near_change_lines ?? 0) > 0 ? '#d97706' :
-                      (m.near_change_lines ?? 0) < 0 ? '#059669' : '#6b7280',
-                  }}>
-                    {formatNearChange(m.near_change_lines)}
-                  </td>
-                  <td style={{
-                    padding: '8px 16px 8px 0',
-                    textAlign: 'right',
-                    fontFamily: 'IBM Plex Mono, monospace',
-                    fontSize: 12,
-                    color: (m.contrast_change ?? 0) < 0 ? '#d97706' :
-                      (m.contrast_change ?? 0) > 0 ? '#059669' : '#6b7280',
-                  }}>
-                    {formatContrastChange(m.contrast_change)}
-                  </td>
-                  <td style={{ padding: '8px 16px 8px 0', textAlign: 'right', color: '#6b7280', fontFamily: 'IBM Plex Mono, monospace', fontSize: 12 }}>
-                    {m.checks_in_period ?? '—'}
-                  </td>
-                  <td style={{ padding: '8px 16px 8px 0' }}>
-                    <Sparkline history={m.history ?? []} />
-                  </td>
-                  <td style={{ padding: '8px 0', fontSize: 12, color: '#6b7280', maxWidth: 200 }}>
-                    {statusReason(m) ?? '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+  return (
+    <div className="flex flex-col gap-8 text-base">
+      <header className="flex items-start justify-between gap-6 border-b-2 border-slate-900 pb-5">
+        <div>
+          <p className="font-mono text-sm tracking-widest text-slate-500">WEEKLY EARTH REPORT</p>
+          <h1 className="text-3xl font-semibold">{mission.name ?? 'Mission'}</h1>
         </div>
+        <div className="flex items-center gap-2">
+          <LogoMark className="h-7 w-auto" />
+          <span className="font-semibold">Sightline</span>
+        </div>
+      </header>
+
+      <section className="break-inside-avoid">
+        <h2 className="mb-3 text-lg font-semibold">Mission</h2>
+        <KeyValueGrid data={mission} />
       </section>
 
-      {/* Amsler grids */}
-      {crewWithAmsler.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <p style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', letterSpacing: '0.08em', marginBottom: '0.75rem', fontFamily: 'IBM Plex Mono, monospace' }}>
-            AMSLER GRID MARKS
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
-            {crewWithAmsler.map(m => (
-              <div key={m.id} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <p style={{ fontSize: 13, fontWeight: 500, color: '#374151' }}>{m.name}</p>
-                <div style={{ display: 'flex', gap: 12 }}>
-                  <MiniAmsler marks={m.latest_amsler?.left ?? []} label="L" />
-                  <MiniAmsler marks={m.latest_amsler?.right ?? []} label="R" />
-                </div>
-              </div>
-            ))}
+      <section>
+        <h2 className="mb-3 text-lg font-semibold">Crew summary</h2>
+        {crew_summary.length === 0 ? (
+          <p className="text-slate-600">No crew data for this week.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-300 text-slate-500">
+                  {columns.map((key) => (
+                    <th key={key} scope="col" className="py-2 pr-3 align-bottom font-medium">
+                      {labelFor(key)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {crew_summary.map((row, i) => (
+                  <tr key={i} className="break-inside-avoid border-b border-slate-200 align-top">
+                    {columns.map((key) => (
+                      <td key={key} className="py-3 pr-3 text-slate-800">
+                        <Value value={row[key]} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
-      {/* Environment summary */}
-      {environment && (
-        <section style={{ marginBottom: '2rem' }}>
-          <p style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', letterSpacing: '0.08em', marginBottom: '0.75rem', fontFamily: 'IBM Plex Mono, monospace' }}>
-            ENVIRONMENT — PERIOD SUMMARY
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '2rem', border: '1px solid #e5e7eb', padding: '1rem' }}>
-            <EnvRow label="Average CO₂" value={environment.avg_co2_mmhg} unit=" mmHg" />
-            <EnvRow label="Peak CO₂" value={environment.max_co2_mmhg} unit=" mmHg" />
-            <EnvRow label="High CO₂ days" value={environment.high_co2_days} />
-            <EnvRow label="Average sodium" value={environment.avg_sodium_mg} unit=" mg/day" />
-            <EnvRow label="Average exercise" value={environment.avg_exercise_min} unit=" min/day" />
-          </div>
-        </section>
-      )}
+      <section className="break-inside-avoid">
+        <h2 className="mb-3 text-lg font-semibold">Environment</h2>
+        <KeyValueGrid data={environment} />
+      </section>
 
-      {/* Insights */}
-      {insights.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <p style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', letterSpacing: '0.08em', marginBottom: '0.75rem', fontFamily: 'IBM Plex Mono, monospace' }}>
-            INSIGHTS
-          </p>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {insights.map((insight, i) => (
-              <li key={i} style={{ display: 'flex', gap: 8, fontSize: 13, color: '#374151' }}>
-                <span style={{ color: '#9ca3af', flexShrink: 0 }}>–</span>
-                <span>{insight}</span>
-              </li>
+      <section className="break-inside-avoid">
+        <h2 className="text-lg font-semibold">Insights</h2>
+        <p className="mb-3 text-sm text-slate-500">{INSIGHT_CAPTION}</p>
+        {insights.length === 0 ? (
+          <p className="text-slate-600">No patterns found this week.</p>
+        ) : (
+          <ul className="list-disc space-y-1.5 pl-6 text-slate-800">
+            {insights.map((item, i) => (
+              <li key={i}>{textOf(item)}</li>
             ))}
           </ul>
-        </section>
-      )}
+        )}
+      </section>
 
-      {/* Print button */}
-      <div className="no-print" style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1.25rem', marginTop: '0.5rem' }}>
-        <button
-          onClick={() => window.print()}
-          style={{
-            padding: '8px 20px',
-            backgroundColor: '#111827',
-            color: 'white',
-            fontSize: 13,
-            fontWeight: 500,
-            border: 'none',
-            cursor: 'pointer',
-            fontFamily: 'IBM Plex Sans, sans-serif',
-          }}
-        >
-          Print / Save as PDF
-        </button>
-      </div>
+      <section className="break-inside-avoid">
+        <h2 className="mb-3 text-lg font-semibold">Recommendations for the flight surgeon</h2>
+        {recommendations_for_surgeon.length === 0 ? (
+          <p className="text-slate-600">None this week.</p>
+        ) : (
+          <ol className="list-decimal space-y-1.5 pl-6 text-slate-800">
+            {recommendations_for_surgeon.map((item, i) => (
+              <li key={i}>{textOf(item)}</li>
+            ))}
+          </ol>
+        )}
+      </section>
 
-      {/* Footer */}
-      <p style={{ marginTop: '1.5rem', fontSize: 11, color: '#9ca3af', lineHeight: 1.6 }}>
-        Screening aid only — not a diagnosis. Thresholds are demo values pending review by NASA medical experts.
-      </p>
+      <footer className="border-t border-slate-300 pt-4 text-sm text-slate-500">
+        Prototype, not a medical device. Simulated data. Decision support only; clinical decisions remain with the
+        flight surgeon.
+      </footer>
     </div>
+  )
+}
+
+function KeyValueGrid({ data }) {
+  const entries = fieldsOf(data)
+  if (!entries.length) return <p className="text-slate-600">No data.</p>
+  return (
+    <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
+      {entries.map(([key, value]) => (
+        <div key={key}>
+          <dt className="text-sm text-slate-500">{labelFor(key)}</dt>
+          <dd className="font-medium text-slate-900">
+            <Value value={value} />
+          </dd>
+        </div>
+      ))}
+    </dl>
   )
 }

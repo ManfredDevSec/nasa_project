@@ -1,327 +1,176 @@
-import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { Eye, Brain, Heart, Bone, X } from 'lucide-react'
-import { getAstronaut } from '../api/client'
-import Header from '../components/Header'
-import StatusBadge from '../components/StatusBadge'
-import Button from '../components/Button'
-import Loading from '../components/Loading'
-import ErrorBox from '../components/ErrorBox'
-import { getStatus } from '../lib/status'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { getActiveMission, getBodyMap, getEngagement } from '../api/index.js'
+import BodyMapScene from '../components/BodyMapScene.jsx'
+import { AwardIcon, CalendarIcon, ClockIcon, EyeIcon, FlameIcon, PlusIcon } from '../components/Icons.jsx'
+import PartCard from '../components/PartCard.jsx'
+import { EmptyState, ErrorState, LoadingState } from '../components/StateViews.jsx'
+import StatusBadge from '../components/StatusBadge.jsx'
+import VitalsForm from '../components/VitalsForm.jsx'
+import { getUser } from '../utils/auth.js'
+import { findPart, partsInOrder } from '../utils/bodyMap.js'
+import { missionToday, relativeDue, shortDate } from '../utils/dates.js'
+import { badgeName, earnedBadges } from '../utils/engagement.js'
+import { PART_META } from '../utils/parts.js'
+import { useApi } from '../utils/useApi.js'
 
-const ZONE_ICONS = { eyes: Eye, brain: Brain, heart: Heart, bones: Bone }
-const STATUS_HEX = { GREEN: '#6fae7c', AMBER: '#d9a441', RED: '#d0604f' }
-
-const ZONES = {
-  eyes: {
-    label: 'Eyes',
-    what: 'Your eyes focus light and send signals to the brain. The optic nerve exits the back of each eye.',
-    spaceflight:
-      'Fluid shifts toward the head in microgravity and can press on the back of the eye (SANS), which can blur near vision. Some changes may not fully reverse after landing.',
-    getActions: (status) => status?.actions ?? 'Take your weekly test to track your vision.',
-  },
-  brain: {
-    label: 'Brain',
-    what: 'The brain controls everything: thinking, mood, coordination, and sleep cycles.',
-    spaceflight: 'Radiation and isolation can affect sleep, mood, and thinking. Cognitive load in EVA suits is high.',
-    getActions: () => 'Module coming soon.',
-  },
-  heart: {
-    label: 'Heart',
-    what: 'The heart pumps blood throughout the body, adapting to gravity and workload.',
-    spaceflight: 'Without gravity the heart works less and can weaken. Fluids shift headward, stressing cardiovascular regulation.',
-    getActions: () => 'Module coming soon.',
-  },
-  bones: {
-    label: 'Bones and muscles',
-    what: 'Bones and muscles provide structure and movement, maintained by mechanical loading.',
-    spaceflight: 'Without gravity loading, bones and muscles lose mass rapidly. Daily structured exercise is the main countermeasure.',
-    getActions: () => 'Module coming soon.',
-  },
-}
-
-function HumanFigure({ eyesLevel, activeZone, onZone }) {
-  const [hoverZone, setHoverZone] = useState(null)
-  const eyeFill = eyesLevel ? (STATUS_HEX[eyesLevel] ?? '#8a877b') : '#8a877b'
-  const BG = '#171814'
-  const S = '#b3afa1'
-  const LINE = '#2a2b25'
-
-  function zoneStyle(id) {
-    const isActive = activeZone === id
-    const isHover = hoverZone === id
-    return {
-      fill: isActive ? 'rgba(42,43,37,0.55)' : isHover ? 'rgba(42,43,37,0.3)' : 'transparent',
-      cursor: 'pointer',
-    }
-  }
-
-  function zoneHandlers(id) {
-    return {
-      onClick: () => onZone(id),
-      onMouseEnter: () => setHoverZone(id),
-      onMouseLeave: () => setHoverZone(null),
-    }
-  }
-
-  /* Draw order: legs → arms → torso → neck → head (back-to-front so fills cover joints) */
-  return (
-    <svg
-      viewBox="0 0 300 390"
-      style={{ width: '100%', maxHeight: 420 }}
-      aria-label="Human body diagram"
-    >
-      {/* ── Body parts ── */}
-      {/* Legs */}
-      <rect x="112" y="185" width="24" height="112" rx="6" fill={BG} stroke={S} strokeWidth="1.5" />
-      <rect x="164" y="185" width="24" height="112" rx="6" fill={BG} stroke={S} strokeWidth="1.5" />
-      {/* Arms */}
-      <rect x="83" y="92" width="27" height="78" rx="6" fill={BG} stroke={S} strokeWidth="1.5" />
-      <rect x="190" y="92" width="27" height="78" rx="6" fill={BG} stroke={S} strokeWidth="1.5" />
-      {/* Torso */}
-      <rect x="108" y="91" width="84" height="97" rx="2" fill={BG} stroke={S} strokeWidth="1.5" />
-      {/* Neck */}
-      <rect x="144" y="78" width="12" height="16" fill={BG} stroke={S} strokeWidth="1.5" />
-      {/* Head */}
-      <ellipse cx="150" cy="51" rx="25" ry="30" fill={BG} stroke={S} strokeWidth="1.5" />
-
-      {/* Eye dots */}
-      <circle cx="141" cy="51" r="4.5" fill={eyeFill} />
-      <circle cx="159" cy="51" r="4.5" fill={eyeFill} />
-      <circle cx="141" cy="51" r="1.8" fill={BG} />
-      <circle cx="159" cy="51" r="1.8" fill={BG} />
-
-      {/* ── Zone overlays (hit areas) ── */}
-      {/* Bones: arms + legs */}
-      <g {...zoneHandlers('bones')}>
-        <rect x="83" y="92" width="27" height="78" rx="6" style={zoneStyle('bones')} />
-        <rect x="190" y="92" width="27" height="78" rx="6" style={zoneStyle('bones')} />
-        <rect x="112" y="185" width="24" height="112" rx="6" style={zoneStyle('bones')} />
-        <rect x="164" y="185" width="24" height="112" rx="6" style={zoneStyle('bones')} />
-      </g>
-      {/* Heart: left torso */}
-      <rect x="108" y="91" width="46" height="56" {...zoneHandlers('heart')} style={zoneStyle('heart')} />
-      {/* Brain: upper head */}
-      <ellipse cx="150" cy="43" rx="22" ry="20" {...zoneHandlers('brain')} style={zoneStyle('brain')} />
-      {/* Eyes: full head */}
-      <ellipse cx="150" cy="51" rx="25" ry="30" {...zoneHandlers('eyes')} style={zoneStyle('eyes')} />
-
-      {/* ── Left-side labels with leader lines ── */}
-      {/* Brain */}
-      <line x1="82" y1="32" x2="131" y2="32" stroke={LINE} strokeWidth="0.75" />
-      <text x="79" y="36" textAnchor="end" fontSize="11" fill={S} fontFamily="IBM Plex Mono, monospace">Brain</text>
-
-      {/* Heart */}
-      <line x1="82" y1="128" x2="108" y2="128" stroke={LINE} strokeWidth="0.75" />
-      <text x="79" y="132" textAnchor="end" fontSize="11" fill={S} fontFamily="IBM Plex Mono, monospace">Heart</text>
-
-      {/* ── Right-side labels with leader lines ── */}
-      {/* Eyes (status swatch + label) */}
-      <line x1="175" y1="51" x2="213" y2="51" stroke={eyeFill} strokeWidth="0.75" />
-      <circle cx="218" cy="51" r="4" fill={eyeFill} />
-      <text x="225" y="55" textAnchor="start" fontSize="11" fill={eyeFill} fontFamily="IBM Plex Mono, monospace">
-        {eyesLevel ? getStatus(eyesLevel).label : 'Eyes'}
-      </text>
-
-      {/* Bones & muscles */}
-      <line x1="217" y1="134" x2="222" y2="134" stroke={LINE} strokeWidth="0.75" />
-      <text x="224" y="130" textAnchor="start" fontSize="10.5" fill={S} fontFamily="IBM Plex Mono, monospace">Bones &amp;</text>
-      <text x="224" y="144" textAnchor="start" fontSize="10.5" fill={S} fontFamily="IBM Plex Mono, monospace">muscles</text>
-    </svg>
-  )
-}
-
-function ZoneContent({ zone, zoneKey, status }) {
-  if (!zone) return null
-  const isEyes = zoneKey === 'eyes'
-  const Icon = ZONE_ICONS[zoneKey]
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2.5">
-        {Icon && <Icon size={18} strokeWidth={1.5} style={{ color: 'var(--muted)' }} />}
-        <h2 className="text-base font-semibold" style={{ color: 'var(--text)' }}>{zone.label}</h2>
-        {isEyes && status && <StatusBadge level={status.level} />}
-      </div>
-
-      <div className="space-y-3 text-sm">
-        <div>
-          <p className="font-mono text-xs mb-1" style={{ color: 'var(--dim)' }}>What it does</p>
-          <p className="leading-relaxed" style={{ color: 'var(--text)' }}>{zone.what}</p>
-        </div>
-        <div>
-          <p className="font-mono text-xs mb-1" style={{ color: 'var(--dim)' }}>In spaceflight</p>
-          <p className="leading-relaxed" style={{ color: 'var(--text)' }}>{zone.spaceflight}</p>
-        </div>
-        <div>
-          <p className="font-mono text-xs mb-1" style={{ color: 'var(--dim)' }}>
-            {isEyes ? 'What to do' : 'Status'}
-          </p>
-          <p className="leading-relaxed" style={{ color: 'var(--text)' }}>{zone.getActions(status)}</p>
-        </div>
-        {isEyes && status?.reason && (
-          <div>
-            <p className="font-mono text-xs mb-1" style={{ color: 'var(--dim)' }}>Current note</p>
-            <p className="leading-relaxed italic" style={{ color: 'var(--text)' }}>{status.reason}</p>
-          </div>
-        )}
-        {!isEyes && (
-          <p className="text-xs italic" style={{ color: 'var(--dim)' }}>Module coming soon.</p>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function ZoneDrawer({ zone, zoneKey, status, onClose }) {
-  return (
-    <>
-      <div
-        className="fixed inset-0 z-40"
-        onClick={onClose}
-        style={{ backgroundColor: 'rgba(15,16,13,0.75)' }}
-      />
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          maxHeight: '75vh',
-          borderTop: '1px solid var(--line)',
-          backgroundColor: 'var(--surface)',
-          zIndex: 50,
-          overflowY: 'auto',
-        }}
-      >
-        <div className="p-5">
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={onClose}
-              className="transition-colors duration-150"
-              style={{ color: 'var(--dim)' }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--muted)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--dim)')}
-              aria-label="Close"
-            >
-              <X size={18} strokeWidth={1.5} />
-            </button>
-          </div>
-          <ZoneContent zone={zone} zoneKey={zoneKey} status={status} />
-        </div>
-      </div>
-    </>
-  )
-}
-
-function ActionButtons({ id, status, navigate }) {
-  const isAlert = status?.level === 'AMBER' || status?.level === 'RED'
-  return (
-    <div className="flex flex-col gap-2">
-      <Button onClick={() => navigate(`/astronaut/${id}/test`)} className="w-full">
-        {isAlert ? 'Retest now' : 'Start eye test'}
-      </Button>
-      <Button variant="secondary" onClick={() => navigate('/')} className="w-full">
-        Switch crew member
-      </Button>
-    </div>
-  )
-}
 
 export default function BodyMap() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const [astronaut, setAstronaut] = useState(null)
-  const [error, setError] = useState(null)
-  const [activeZone, setActiveZone] = useState('eyes')
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const user = getUser()
+  const id = user.astronaut_id
+  // The body map is required; mission and engagement only fill the top bar, so they may fail quietly.
+  const { data, loading, error, reload } = useApi(
+    () => Promise.all([getBodyMap(id), getActiveMission().catch(() => null), getEngagement(id).catch(() => null)]),
+    [id],
+  )
+  const [selected, setSelected] = useState(null)
+  const [vitalsOpen, setVitalsOpen] = useState(false)
 
-  const load = () => {
-    setError(null)
-    getAstronaut(id).then(setAstronaut).catch(setError)
+  if (loading && !data) return <LoadingState label="Loading your body map…" />
+  if (error) return <ErrorState error={error} onRetry={reload} />
+
+  const [bodyMap, mission, engagement] = data
+  const parts = bodyMap.parts ?? []
+  const today = missionToday(mission)
+  const badges = earnedBadges(engagement)
+
+  if (parts.length === 0) {
+    return (
+      <EmptyState title="No health data yet" message="Take your first eye test so Sightline can learn your baseline.">
+        <Link to="/test" className="btn-primary mt-2">
+          Start the eye test
+        </Link>
+      </EmptyState>
+    )
   }
 
-  useEffect(load, [id])
-
-  const status = astronaut?.latest_status ?? null
-
-  function handleZoneClick(zoneKey) {
-    setActiveZone(zoneKey)
-    setDrawerOpen(true)
-  }
+  const selectedPart = findPart(parts, selected)
+  const orderedParts = partsInOrder(parts)
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
-      <Header astronaut={astronaut} backTo="/" />
+    <div className="flex flex-col gap-6">
+      {/* Top bar */}
+      <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-stretch">
+        <Stat Icon={CalendarIcon} label="Mission day" value={mission?.mission_day_today ?? '–'} detail={mission?.name} />
+        <Stat Icon={FlameIcon} label="Test streak" value={engagement ? `${engagement.streak_weeks} weeks` : '–'} />
+        <Stat
+          Icon={ClockIcon}
+          label="Next eye test"
+          value={engagement ? relativeDue(engagement.next_test_due, today) : '–'}
+          detail={engagement?.next_test_due ? shortDate(engagement.next_test_due) : null}
+        />
+        <div className="ml-auto flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => setVitalsOpen(true)} className="btn-secondary">
+            <PlusIcon className="size-5" /> Log today's vitals
+          </button>
+          <Link to="/test" className="btn-primary">
+            <EyeIcon className="size-5" /> Start eye test
+          </Link>
+        </div>
+      </div>
 
-      {!astronaut && !error && <Loading label="Loading…" />}
-      {error && <ErrorBox error={error} onRetry={load} />}
-
-      {astronaut && (
-        <main className="max-w-5xl mx-auto px-4 pt-6 pb-16">
-
-          {/* Eyes status card — always visible above figure */}
-          <div
-            className="p-4 mb-6"
-            style={{ border: '1px solid var(--line)', backgroundColor: 'var(--surface)' }}
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div className="card relative isolate flex flex-col items-center gap-4 overflow-hidden p-6">
+          <span
+            aria-hidden="true"
+            className="absolute top-[38%] left-1/2 -z-10 aspect-square w-[min(90%,420px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(45_190_225/0.22),transparent_68%)]"
+          />
+          <span
+            aria-hidden="true"
+            className="absolute top-[38%] left-1/2 -z-10 aspect-square w-[min(80%,360px)] -translate-x-1/2 -translate-y-1/2"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium" style={{ color: 'var(--muted)' }}>Eyes</span>
-              {status ? <StatusBadge level={status.level} /> : (
-                <span className="font-mono text-sm" style={{ color: 'var(--dim)' }}>No data yet</span>
-              )}
-            </div>
-            {status?.reason && (
-              <p className="text-sm mb-2 leading-relaxed" style={{ color: 'var(--text)' }}>{status.reason}</p>
-            )}
-            <div className="flex items-center justify-between text-xs">
-              <span style={{ color: 'var(--dim)' }}>Next test due</span>
-              <span className="font-mono" style={{ color: 'var(--muted)' }}>{astronaut.next_test_due ?? '—'}</span>
-            </div>
-          </div>
+            <span className="block size-full rounded-full border border-dashed border-sky-400/15 motion-safe:animate-[spin_120s_linear_infinite]" />
+          </span>
+          <p className="eyebrow self-start">Body map</p>
+          <BodyMapScene parts={parts} selected={selected} onSelect={setSelected} />
+          <p className="text-center text-sm text-slate-400">Tap a part of the body to see what it means.</p>
+        </div>
 
-          {/* Two-column layout on desktop */}
-          <div className="lg:grid lg:grid-cols-[1fr_320px] lg:gap-10 lg:items-start">
-
-            {/* Figure */}
-            <div className="flex justify-center">
-              <HumanFigure
-                eyesLevel={status?.level}
-                activeZone={activeZone}
-                onZone={handleZoneClick}
-              />
-            </div>
-
-            {/* Right panel: zone info + actions (desktop only) */}
-            <div className="hidden lg:flex lg:flex-col lg:gap-6">
-              <div
-                className="p-5"
-                style={{ border: '1px solid var(--line)', backgroundColor: 'var(--surface)' }}
-              >
-                <ZoneContent zone={ZONES[activeZone]} zoneKey={activeZone} status={status} />
+        {selectedPart ? (
+          <PartCard key={selectedPart.part} part={selectedPart} onClose={() => setSelected(null)} />
+        ) : (
+          <section className="card flex flex-col gap-5 p-6" aria-labelledby="overview-title">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-slate-400">Hello,</p>
+                <h1 id="overview-title" className="display-title text-4xl">
+                  {user.display_name ?? user.username}
+                </h1>
               </div>
-              <ActionButtons id={id} status={status} navigate={navigate} />
+              {bodyMap.overall && <StatusBadge level={bodyMap.overall} size="lg" />}
             </div>
-          </div>
+            <ul className="flex flex-col gap-2">
+              {orderedParts.map((part) => {
+                const { label, Icon } = PART_META[part.part]
+                return (
+                  <li key={part.part}>
+                    <button
+                      type="button"
+                      onClick={() => setSelected(part.part)}
+                      className="group relative isolate flex min-h-16 w-full items-center gap-4 rounded-2xl border border-white/[0.06] bg-slate-950/40 px-4 py-3 text-left transition-transform duration-300 ease-[var(--ease-spring)] hover:translate-x-1 active:scale-[0.99]"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-0 -z-10 rounded-2xl bg-sky-400/[0.07] opacity-0 ring-1 ring-sky-400/25 transition-opacity duration-300 group-hover:opacity-100"
+                      />
+                      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-sky-400/10 ring-1 ring-sky-400/20">
+                        <Icon className="size-6 text-sky-300" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-medium">{label}</span>
+                        <span className="block truncate text-sm text-slate-400">{part.summary}</span>
+                      </span>
+                      <StatusBadge level={part.level} size="sm" />
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
 
-          {/* Mobile: actions below figure */}
-          <div className="lg:hidden mt-6">
-            <ActionButtons id={id} status={status} navigate={navigate} />
-          </div>
+            {badges.length > 0 && (
+              <div>
+                <h2 className="eyebrow mb-3">Badges earned</h2>
+                <ul className="flex flex-wrap gap-2">
+                  {badges.map((badge) => (
+                    <li
+                      key={badge.code}
+                      className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm"
+                    >
+                      <AwardIcon className="size-4 text-sky-400" />
+                      {badgeName(badge.code)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </section>
+        )}
+      </div>
 
-          {/* Mobile: zone drawer */}
-          {drawerOpen && (
-            <div className="lg:hidden">
-              <ZoneDrawer
-                zone={ZONES[activeZone]}
-                zoneKey={activeZone}
-                status={status}
-                onClose={() => setDrawerOpen(false)}
-              />
-            </div>
-          )}
-        </main>
-      )}
+      <VitalsForm
+        open={vitalsOpen}
+        onClose={() => setVitalsOpen(false)}
+        onSaved={reload}
+        astronautId={id}
+        date={today}
+      />
+    </div>
+  )
+}
+
+function Stat({ Icon, label, value, detail }) {
+  return (
+    <div className="card flex min-w-44 items-center gap-3.5 rounded-2xl px-4 py-3.5">
+      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-sky-400/10 ring-1 ring-sky-400/20">
+        <Icon className="size-[22px] text-sky-300" />
+      </span>
+      <div className="leading-tight">
+        <p className="eyebrow mb-1 !text-[0.68rem] !text-slate-400">{label}</p>
+        <p className="font-mono text-lg font-semibold">
+          {value}
+          {detail && <span className="ml-2 font-sans text-sm font-normal text-slate-400">{detail}</span>}
+        </p>
+      </div>
     </div>
   )
 }

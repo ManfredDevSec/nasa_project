@@ -1,0 +1,7 @@
+{
+  "name": "Ares Transit 1",
+  "environment": "TRANSIT",
+  "start_date": "2026-08-15",
+  "planned_duration_days": 900,
+  "mission_day_today": 92
+}

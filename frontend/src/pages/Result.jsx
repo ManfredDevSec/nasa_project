@@ -1,116 +1,198 @@
-import { useEffect, useState } from 'react'
-import { useParams, useLocation, useNavigate } from 'react-router-dom'
-import Header from '../components/Header'
-import { getAstronaut } from '../api/client'
-import { getStatus } from '../lib/status'
+import { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { getEngagement } from '../api/index.js'
+import { BroadcastIcon, ChartIcon, FlameIcon, HomeIcon, StatusIcon } from '../components/Icons.jsx'
+import { EmptyState } from '../components/StateViews.jsx'
+import { INSIGHT_CAPTION } from '../content/learn.js'
+import { getUser } from '../utils/auth.js'
+import { WORSE_EYE_LABELS, isFirstPriority, sortedActions, topInsights } from '../utils/assessment.js'
+import { shortDate } from '../utils/dates.js'
+import { testsIncreased } from '../utils/engagement.js'
+import { readLastResult } from '../utils/lastResult.js'
+import { getLevel, normalizeLevel } from '../utils/status.js'
+import { useApi } from '../utils/useApi.js'
+
+// The eye test page passes { result: { check, assessment }, testsBefore } in the route state.
+// sessionStorage keeps a copy so a page refresh still shows the result.
 
 export default function Result() {
-  const { id } = useParams()
-  const { state } = useLocation()
-  const navigate = useNavigate()
+  const location = useLocation()
+  const saved = location.state ?? readLastResult()
+  const assessment = saved?.result?.assessment
+  const user = getUser()
 
-  const [result, setResult] = useState(state?.result ?? null)
-  const [fetchLoading, setFetchLoading] = useState(!state?.result)
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    if (result) return
-    getAstronaut(id)
-      .then(a => setResult(a.latest_status ?? null))
-      .catch(() => {})
-      .finally(() => setFetchLoading(false))
-  }, [])
-
-  useEffect(() => {
-    if (!result) return
-    const rafId = requestAnimationFrame(() => setVisible(true))
-    return () => cancelAnimationFrame(rafId)
-  }, [result])
-
-  if (fetchLoading) {
+  if (!assessment) {
     return (
-      <div className="min-h-screen bg-bg text-ink">
-        <Header backTo={`/astronaut/${id}`} />
-        <div className="flex justify-center items-center py-32 font-mono text-sm text-muted">
-          Loading result…
-        </div>
-      </div>
+      <EmptyState title="No result to show yet" message="Take this week's eye test to see your result here.">
+        <Link to="/test" className="btn-primary mt-2">
+          Start the eye test
+        </Link>
+      </EmptyState>
     )
   }
 
-  if (!result) {
-    return (
-      <div className="min-h-screen bg-bg text-ink">
-        <Header backTo={`/astronaut/${id}`} />
-        <div className="flex justify-center items-center py-32 font-mono text-sm text-muted">
-          No result available.
-        </div>
-      </div>
-    )
-  }
-
-  const s = getStatus(result.level)
+  const level = normalizeLevel(assessment.level)
+  const actions = sortedActions(assessment)
+  const insights = topInsights(assessment)
 
   return (
-    <div className="min-h-screen bg-bg text-ink">
-      <Header backTo={`/astronaut/${id}`} />
+    <div className="flex flex-col gap-6">
+      {assessment.escalate_to_earth && (
+        <div role="status" className="flex items-center gap-3 rounded-2xl border border-sky-400/50 bg-sky-400/10 p-4">
+          <BroadcastIcon className="size-6 shrink-0 text-sky-400" />
+          <p className="font-medium">A report will be sent to your flight surgeon.</p>
+        </div>
+      )}
 
-      <div className="max-w-lg mx-auto px-4 py-8 flex flex-col gap-6">
-
-        {/* Status word */}
-        <div
-          className="pt-4 pb-2"
-          style={{
-            opacity: visible ? 1 : 0,
-            transition: 'opacity 200ms ease',
-          }}
-        >
-          <p className="font-mono text-xs text-dim mb-1">Today's result</p>
-          <p className="text-4xl font-semibold" style={{ color: s.hex }}>{s.label}</p>
-          {result.mission_day != null && (
-            <p className="font-mono text-sm text-dim mt-2">
-              MD {String(result.mission_day).padStart(3, '0')}
-            </p>
-          )}
+      <div className="grid gap-6 md:grid-cols-[18rem_1fr]">
+        <div className="card flex flex-col items-center gap-4 p-6">
+          <StatusCircle level={level} />
+          <dl className="w-full space-y-2 text-center">
+            {assessment.worse_eye && (
+              <div>
+                <dt className="text-sm text-slate-400">Most change</dt>
+                <dd className="font-medium">{WORSE_EYE_LABELS[assessment.worse_eye] ?? assessment.worse_eye}</dd>
+              </div>
+            )}
+            {assessment.next_test_due && (
+              <div>
+                <dt className="text-sm text-slate-400">Next test</dt>
+                <dd className="font-mono font-medium">{shortDate(assessment.next_test_due)}</dd>
+              </div>
+            )}
+          </dl>
+          <TestsCounter astronautId={user.astronaut_id} testsBefore={saved.testsBefore} />
         </div>
 
-        {result.reason && (
-          <p className="text-muted leading-relaxed" style={{ borderTop: '1px solid var(--line)', paddingTop: '1rem' }}>
-            {result.reason}
-          </p>
-        )}
+        <div className="flex flex-col gap-6">
+          <section className="card p-6" aria-labelledby="reasons-title">
+            <h2 id="reasons-title" className="mb-3 text-xl font-semibold">
+              Why you got this result
+            </h2>
+            {assessment.reasons?.length ? (
+              <ul className="list-disc space-y-2 pl-6 text-slate-200 marker:text-slate-500">
+                {assessment.reasons.map((reason, i) => (
+                  <li key={i}>{reason}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-slate-400">No details were given for this result.</p>
+            )}
+          </section>
 
-        {result.actions?.length > 0 && (
-          <div>
-            <p className="text-sm font-medium text-muted mb-2">What to do</p>
-            <ol className="flex flex-col gap-2">
-              {result.actions.map((action, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-muted">
-                  <span className="font-mono text-dim shrink-0 mt-0.5">{i + 1}.</span>
-                  <span className="leading-relaxed">{action}</span>
-                </li>
-              ))}
-            </ol>
+          <ActionChecklist actions={actions} />
+
+          {insights.length > 0 && (
+            <section className="rounded-2xl border border-slate-800 p-5" aria-labelledby="factors-title">
+              <h2 id="factors-title" className="font-semibold text-slate-200">
+                Possible factors
+              </h2>
+              <p className="mb-3 text-sm text-slate-400">{INSIGHT_CAPTION}</p>
+              {/* Only `text` is shown, so new insight types need no code change. */}
+              <ul className="space-y-2">
+                {insights.map((insight, i) => (
+                  <li key={i} className="rounded-xl bg-slate-900 px-4 py-3 text-slate-300">
+                    {insight.text}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <div className="flex flex-wrap gap-3">
+            <Link to="/home" className="btn-secondary">
+              <HomeIcon className="size-5" /> Back to home
+            </Link>
+            <Link to={`/trends/${user.astronaut_id}`} className="btn-primary">
+              <ChartIcon className="size-5" /> View my trend
+            </Link>
           </div>
-        )}
-
-        {result.env_insight && (
-          <div
-            className="pl-4 py-2 text-sm text-muted leading-relaxed"
-            style={{ borderLeft: '3px solid var(--watch)' }}
-          >
-            {result.env_insight}
-          </div>
-        )}
-
-        <button
-          onClick={() => navigate(`/astronaut/${id}`)}
-          className="w-full py-4 text-sm font-medium transition-opacity duration-150 hover:opacity-90 mt-2"
-          style={{ backgroundColor: 'var(--ink)', color: 'var(--bg)' }}
-        >
-          Done
-        </button>
+        </div>
       </div>
+    </div>
+  )
+}
+
+function StatusCircle({ level }) {
+  const { word, color } = getLevel(level)
+  return (
+    <div className="relative">
+      {level === 'RED' && (
+        <span
+          aria-hidden="true"
+          className="absolute -inset-3 rounded-full border-4 motion-safe:animate-pulse-slow"
+          style={{ borderColor: color }}
+        />
+      )}
+      <div
+        className="flex size-52 flex-col items-center justify-center gap-2 rounded-full border-[10px]"
+        style={{ borderColor: color, backgroundColor: `${color}1a`, color: level === 'UNKNOWN' ? '#c3cae8' : color }}
+      >
+        <StatusIcon level={level} className="size-14" />
+        <span className="text-3xl font-bold tracking-wide">{word}</span>
+      </div>
+    </div>
+  )
+}
+
+function ActionChecklist({ actions }) {
+  const [done, setDone] = useState({})
+  return (
+    <section className="card p-6" aria-labelledby="actions-title">
+      <h2 id="actions-title" className="mb-3 text-xl font-semibold">
+        What to do next
+      </h2>
+      {actions.length === 0 ? (
+        <p className="text-slate-400">Nothing extra to do. Keep up your weekly test.</p>
+      ) : (
+        <ul className="space-y-1">
+          {actions.map((action, i) => {
+            const id = action.code ?? i
+            return (
+              <li key={id}>
+                <label className="flex min-h-12 cursor-pointer items-start gap-4 rounded-xl p-3 transition-colors hover:bg-slate-800">
+                  <input
+                    type="checkbox"
+                    checked={!!done[id]}
+                    onChange={(e) => setDone((d) => ({ ...d, [id]: e.target.checked }))}
+                    className="mt-0.5 size-6 shrink-0 cursor-pointer accent-sky-400"
+                  />
+                  <span className={done[id] ? 'text-slate-500 line-through' : 'text-slate-100'}>{action.text}</span>
+                  {isFirstPriority(action, actions) && (
+                    <span className="ml-auto shrink-0 rounded-md border border-slate-600 px-2 py-0.5 font-mono text-xs tracking-widest text-slate-300">
+                      FIRST
+                    </span>
+                  )}
+                </label>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+// Shows the number of tests and celebrates when it went up compared with just before this test.
+function TestsCounter({ astronautId, testsBefore }) {
+  const { data, loading, error } = useApi(() => getEngagement(astronautId), [astronautId])
+
+  if (loading) return <p className="text-sm text-slate-500">Checking your progress…</p>
+  if (error || !data) return <p className="text-sm text-slate-500">Progress unavailable right now.</p>
+
+  const grew = testsIncreased(testsBefore, data)
+  return (
+    <div className="relative flex w-full flex-col items-center gap-1 rounded-xl border border-slate-800 p-4" aria-live="polite">
+      {grew && <span aria-hidden="true" className="absolute top-3 size-12 animate-burst rounded-full border-2 border-sky-400" />}
+      <FlameIcon className={`size-8 text-sky-400 ${grew ? 'animate-celebrate' : ''}`} />
+      <p className="text-lg font-semibold">
+        {data.tests_completed} test{data.tests_completed === 1 ? '' : 's'} done
+      </p>
+      <p className="text-center text-sm text-slate-400">
+        {grew ? 'Test saved. Thanks for testing on time!' : null}
+        {grew && <br />}
+        {data.streak_weeks} week{data.streak_weeks === 1 ? '' : 's'} in a row
+      </p>
     </div>
   )
 }

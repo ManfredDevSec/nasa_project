@@ -1,155 +1,46 @@
-import { useState } from 'react'
-import WhyCard from './WhyCard'
-import Button from './Button'
+import { useMemo, useState } from 'react'
+import { PASS_MARK, randomLetters } from '../utils/letters.js'
+import LetterRound from './LetterRound.jsx'
+import WhyThisTest from './WhyThisTest.jsx'
 
-const SLOAN = 'CDHKNORSVZ'
+// Line 1 is the biggest text, line 10 the smallest.
+const LINE_SIZES_PX = [64, 54, 46, 38, 32, 26, 22, 18, 14, 11]
 
-function randomLetters() {
-  return Array.from({ length: 5 }, () => SLOAN[Math.floor(Math.random() * SLOAN.length)])
-}
+/**
+ * Step A: read lines of letters that get smaller.
+ * Passing a line (4+ of 5 correct) moves to the next smaller line; the first fail stops the step.
+ * Result: the last line passed (1-10). If no line was passed we still send 1.
+ */
+export default function NearVisionStep({ onComplete }) {
+  const [lineIndex, setLineIndex] = useState(0)
+  // New random letters every line.
+  const letters = useMemo(() => randomLetters(), [lineIndex])
 
-function round1(n) {
-  return Math.round(n * 10) / 10
-}
-
-export default function NearVisionStep({ pxPerMm, calibrated, onComplete }) {
-  const [logMAR, setLogMAR] = useState(0.7)
-  const [phase, setPhase] = useState('start')
-  const [lastPassed, setLastPassed] = useState(null)
-  const [letters, setLetters] = useState(randomLetters)
-  const [input, setInput] = useState('')
-  const [feedback, setFeedback] = useState(null)
-
-  const heightMm = 0.582 * Math.pow(10, logMAR)
-  const heightPx = Math.max(8, Math.round(heightMm * pxPerMm))
-  const spacing = Math.max(32, heightPx * 1.4)
-  const svgW = spacing * 5
-  const svgH = Math.max(48, heightPx * 1.6)
-
-  function handleCheck() {
-    const typed = input.trim().toUpperCase().replace(/\s+/g, '')
-    let correct = 0
-    for (let i = 0; i < 5; i++) {
-      if (typed[i] === letters[i]) correct++
-    }
-    const passed = correct >= 3
-    setFeedback({ passed, correct })
-    setTimeout(() => advance(passed), 1100)
-  }
-
-  function advance(passed) {
-    if (passed) {
-      const nextLastPassed = lastPassed === null ? logMAR : Math.min(lastPassed, logMAR)
-      if (phase === 'going-up') {
-        onComplete(round1(logMAR))
-        return
-      }
-      const next = round1(logMAR - 0.1)
-      if (next < 0) {
-        onComplete(round1(logMAR))
-        return
-      }
-      setLastPassed(nextLastPassed)
-      setPhase('going-down')
-      setLogMAR(next)
-    } else {
-      if (phase === 'going-down') {
-        onComplete(round1(lastPassed))
-        return
-      }
-      const next = round1(logMAR + 0.1)
-      if (next > 1.0) {
-        onComplete(1.1)
-        return
-      }
-      setPhase('going-up')
-      setLogMAR(next)
-    }
-    setLetters(randomLetters())
-    setInput('')
-    setFeedback(null)
+  function handleRound(correct) {
+    const linesPassed = correct >= PASS_MARK ? lineIndex + 1 : lineIndex
+    const finished = correct < PASS_MARK || linesPassed === LINE_SIZES_PX.length
+    if (finished) onComplete(Math.max(linesPassed, 1))
+    else setLineIndex(lineIndex + 1)
   }
 
   return (
-    <div className="flex flex-col items-center gap-6 px-4">
-      <div>
-        <h2 className="text-base font-semibold text-ink">Near vision</h2>
-        <p className="text-muted text-sm mt-1">
-          Hold the screen at reading distance (~40 cm). Type the letters you see.
-        </p>
-      </div>
-
-      {!calibrated && (
-        <div
-          className="px-3 py-2 text-sm text-center max-w-sm"
-          style={{ border: '1px solid var(--watch)', color: 'var(--watch)' }}
-        >
-          Not calibrated — letter sizes are approximate
+    <section aria-labelledby="near-title" className="flex flex-col gap-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 id="near-title" className="text-2xl font-semibold">
+            Near vision
+          </h2>
+          <p className="text-slate-400">
+            Type the letters you see. Line <span className="font-mono text-white">{lineIndex + 1}</span> of 10. Guess if
+            you are not sure.
+          </p>
         </div>
-      )}
-
-      <div className="bg-white p-3 overflow-x-auto max-w-full">
-        <svg
-          width={svgW}
-          height={svgH}
-          style={{ display: 'block', userSelect: 'none' }}
-          aria-label="Vision chart letters"
-        >
-          {letters.map((letter, i) => (
-            <text
-              key={i}
-              x={spacing / 2 + i * spacing}
-              y={svgH * 0.87}
-              fontSize={heightPx}
-              textAnchor="middle"
-              dominantBaseline="auto"
-              fontFamily="'Courier New', Courier, monospace"
-              fontWeight="bold"
-              fill="black"
-            >
-              {letter}
-            </text>
-          ))}
-        </svg>
+        <WhyThisTest>
+          This records the smallest line of letters you can read with this eye. Sightline compares it with your own
+          normal from your baseline tests.
+        </WhyThisTest>
       </div>
-
-      {feedback ? (
-        <div
-          className="text-base font-mono font-medium py-2"
-          style={{ color: feedback.passed ? 'var(--ok)' : 'var(--alert)' }}
-        >
-          {feedback.correct}/5 correct — {feedback.passed ? 'Pass' : 'Fail'}
-        </div>
-      ) : (
-        <>
-          <input
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && input.trim().length > 0 && handleCheck()}
-            className="w-full max-w-sm text-center text-2xl uppercase tracking-[0.3em] px-4 py-3 font-mono bg-surface text-ink transition-colors duration-150"
-            style={{ border: '1px solid var(--line)', outline: 'none' }}
-            onFocus={e => (e.target.style.borderColor = 'var(--muted)')}
-            onBlur={e => (e.target.style.borderColor = 'var(--line)')}
-            placeholder="e.g. DCHKN"
-            maxLength={5}
-            autoCapitalize="characters"
-            autoComplete="off"
-            autoCorrect="off"
-            spellCheck={false}
-          />
-          <Button
-            onClick={handleCheck}
-            disabled={input.trim().length === 0}
-            className="w-full max-w-sm"
-          >
-            Check
-          </Button>
-        </>
-      )}
-
-      <WhyCard>
-        Space can slowly blur near vision. Reading smaller and smaller letters shows if yours has changed.
-      </WhyCard>
-    </div>
+      <LetterRound key={lineIndex} letters={letters} fontSize={LINE_SIZES_PX[lineIndex]} onSubmit={handleRound} />
+    </section>
   )
 }
