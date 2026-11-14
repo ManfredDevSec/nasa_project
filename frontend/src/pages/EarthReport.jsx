@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ChevronLeft } from 'lucide-react'
 import { LineChart, Line, YAxis, ResponsiveContainer } from 'recharts'
 import StatusBadge from '../components/StatusBadge'
 import Loading from '../components/Loading'
@@ -8,20 +9,20 @@ import { getWeeklyReport } from '../api/client'
 
 function formatNearChange(lines) {
   if (lines == null) return '—'
-  if (lines === 0) return 'stable'
+  if (lines === 0) return 'Stable'
   return lines > 0
-    ? `↓${lines} line${lines !== 1 ? 's' : ''}`
-    : `↑${Math.abs(lines)} line${Math.abs(lines) !== 1 ? 's' : ''}`
+    ? `-${lines} line${lines !== 1 ? 's' : ''}`
+    : `+${Math.abs(lines)} line${Math.abs(lines) !== 1 ? 's' : ''}`
 }
 
 function formatContrastChange(val) {
   if (val == null) return '—'
-  if (val === 0) return 'stable'
+  if (val === 0) return 'Stable'
   return val > 0 ? `+${val}%` : `${val}%`
 }
 
 function Sparkline({ history = [] }) {
-  if (!history.length) return <span className="text-gray-400 text-xs">—</span>
+  if (!history.length) return <span style={{ color: '#6b7280', fontSize: 12 }}>—</span>
   return (
     <ResponsiveContainer width={100} height={36}>
       <LineChart data={history}>
@@ -29,8 +30,8 @@ function Sparkline({ history = [] }) {
         <Line
           type="monotone"
           dataKey="near_vision"
-          stroke="#6366f1"
-          strokeWidth={1.5}
+          stroke="#9ca3af"
+          strokeWidth={1.25}
           dot={false}
           isAnimationActive={false}
         />
@@ -46,14 +47,14 @@ function MiniAmsler({ marks = [], label }) {
     marks.map(([r, c]) => `${Math.floor(r / 2)},${Math.floor(c / 2)}`)
   )
   return (
-    <div className="flex flex-col items-center gap-1">
-      <p className="text-xs text-gray-500">{label}</p>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      <p style={{ fontSize: 10, color: '#6b7280' }}>{label}</p>
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${SIZE}, ${CELL}px)`,
           gap: 1,
-          backgroundColor: '#9ca3af',
+          backgroundColor: '#d1d5db',
           padding: 1,
         }}
       >
@@ -68,9 +69,9 @@ function MiniAmsler({ marks = [], label }) {
                 width: CELL,
                 height: CELL,
                 backgroundColor: isCenter
-                  ? '#6b7280'
+                  ? '#9ca3af'
                   : marked.has(`${r},${c}`)
-                  ? '#f59e0b'
+                  ? '#d97706'
                   : 'white',
               }}
             />
@@ -83,9 +84,9 @@ function MiniAmsler({ marks = [], label }) {
 
 function EnvRow({ label, value, unit = '' }) {
   return (
-    <div className="flex justify-between py-1.5 border-b border-gray-100 last:border-0">
-      <span className="text-sm text-gray-600">{label}</span>
-      <span className="text-sm font-semibold text-gray-900">
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f3f4f6' }}>
+      <span style={{ fontSize: 13, color: '#6b7280' }}>{label}</span>
+      <span style={{ fontSize: 13, fontFamily: 'IBM Plex Mono, monospace', color: '#111827' }}>
         {value != null ? `${value}${unit}` : '—'}
       </span>
     </div>
@@ -107,13 +108,13 @@ export default function EarthReport() {
   }, [])
 
   if (loading) return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-bg text-ink">
       <Loading label="Generating report…" />
     </div>
   )
 
   if (error) return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-bg text-ink">
       <ErrorBox error={error} onRetry={() => window.location.reload()} />
     </div>
   )
@@ -140,19 +141,19 @@ export default function EarthReport() {
         }
       `}</style>
 
-      {/* App nav — hidden when printing */}
-      <div className="no-print min-h-screen bg-slate-950">
-        <div className="flex items-center gap-4 px-4 py-4 border-b border-slate-800">
+      <div className="no-print min-h-screen bg-bg">
+        <div
+          className="flex items-center gap-4 px-4 py-3"
+          style={{ borderBottom: '1px solid var(--line)' }}
+        >
           <button
             onClick={() => navigate('/crew')}
-            className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 active:scale-95 transition-all"
+            className="flex items-center justify-center w-10 h-10 text-muted hover:text-ink transition-colors duration-150"
             aria-label="Back"
           >
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+            <ChevronLeft size={18} strokeWidth={1.5} />
           </button>
-          <span className="text-2xl font-black tracking-tight text-white">SightLine</span>
+          <span className="font-mono text-xs tracking-[0.2em] text-ink">SIGHTLINE</span>
         </div>
 
         <div className="px-4 py-6">
@@ -170,7 +171,6 @@ export default function EarthReport() {
         </div>
       </div>
 
-      {/* Print-only wrapper — this is what appears on the printed page */}
       <div className="hidden print:block">
         <ReportDocument
           generated_at={generated_at}
@@ -190,65 +190,92 @@ export default function EarthReport() {
 
 function ReportDocument({ generated_at, mission_day, period, crew, environment, insights, crewWithAmsler, latestStatus, statusReason }) {
   return (
-    <div className="bg-white text-gray-900 rounded-2xl max-w-3xl mx-auto p-8 shadow-2xl">
-      {/* Title block */}
-      <div className="border-b border-gray-200 pb-6 mb-6">
-        <h1 className="text-2xl font-black tracking-tight text-gray-900">
-          SightLine — Weekly Crew Vision Report
-        </h1>
-        <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
-          <span>Mission Day {mission_day ?? '—'}</span>
-          {period && (
-            <span>Period: {period.start} – {period.end}</span>
-          )}
-          {generated_at && (
-            <span>Generated: {new Date(generated_at).toLocaleString()}</span>
-          )}
+    <div
+      style={{
+        backgroundColor: 'white',
+        color: '#111827',
+        maxWidth: 768,
+        margin: '0 auto',
+        padding: '2rem',
+        fontFamily: 'IBM Plex Sans, sans-serif',
+      }}
+    >
+      {/* Document header block */}
+      <div style={{ borderBottom: '2px solid #e5e7eb', paddingBottom: '1.25rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <p style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 10, letterSpacing: '0.15em', color: '#9ca3af', marginBottom: 4 }}>
+              SIGHTLINE · WEEKLY VISION REPORT
+            </p>
+            <p style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>Crew vision status</p>
+          </div>
+          <div style={{ textAlign: 'right', fontFamily: 'IBM Plex Mono, monospace', fontSize: 11, color: '#6b7280', lineHeight: 1.6 }}>
+            <p>Prepared by: SightLine onboard</p>
+            {generated_at && <p>{new Date(generated_at).toLocaleString()}</p>}
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '2rem', marginTop: '0.75rem', fontFamily: 'IBM Plex Mono, monospace', fontSize: 11, color: '#6b7280' }}>
+          <span>Mission day: {mission_day ?? '—'}</span>
+          {period && <span>Period: {period.start} – {period.end}</span>}
         </div>
       </div>
 
       {/* Crew summary table */}
-      <section className="mb-8">
-        <h2 className="text-base font-bold text-gray-700 mb-3 uppercase tracking-wide text-xs">Crew Summary</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
+      <section style={{ marginBottom: '2rem' }}>
+        <p style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', letterSpacing: '0.08em', marginBottom: '0.75rem', fontFamily: 'IBM Plex Mono, monospace' }}>
+          CREW SUMMARY
+        </p>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
             <thead>
-              <tr className="border-b-2 border-gray-200 text-gray-500 text-xs uppercase tracking-wide">
-                <th className="text-left pb-2 pr-4 font-semibold">Name</th>
-                <th className="text-left pb-2 pr-4 font-semibold">Role</th>
-                <th className="text-left pb-2 pr-4 font-semibold">Status</th>
-                <th className="text-right pb-2 pr-4 font-semibold">Near</th>
-                <th className="text-right pb-2 pr-4 font-semibold">Contrast</th>
-                <th className="text-right pb-2 pr-4 font-semibold">Tests</th>
-                <th className="text-left pb-2 font-semibold">Trend</th>
-                <th className="text-left pb-2 font-semibold">Reason</th>
+              <tr style={{ borderBottom: '2px solid #e5e7eb', color: '#6b7280', fontSize: 11 }}>
+                <th style={{ textAlign: 'left', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Name</th>
+                <th style={{ textAlign: 'left', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Role</th>
+                <th style={{ textAlign: 'left', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Status</th>
+                <th style={{ textAlign: 'right', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Near</th>
+                <th style={{ textAlign: 'right', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Contrast</th>
+                <th style={{ textAlign: 'right', paddingBottom: 8, paddingRight: 16, fontWeight: 600 }}>Tests</th>
+                <th style={{ textAlign: 'left', paddingBottom: 8, fontWeight: 600 }}>Trend</th>
+                <th style={{ textAlign: 'left', paddingBottom: 8, fontWeight: 600 }}>Note</th>
               </tr>
             </thead>
             <tbody>
               {crew.map(m => (
-                <tr key={m.id} className="border-b border-gray-100 align-middle">
-                  <td className="py-2 pr-4 font-semibold">{m.name}</td>
-                  <td className="py-2 pr-4 text-gray-500">{m.role ?? '—'}</td>
-                  <td className="py-2 pr-4">
+                <tr key={m.id} style={{ borderBottom: '1px solid #f3f4f6', verticalAlign: 'middle' }}>
+                  <td style={{ padding: '8px 16px 8px 0', fontWeight: 500 }}>{m.name}</td>
+                  <td style={{ padding: '8px 16px 8px 0', color: '#6b7280' }}>{m.role ?? '—'}</td>
+                  <td style={{ padding: '8px 16px 8px 0' }}>
                     <StatusBadge level={latestStatus(m)} />
                   </td>
-                  <td className={`py-2 pr-4 text-right font-mono text-xs ${
-                    (m.near_change_lines ?? 0) > 0 ? 'text-amber-600' :
-                    (m.near_change_lines ?? 0) < 0 ? 'text-emerald-600' : 'text-gray-500'
-                  }`}>
+                  <td style={{
+                    padding: '8px 16px 8px 0',
+                    textAlign: 'right',
+                    fontFamily: 'IBM Plex Mono, monospace',
+                    fontSize: 12,
+                    color: (m.near_change_lines ?? 0) > 0 ? '#d97706' :
+                      (m.near_change_lines ?? 0) < 0 ? '#059669' : '#6b7280',
+                  }}>
                     {formatNearChange(m.near_change_lines)}
                   </td>
-                  <td className={`py-2 pr-4 text-right font-mono text-xs ${
-                    (m.contrast_change ?? 0) < 0 ? 'text-amber-600' :
-                    (m.contrast_change ?? 0) > 0 ? 'text-emerald-600' : 'text-gray-500'
-                  }`}>
+                  <td style={{
+                    padding: '8px 16px 8px 0',
+                    textAlign: 'right',
+                    fontFamily: 'IBM Plex Mono, monospace',
+                    fontSize: 12,
+                    color: (m.contrast_change ?? 0) < 0 ? '#d97706' :
+                      (m.contrast_change ?? 0) > 0 ? '#059669' : '#6b7280',
+                  }}>
                     {formatContrastChange(m.contrast_change)}
                   </td>
-                  <td className="py-2 pr-4 text-right text-gray-600">{m.checks_in_period ?? '—'}</td>
-                  <td className="py-2 pr-4">
+                  <td style={{ padding: '8px 16px 8px 0', textAlign: 'right', color: '#6b7280', fontFamily: 'IBM Plex Mono, monospace', fontSize: 12 }}>
+                    {m.checks_in_period ?? '—'}
+                  </td>
+                  <td style={{ padding: '8px 16px 8px 0' }}>
                     <Sparkline history={m.history ?? []} />
                   </td>
-                  <td className="py-2 text-xs text-gray-500 max-w-xs">{statusReason(m) ?? '—'}</td>
+                  <td style={{ padding: '8px 0', fontSize: 12, color: '#6b7280', maxWidth: 200 }}>
+                    {statusReason(m) ?? '—'}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -258,13 +285,15 @@ function ReportDocument({ generated_at, mission_day, period, crew, environment, 
 
       {/* Amsler grids */}
       {crewWithAmsler.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-xs font-bold text-gray-700 mb-3 uppercase tracking-wide">Amsler Grid Marks</h2>
-          <div className="flex flex-wrap gap-6">
+        <section style={{ marginBottom: '2rem' }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', letterSpacing: '0.08em', marginBottom: '0.75rem', fontFamily: 'IBM Plex Mono, monospace' }}>
+            AMSLER GRID MARKS
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
             {crewWithAmsler.map(m => (
-              <div key={m.id} className="flex flex-col gap-1">
-                <p className="text-sm font-semibold text-gray-700">{m.name}</p>
-                <div className="flex gap-3">
+              <div key={m.id} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <p style={{ fontSize: 13, fontWeight: 500, color: '#374151' }}>{m.name}</p>
+                <div style={{ display: 'flex', gap: 12 }}>
                   <MiniAmsler marks={m.latest_amsler?.left ?? []} label="L" />
                   <MiniAmsler marks={m.latest_amsler?.right ?? []} label="R" />
                 </div>
@@ -276,9 +305,11 @@ function ReportDocument({ generated_at, mission_day, period, crew, environment, 
 
       {/* Environment summary */}
       {environment && (
-        <section className="mb-8">
-          <h2 className="text-xs font-bold text-gray-700 mb-3 uppercase tracking-wide">Environment — Period Summary</h2>
-          <div className="grid grid-cols-2 gap-x-8 rounded-xl border border-gray-200 p-4">
+        <section style={{ marginBottom: '2rem' }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', letterSpacing: '0.08em', marginBottom: '0.75rem', fontFamily: 'IBM Plex Mono, monospace' }}>
+            ENVIRONMENT — PERIOD SUMMARY
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '2rem', border: '1px solid #e5e7eb', padding: '1rem' }}>
             <EnvRow label="Average CO₂" value={environment.avg_co2_mmhg} unit=" mmHg" />
             <EnvRow label="Peak CO₂" value={environment.max_co2_mmhg} unit=" mmHg" />
             <EnvRow label="High CO₂ days" value={environment.high_co2_days} />
@@ -290,12 +321,14 @@ function ReportDocument({ generated_at, mission_day, period, crew, environment, 
 
       {/* Insights */}
       {insights.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-xs font-bold text-gray-700 mb-3 uppercase tracking-wide">Insights</h2>
-          <ul className="space-y-2">
+        <section style={{ marginBottom: '2rem' }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', letterSpacing: '0.08em', marginBottom: '0.75rem', fontFamily: 'IBM Plex Mono, monospace' }}>
+            INSIGHTS
+          </p>
+          <ul style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {insights.map((insight, i) => (
-              <li key={i} className="flex gap-2 text-sm text-gray-700">
-                <span className="text-gray-400 shrink-0">•</span>
+              <li key={i} style={{ display: 'flex', gap: 8, fontSize: 13, color: '#374151' }}>
+                <span style={{ color: '#9ca3af', flexShrink: 0 }}>–</span>
                 <span>{insight}</span>
               </li>
             ))}
@@ -304,17 +337,26 @@ function ReportDocument({ generated_at, mission_day, period, crew, environment, 
       )}
 
       {/* Print button */}
-      <div className="no-print border-t border-gray-200 pt-6 mt-2">
+      <div className="no-print" style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1.25rem', marginTop: '0.5rem' }}>
         <button
           onClick={() => window.print()}
-          className="px-6 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-700 active:scale-95 transition-all"
+          style={{
+            padding: '8px 20px',
+            backgroundColor: '#111827',
+            color: 'white',
+            fontSize: 13,
+            fontWeight: 500,
+            border: 'none',
+            cursor: 'pointer',
+            fontFamily: 'IBM Plex Sans, sans-serif',
+          }}
         >
           Print / Save as PDF
         </button>
       </div>
 
       {/* Footer */}
-      <p className="mt-6 text-xs text-gray-400 leading-relaxed">
+      <p style={{ marginTop: '1.5rem', fontSize: 11, color: '#9ca3af', lineHeight: 1.6 }}>
         Screening aid only — not a diagnosis. Thresholds are demo values pending review by NASA medical experts.
       </p>
     </div>

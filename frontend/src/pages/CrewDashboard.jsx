@@ -1,35 +1,48 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { TrendingUp, TrendingDown } from 'lucide-react'
 import Header from '../components/Header'
 import StatusBadge from '../components/StatusBadge'
 import Loading from '../components/Loading'
 import ErrorBox from '../components/ErrorBox'
 import TrendChart from '../components/TrendChart'
+import Button from '../components/Button'
 import { getMission, getAstronauts, getHistory } from '../api/client'
+import { fmt } from '../lib/format'
 
 const LEVEL_RANK = { RED: 2, AMBER: 1, GREEN: 0 }
+const STATUS_COLORS = { GREEN: '#6fae7c', AMBER: '#d9a441', RED: '#d0604f' }
+
+function toSentenceCase(str) {
+  if (!str) return str
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+}
 
 function computeNearChange(checks) {
   if (!checks || checks.length < 2) return null
-  const last = checks[checks.length - 1]?.near_vision
-  const prev = checks[checks.length - 2]?.near_vision
-  if (last == null || prev == null) return null
-  return Math.round((last - prev) / 0.1)
+  const baseline = checks[0]?.near_vision
+  const latest = checks[checks.length - 1]?.near_vision
+  if (baseline == null || latest == null) return null
+  return Math.round((latest - baseline) / 0.1)
 }
 
-function NearChangePill({ checks }) {
+function NearChangePill({ checks, statusLevel }) {
   const lines = computeNearChange(checks)
-  if (lines == null) return <span className="text-xs text-slate-500">—</span>
-  if (lines === 0) return <span className="text-xs text-slate-400">stable</span>
+  const statusColor = STATUS_COLORS[statusLevel] ?? 'var(--dim)'
+
+  if (lines == null) return <span className="font-mono text-xs" style={{ color: 'var(--dim)' }}>—</span>
+  if (lines === 0) return <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>Same as baseline</span>
   if (lines > 0)
     return (
-      <span className="text-xs font-semibold text-amber-400">
-        ↓{lines} line{lines !== 1 ? 's' : ''}
+      <span className="inline-flex items-center gap-1 font-mono text-xs" style={{ color: statusColor }}>
+        <TrendingDown size={11} strokeWidth={1.5} />
+        {lines} line{lines !== 1 ? 's' : ''} worse
       </span>
     )
   return (
-    <span className="text-xs font-semibold text-emerald-400">
-      ↑{Math.abs(lines)} line{Math.abs(lines) !== 1 ? 's' : ''}
+    <span className="inline-flex items-center gap-1 font-mono text-xs" style={{ color: 'var(--ok)' }}>
+      <TrendingUp size={11} strokeWidth={1.5} />
+      {Math.abs(lines)} line{Math.abs(lines) !== 1 ? 's' : ''} better
     </span>
   )
 }
@@ -82,14 +95,14 @@ export default function CrewDashboard() {
   }, [])
 
   if (loading) return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-bg text-ink">
       <Header backTo="/" />
       <Loading label="Loading crew data…" />
     </div>
   )
 
   if (error) return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-bg text-ink">
       <Header backTo="/" />
       <ErrorBox error={error} onRetry={() => window.location.reload()} />
     </div>
@@ -105,31 +118,37 @@ export default function CrewDashboard() {
   const co2High = mission?.co2_high
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-bg text-ink">
       <Header backTo="/" />
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        {/* Mission header */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <h1 className="text-xl font-black tracking-tight">
-            Mission Day {mission?.mission_day ?? '—'}
-          </h1>
+      <div className="max-w-2xl lg:max-w-5xl mx-auto px-4 py-5 space-y-5">
+
+        {/* Top strip */}
+        <div
+          className="flex flex-wrap gap-6 py-3 font-mono text-sm"
+          style={{ borderBottom: '1px solid var(--line)' }}
+        >
+          <span>
+            <span style={{ color: 'var(--dim)' }}>Mission day</span>{' '}
+            <span style={{ color: 'var(--text)' }}>{mission?.mission_day ?? '—'}</span>
+          </span>
           {co2Value != null && (
-            <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
-                co2High
-                  ? 'bg-red-950 text-red-400 ring-1 ring-red-700'
-                  : 'bg-slate-800 text-slate-300'
-              }`}
-            >
-              {co2High && <span>▲</span>}
-              CO₂{co2High ? ' HIGH' : ''} {co2Value} mmHg
+            <span>
+              <span style={{ color: 'var(--dim)' }}>CO₂</span>{' '}
+              <span style={{ color: co2High ? 'var(--alert)' : 'var(--text)' }}>
+                {fmt(co2Value, 1)} mmHg
+              </span>
+              {co2High && <span style={{ color: 'var(--alert)' }}> High</span>}
             </span>
           )}
+          <span>
+            <span style={{ color: 'var(--dim)' }}>Crew</span>{' '}
+            <span style={{ color: 'var(--text)' }}>{astronauts.length}</span>
+          </span>
         </div>
 
-        {/* Crew cards */}
-        <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
+        {/* Crew list */}
+        <div style={{ borderTop: '1px solid var(--line)' }}>
           {astronauts.map(a => {
             const hist = histories[a.id]
             const checks = hist?.checks ?? []
@@ -139,15 +158,27 @@ export default function CrewDashboard() {
               <button
                 key={a.id}
                 onClick={() => setSelectedId(a.id)}
-                className={`flex flex-col items-start gap-2 p-4 rounded-2xl shrink-0 w-40 transition-all text-left ${
-                  isSelected
-                    ? 'bg-slate-700 ring-2 ring-indigo-500'
-                    : 'bg-slate-800 hover:bg-slate-750'
-                }`}
+                className="flex items-center gap-4 w-full py-3 text-left transition-colors duration-150"
+                style={{
+                  borderBottom: '1px solid var(--line)',
+                  backgroundColor: isSelected ? '#1d1e19' : 'transparent',
+                }}
               >
-                <p className="font-bold text-sm leading-tight">{a.name}</p>
-                {level && <StatusBadge level={level} />}
-                <NearChangePill checks={checks} />
+                <div
+                  style={{
+                    width: 2,
+                    height: 28,
+                    flexShrink: 0,
+                    backgroundColor: isSelected ? 'var(--text)' : 'transparent',
+                    transition: 'background-color 150ms',
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>{a.name}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--dim)' }}>{toSentenceCase(a.role)}</p>
+                </div>
+                <StatusBadge level={level} />
+                <NearChangePill checks={checks} statusLevel={level} />
               </button>
             )
           })}
@@ -164,26 +195,22 @@ export default function CrewDashboard() {
 
         {/* Env insight */}
         {envInsight && (
-          <div className="rounded-2xl bg-slate-800 border border-slate-700 p-4 flex gap-3">
-            <span className="text-lg shrink-0">💡</span>
-            <p className="text-sm text-slate-300 leading-relaxed">{envInsight}</p>
+          <div
+            className="pl-4 py-2 text-sm leading-relaxed"
+            style={{ borderLeft: '3px solid var(--watch)', color: 'var(--text)' }}
+          >
+            {envInsight}
           </div>
         )}
 
         {/* Actions */}
         <div className="flex gap-3 pt-2">
-          <button
-            onClick={() => navigate('/report')}
-            className="flex-1 py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-500 active:scale-95 transition-all"
-          >
-            Generate Earth Report
-          </button>
-          <button
-            onClick={() => navigate('/')}
-            className="flex-1 py-3 rounded-xl bg-slate-800 text-slate-300 font-bold text-sm hover:bg-slate-700 active:scale-95 transition-all"
-          >
-            Back to crew select
-          </button>
+          <Button onClick={() => navigate('/report')} className="flex-1">
+            Generate weekly report
+          </Button>
+          <Button variant="secondary" onClick={() => navigate('/')} className="flex-1">
+            Crew select
+          </Button>
         </div>
       </div>
     </div>

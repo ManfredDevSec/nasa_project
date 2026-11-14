@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Button from './Button'
 
 const SYMPTOMS = [
   { key: 'headache', label: 'Headache' },
@@ -17,21 +18,23 @@ export default function SymptomSliders({ onSubmit, loading }) {
 
   return (
     <div className="flex flex-col gap-7 px-4 w-full">
-      <h2 className="text-xl font-bold text-center">Symptoms</h2>
+      <h2 className="text-base font-semibold text-ink">Symptoms</h2>
 
       {SYMPTOMS.map(({ key, label }) => (
         <div key={key} className="flex flex-col gap-2">
-          <span className="text-slate-300 font-medium text-sm">{label}</span>
+          <span className="text-muted text-sm">{label}</span>
           <div className="grid grid-cols-4 gap-1.5">
             {SEVERITY.map((lvl, i) => (
               <button
                 key={i}
                 onClick={() => set(key, i)}
-                className={`py-3 rounded-xl text-sm font-bold transition-all active:scale-95 ${
-                  values[key] === i
-                    ? 'bg-indigo-600 text-white ring-2 ring-indigo-400'
-                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                }`}
+                className="py-3 text-sm transition-colors duration-150"
+                style={{
+                  border: '1px solid',
+                  borderColor: values[key] === i ? 'var(--ink)' : 'var(--line)',
+                  color: values[key] === i ? 'var(--bg)' : 'var(--muted)',
+                  backgroundColor: values[key] === i ? 'var(--ink)' : 'transparent',
+                }}
               >
                 {lvl}
               </button>
@@ -40,13 +43,9 @@ export default function SymptomSliders({ onSubmit, loading }) {
         </div>
       ))}
 
-      <button
-        onClick={() => onSubmit(values)}
-        disabled={loading}
-        className="w-full py-4 rounded-xl bg-emerald-600 text-white font-bold text-lg disabled:opacity-60 active:scale-95 transition-all mt-2"
-      >
+      <Button onClick={() => onSubmit(values)} disabled={loading} className="w-full text-base">
         {loading ? 'Submitting…' : 'Submit test'}
-      </button>
+      </Button>
     </div>
   )
 }

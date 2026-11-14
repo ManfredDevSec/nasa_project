@@ -62,4 +62,7 @@ reset-db: ## Destroy the database volume and start fresh
 	$(COMPOSE) exec backend python manage.py migrate
 	$(COMPOSE) exec backend python manage.py seed_mission
 
+frontend-deps: ## Reinstall frontend packages inside the container (run after npm install)
+	docker compose --profile frontend up -d --build --renew-anon-volumes frontend
+
 fresh: build up seed ## One-command setup for new teammates (build → up → seed)

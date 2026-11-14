@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import WhyCard from './WhyCard'
+import Button from './Button'
 
 const SLOAN = 'CDHKNORSVZ'
 
@@ -13,11 +14,11 @@ function round1(n) {
 
 export default function NearVisionStep({ pxPerMm, calibrated, onComplete }) {
   const [logMAR, setLogMAR] = useState(0.7)
-  const [phase, setPhase] = useState('start') // 'start' | 'going-down' | 'going-up'
+  const [phase, setPhase] = useState('start')
   const [lastPassed, setLastPassed] = useState(null)
   const [letters, setLetters] = useState(randomLetters)
   const [input, setInput] = useState('')
-  const [feedback, setFeedback] = useState(null) // { passed, correct }
+  const [feedback, setFeedback] = useState(null)
 
   const heightMm = 0.582 * Math.pow(10, logMAR)
   const heightPx = Math.max(8, Math.round(heightMm * pxPerMm))
@@ -71,20 +72,23 @@ export default function NearVisionStep({ pxPerMm, calibrated, onComplete }) {
 
   return (
     <div className="flex flex-col items-center gap-6 px-4">
-      <div className="text-center">
-        <h2 className="text-xl font-bold">Near Vision</h2>
-        <p className="text-slate-400 text-sm mt-1">
+      <div>
+        <h2 className="text-base font-semibold text-ink">Near vision</h2>
+        <p className="text-muted text-sm mt-1">
           Hold the screen at reading distance (~40 cm). Type the letters you see.
         </p>
       </div>
 
       {!calibrated && (
-        <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-amber-300 text-xs text-center max-w-sm">
+        <div
+          className="px-3 py-2 text-sm text-center max-w-sm"
+          style={{ border: '1px solid var(--watch)', color: 'var(--watch)' }}
+        >
           Not calibrated — letter sizes are approximate
         </div>
       )}
 
-      <div className="bg-white rounded-xl p-3 overflow-x-auto max-w-full">
+      <div className="bg-white p-3 overflow-x-auto max-w-full">
         <svg
           width={svgW}
           height={svgH}
@@ -110,8 +114,11 @@ export default function NearVisionStep({ pxPerMm, calibrated, onComplete }) {
       </div>
 
       {feedback ? (
-        <div className={`text-lg font-bold py-2 ${feedback.passed ? 'text-emerald-400' : 'text-red-400'}`}>
-          {feedback.correct}/5 correct — {feedback.passed ? 'Pass ✓' : 'Fail ✗'}
+        <div
+          className="text-base font-mono font-medium py-2"
+          style={{ color: feedback.passed ? 'var(--ok)' : 'var(--alert)' }}
+        >
+          {feedback.correct}/5 correct — {feedback.passed ? 'Pass' : 'Fail'}
         </div>
       ) : (
         <>
@@ -119,7 +126,10 @@ export default function NearVisionStep({ pxPerMm, calibrated, onComplete }) {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && input.trim().length > 0 && handleCheck()}
-            className="w-full max-w-sm text-center text-2xl uppercase tracking-[0.3em] bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500 transition-colors"
+            className="w-full max-w-sm text-center text-2xl uppercase tracking-[0.3em] px-4 py-3 font-mono bg-surface text-ink transition-colors duration-150"
+            style={{ border: '1px solid var(--line)', outline: 'none' }}
+            onFocus={e => (e.target.style.borderColor = 'var(--muted)')}
+            onBlur={e => (e.target.style.borderColor = 'var(--line)')}
             placeholder="e.g. DCHKN"
             maxLength={5}
             autoCapitalize="characters"
@@ -127,13 +137,13 @@ export default function NearVisionStep({ pxPerMm, calibrated, onComplete }) {
             autoCorrect="off"
             spellCheck={false}
           />
-          <button
+          <Button
             onClick={handleCheck}
             disabled={input.trim().length === 0}
-            className="w-full max-w-sm py-4 rounded-xl bg-indigo-600 text-white font-bold disabled:opacity-40 active:scale-95 transition-all"
+            className="w-full max-w-sm"
           >
             Check
-          </button>
+          </Button>
         </>
       )}
 

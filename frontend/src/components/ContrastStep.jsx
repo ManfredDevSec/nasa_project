@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import WhyCard from './WhyCard'
+import Button from './Button'
 
 const SLOAN = 'CDHKNORSVZ'
 const LEVELS = Array.from({ length: 14 }, (_, i) => Math.round(i * 15) / 100)
@@ -56,13 +57,13 @@ export default function ContrastStep({ onComplete }) {
 
   return (
     <div className="flex flex-col items-center gap-6 px-4">
-      <div className="text-center">
-        <h2 className="text-xl font-bold">Contrast Sensitivity</h2>
-        <p className="text-slate-400 text-sm mt-1">Type the letters you see.</p>
+      <div>
+        <h2 className="text-base font-semibold text-ink">Contrast sensitivity</h2>
+        <p className="text-muted text-sm mt-1">Type the letters you see.</p>
       </div>
 
       <div
-        className="rounded-2xl flex items-center justify-center gap-5"
+        className="flex items-center justify-center gap-5"
         style={{ backgroundColor: '#808080', width: 280, height: 110 }}
       >
         {letters.map((l, i) => (
@@ -86,7 +87,10 @@ export default function ContrastStep({ onComplete }) {
         value={input}
         onChange={e => setInput(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && input.trim().length > 0 && handleCheck()}
-        className="w-full max-w-sm text-center text-2xl uppercase tracking-[0.3em] bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500 transition-colors"
+        className="w-full max-w-sm text-center text-2xl uppercase tracking-[0.3em] px-4 py-3 font-mono bg-surface text-ink transition-colors duration-150"
+        style={{ border: '1px solid var(--line)', outline: 'none' }}
+        onFocus={e => (e.target.style.borderColor = 'var(--muted)')}
+        onBlur={e => (e.target.style.borderColor = 'var(--line)')}
         placeholder="e.g. CDH"
         maxLength={3}
         autoCapitalize="characters"
@@ -94,13 +98,13 @@ export default function ContrastStep({ onComplete }) {
         autoCorrect="off"
         spellCheck={false}
       />
-      <button
+      <Button
         onClick={handleCheck}
         disabled={input.trim().length === 0}
-        className="w-full max-w-sm py-4 rounded-xl bg-indigo-600 text-white font-bold disabled:opacity-40 active:scale-95 transition-all"
+        className="w-full max-w-sm"
       >
         Check
-      </button>
+      </Button>
 
       <WhyCard>
         Faded, low-contrast detail is often the first thing to go.

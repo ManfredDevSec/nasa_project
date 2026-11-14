@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import WhyCard from './WhyCard'
+import Button from './Button'
 
 const ROWS = 20
 const COLS = 20
@@ -32,11 +33,11 @@ export default function AmslerGrid({ eye, onComplete }) {
 
   return (
     <div className="flex flex-col items-center gap-6 px-4">
-      <div className="text-center">
-        <h2 className="text-xl font-bold">
-          {eye === 'left' ? 'Left Eye' : 'Right Eye'} — Amsler Grid
+      <div>
+        <h2 className="text-base font-semibold text-ink">
+          {eye === 'left' ? 'Left eye' : 'Right eye'} — Amsler grid
         </h2>
-        <p className="text-slate-400 text-sm mt-1">
+        <p className="text-muted text-sm mt-1">
           Cover your {eye === 'left' ? 'right' : 'left'} eye. Stare only at the centre dot.
           Tap squares where lines look wavy, bent, or missing.
         </p>
@@ -66,13 +67,12 @@ export default function AmslerGrid({ eye, onComplete }) {
               style={{
                 width: CELL,
                 height: CELL,
-                backgroundColor: isMarked ? 'rgba(251,191,36,0.75)' : 'black',
+                backgroundColor: isMarked ? 'rgba(217,164,65,0.75)' : 'black',
                 cursor: 'pointer',
               }}
             />
           )
         })}
-        {/* centre dot */}
         <div
           style={{
             position: 'absolute',
@@ -89,19 +89,13 @@ export default function AmslerGrid({ eye, onComplete }) {
         />
       </div>
 
-      <div className="flex flex-col gap-3 w-full max-w-sm">
-        <button
-          onClick={() => finish([])}
-          className="w-full py-4 rounded-xl bg-slate-700 text-white font-bold active:scale-95 transition-all"
-        >
+      <div className="flex flex-col gap-2 w-full max-w-sm">
+        <Button variant="secondary" onClick={() => finish([])} className="w-full">
           All lines look straight
-        </button>
-        <button
-          onClick={() => finish([...marked].map(k => k.split(',').map(Number)))}
-          className="w-full py-4 rounded-xl bg-indigo-600 text-white font-bold active:scale-95 transition-all"
-        >
+        </Button>
+        <Button onClick={() => finish([...marked].map(k => k.split(',').map(Number)))} className="w-full">
           Next
-        </button>
+        </Button>
       </div>
 
       <WhyCard>

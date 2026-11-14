@@ -1,12 +1,15 @@
 export default function ErrorBox({ error, onRetry }) {
   return (
-    <div className="mx-4 my-6 rounded-2xl bg-red-950 border border-red-800 p-6">
-      <p className="text-red-400 font-semibold mb-1">Something went wrong</p>
-      <p className="text-red-300 text-sm mb-4">{error?.message ?? String(error)}</p>
+    <div
+      className="mx-4 my-6 p-5"
+      style={{ borderLeft: '3px solid var(--alert)', backgroundColor: 'var(--surface)' }}
+    >
+      <p className="text-alert font-medium text-sm mb-1">Error</p>
+      <p className="text-muted text-sm mb-4 leading-relaxed">{error?.message ?? String(error)}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="px-4 py-2 rounded-lg bg-red-700 text-white text-sm font-medium hover:bg-red-600 active:scale-95 transition-all"
+          className="px-4 py-2 text-sm font-medium text-ink border border-line hover:bg-line transition-colors duration-150"
         >
           Retry
         </button>

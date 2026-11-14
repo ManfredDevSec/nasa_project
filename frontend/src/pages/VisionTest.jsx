@@ -1,30 +1,38 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { ChevronLeft } from 'lucide-react'
 import Header from '../components/Header'
 import NearVisionStep from '../components/NearVisionStep'
 import AmslerGrid from '../components/AmslerGrid'
 import ContrastStep from '../components/ContrastStep'
 import SymptomSliders from '../components/SymptomSliders'
+import Button from '../components/Button'
 import { submitCheck } from '../api/client'
 
-const STEP_LABELS = ['Calibrate', 'Near Vision', 'Left Eye', 'Right Eye', 'Contrast', 'Symptoms']
+const STEP_LABELS = ['Calibrate', 'Near vision', 'Amsler grid, left eye', 'Amsler grid, right eye', 'Contrast sensitivity', 'Symptoms']
 const TOTAL = STEP_LABELS.length
 
 function CalibrationStep({ pxPerMm, setPxPerMm, onSave, onSkip }) {
   const cardPx = Math.round(85.6 * pxPerMm)
   return (
     <div className="flex flex-col items-center gap-6 px-4">
-      <div className="text-center">
-        <h2 className="text-xl font-bold">Screen Calibration</h2>
-        <p className="text-slate-400 text-sm mt-1">
+      <div>
+        <h2 className="text-base font-semibold text-ink">Screen calibration</h2>
+        <p className="text-muted text-sm mt-1">
           Drag the slider until the grey bar below matches the width of a bank card (85.6 mm).
         </p>
       </div>
 
       <div className="overflow-x-auto w-full flex justify-center py-2">
         <div
-          className="bg-slate-300 rounded-md border-2 border-slate-400"
-          style={{ width: cardPx, height: 54, minWidth: cardPx, flexShrink: 0 }}
+          style={{
+            width: cardPx,
+            height: 54,
+            minWidth: cardPx,
+            flexShrink: 0,
+            backgroundColor: '#9a978a',
+            border: '1px solid #6b695f',
+          }}
         />
       </div>
 
@@ -36,24 +44,19 @@ function CalibrationStep({ pxPerMm, setPxPerMm, onSave, onSkip }) {
           step="0.01"
           value={pxPerMm}
           onChange={e => setPxPerMm(parseFloat(e.target.value))}
-          className="w-full accent-indigo-500"
+          className="w-full"
+          style={{ accentColor: 'var(--muted)' }}
         />
-        <span className="text-center text-xs text-slate-500">{pxPerMm.toFixed(2)} px/mm</span>
+        <span className="text-center font-mono text-xs text-dim">{pxPerMm.toFixed(2)} px/mm</span>
       </div>
 
-      <div className="flex flex-col gap-3 w-full max-w-sm">
-        <button
-          onClick={onSave}
-          className="w-full py-4 rounded-xl bg-indigo-600 text-white font-bold active:scale-95 transition-all"
-        >
-          Save &amp; Continue
-        </button>
-        <button
-          onClick={onSkip}
-          className="w-full py-3 rounded-xl bg-slate-800 text-slate-400 text-sm active:scale-95 transition-all"
-        >
+      <div className="flex flex-col gap-2 w-full max-w-sm">
+        <Button variant="primary" onClick={onSave} className="w-full">
+          Use this size
+        </Button>
+        <Button variant="quiet" onClick={onSkip} className="w-full">
           Skip (use default 3.78 px/mm)
-        </button>
+        </Button>
       </div>
     </div>
   )
@@ -140,38 +143,41 @@ export default function VisionTest() {
 
   if (step === null) return null
 
-  const progress = step === 0 ? 0 : (step / (TOTAL - 1)) * 100
+  const totalTestSteps = TOTAL - 1
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-bg text-ink">
       <Header />
 
-      {/* Nav row */}
-      <div className="flex items-center gap-3 px-4 pt-4 pb-1">
+      <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-line">
         <button
           onClick={handleBack}
-          className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 active:scale-95 transition-all shrink-0"
+          className="flex items-center justify-center w-10 h-10 text-muted hover:text-ink transition-colors duration-150 shrink-0"
           aria-label="Back"
         >
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
+          <ChevronLeft size={18} strokeWidth={1.5} />
         </button>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-sm font-semibold text-white">{STEP_LABELS[step]}</span>
-            <span className="text-xs text-slate-500">Step {step + 1} / {TOTAL}</span>
+          <div className="flex gap-1 mb-2">
+            {Array.from({ length: totalTestSteps }, (_, i) => (
+              <div
+                key={i}
+                style={{
+                  flex: 1,
+                  height: 2,
+                  backgroundColor: i <= step - 1 ? 'var(--text)' : 'var(--line)',
+                  opacity: i === step - 1 ? 0.5 : 1,
+                  transition: 'background-color 150ms, opacity 150ms',
+                }}
+              />
+            ))}
           </div>
-          <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-indigo-500 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+          <p className="font-mono text-xs text-muted">
+            Step {step === 0 ? 1 : step} of {TOTAL} · {STEP_LABELS[step]}
+          </p>
         </div>
       </div>
 
-      {/* Step content */}
       <div className="max-w-lg mx-auto py-8">
         {step === 0 && (
           <CalibrationStep
@@ -214,7 +220,7 @@ export default function VisionTest() {
         <div className="text-center pb-10">
           <button
             onClick={handleRestart}
-            className="text-xs text-slate-600 hover:text-slate-400 transition-colors underline underline-offset-2"
+            className="font-mono text-xs text-dim hover:text-muted transition-colors duration-150"
           >
             Restart test
           </button>
