@@ -16,12 +16,13 @@ and how to wire the real API in.
 | Forgot / change password, edit profile | ✅ live | **Real API** |
 | User management (admin) | ✅ live | Optional screen |
 | Mission, crew list/detail, baseline, eye test submit + history, daily logs, cabin logs | ✅ live (T7) | **Real API** |
-| Body map, trends, engagement | ⏳ T9–T10 | **Keep mocks** |
+| Body map (`/astronauts/{id}/body-map/`) | ✅ live (T9) | **Real API** |
+| Trends, engagement | ⏳ T10 | **Keep mocks** |
 | Crew overview, weekly Earth report | ⏳ T11 | **Keep mocks** |
 | Demo logins (12 astronauts + surgeon + admin) | ✅ T8 seed | See §8 |
 
-So: **auth + the T7 areas use the real API now; body map, trends, engagement, crew overview and the weekly
-report stay on mocks** until we tell you they're live.
+So: **auth, the T7 areas and the body map use the real API now; trends, engagement, crew overview and the
+weekly report stay on mocks** until we tell you they're live.
 `FRONTEND_GUIDE.md` §1 describes one `VITE_USE_MOCKS` switch for everything; see §7 for doing it per area.
 
 **Running the backend locally:** in the repo root, `make fresh` (Docker), then open
@@ -334,7 +335,7 @@ leak data; the user just sees an error.
 | Route of the "Log today's vitals" form (body map buttons link to it) | `/vitals` |
 | Where an **ADMIN** lands in the app (not in the original guide) | `/crew`; admins manage people in Django `/admin` |
 | A **cabin CO₂ entry form** for the Medical Officer (API E1 exists, guide has no screen) | Skip for the demo: the seed provides CO₂ data; `/admin` works for manual entry |
-| Should body-map cards show a NASA "Read more" link (the backend has one per part)? | Not sent yet; would be an extra `read_more_url` field |
+| Body-map cards: NASA "Read more" link | ✅ Decided: each part now has `read_more_url` (and `guidance`), see spec 03 R1 |
 | Frontend production URL (for CORS + password-reset links) | needed for deploy (T12) |
 
 If any API field name or shape doesn't fit what you need: **tell us first, don't work around it.**
