@@ -1,0 +1,1048 @@
+{
+  "info": {
+    "_postman_id": "66909018-fcb9-5d43-8f92-a176c28ab0b1",
+    "name": "SightLine API",
+    "description": "Generated from the OpenAPI schema by `python manage.py export_postman`. Pick the local or live environment, run Auth → Log in, then any request. Full docs: /api/docs/ and docs/03_API_SPECIFICATION.md.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "description": "Overridden by the selected environment."
+    },
+    {
+      "key": "username",
+      "value": "osei",
+      "description": "Demo login (see README). Try adjei (Medical Officer) or surgeon."
+    },
+    {
+      "key": "password",
+      "value": "sightline-demo",
+      "description": "Local demo password. Ask for the live one."
+    },
+    {
+      "key": "token",
+      "value": "",
+      "description": "Filled in by Auth / Log in."
+    },
+    {
+      "key": "astronaut_id",
+      "value": "1",
+      "description": "Filled in by Auth / Log in (your own astronaut)."
+    },
+    {
+      "key": "check_id",
+      "value": "1",
+      "description": ""
+    },
+    {
+      "key": "user_id",
+      "value": "1",
+      "description": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "id": "337c26d3-165f-5f4a-b3e2-7c955091369d",
+          "name": "Is the API up?",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "health",
+                ""
+              ]
+            },
+            "description": "Checks the database and the cache. 200 when both answer, 503 otherwise. No login needed.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "id": "39cef21f-92a9-51da-8270-c6ca0a734480",
+          "name": "Log in (get a token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login",
+                ""
+              ]
+            },
+            "description": "Send username + password, get a token. Send it on every other request as `Authorization: Token <token>`. Tokens expire after `AUTH_TOKEN_TTL_HOURS` (default 7 days); logging in again while still valid returns the same token.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Save the token (and your astronaut) for every other request.",
+                  "const body = pm.response.json();",
+                  "if (body.token) {",
+                  "  pm.collectionVariables.set('token', body.token);",
+                  "  if (body.user && body.user.astronaut_id) pm.collectionVariables.set('astronaut_id', body.user.astronaut_id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "21480c9c-e663-5cce-b212-0ca8dd66dcb0",
+          "name": "Log out",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout",
+                ""
+              ]
+            },
+            "description": "Deletes your token, so it stops working on every device."
+          }
+        },
+        {
+          "id": "5dbbae39-e4b5-5c14-b6a1-28bd2ee7a218",
+          "name": "Current user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                ""
+              ]
+            },
+            "description": "Who is logged in, their role, and their linked astronaut (null for flight surgeons)."
+          }
+        },
+        {
+          "id": "ca9f99d7-7010-5a2e-93a2-4583794b9b90",
+          "name": "Update my profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                ""
+              ]
+            },
+            "description": "Change your email, first name or last name. Everything else is read-only.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"osei@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "d8b5bf36-73f8-5637-a7b0-112cd0ce4d9a",
+          "name": "Change password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/password/change/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "change",
+                ""
+              ]
+            },
+            "description": "Needs your current password. On success all your old tokens stop working and you get a **new token** in the response. Save it and use it from now on.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"sightline-demo\",\n  \"new_password\": \"a-much-better-passphrase\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "d4ed7c81-09f4-5548-9ab6-c3c089b0b25e",
+          "name": "Forgot password: email a reset link",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/password/reset/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "reset",
+                ""
+              ]
+            },
+            "description": "Always answers 200, even if no account has this email, so nobody can probe which emails exist. The email links to `FRONTEND_URL/reset-password?uid=...&token=...`. The frontend reads `uid` and `token` from the link and calls `password/reset/confirm/`. Locally the email is printed in the backend console instead of being sent.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"osei@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "id": "2339ceff-1d48-593a-a988-cddba1c56731",
+          "name": "Forgot password: set the new password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/password/reset/confirm/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "reset",
+                "confirm",
+                ""
+              ]
+            },
+            "description": "Send `uid` and `token` from the reset link plus the new password. The link works once and expires after `PASSWORD_RESET_TIMEOUT` (default 1 hour). Old tokens stop working; the user logs in again with the new password.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"Mg\",\n  \"token\": \"c9x1k2-5f0e3c1d2b4a6978\",\n  \"new_password\": \"a-much-better-passphrase\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mission",
+      "item": [
+        {
+          "id": "705fe42b-e5b2-547a-9bdd-08562b9b528e",
+          "name": "Active mission + today's mission day",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/missions/active/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "missions",
+                "active",
+                ""
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crew",
+      "item": [
+        {
+          "id": "41b4cd93-5ff4-59e8-8721-a9a299c8a8ae",
+          "name": "Crew list with latest status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/astronauts/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "astronauts",
+                ""
+              ]
+            },
+            "description": "Everyone on your mission (the active mission for flight surgeons/admins). `latest_status` is null before the first scored check. Crew members see a crewmate's colour (`level`) but not their `headline` / `next_test_due` (null)."
+          }
+        },
+        {
+          "id": "81b69afe-ea71-5be1-8ba6-ae71150e682b",
+          "name": "One astronaut",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/astronauts/{{astronaut_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "astronauts",
+                "{{astronaut_id}}",
+                ""
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "id": "7071961b-bacb-51b7-97a6-c3e44b929771",
+          "name": "Baseline (pre-flight normal)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/astronauts/{{astronaut_id}}/baseline/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "astronauts",
+                "{{astronaut_id}}",
+                "baseline",
+                ""
+              ]
+            },
+            "description": "Average of the astronaut's pre-flight baseline checks."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vision checks",
+      "item": [
+        {
+          "id": "5f5491dd-825e-52a9-bb8c-776c6c995146",
+          "name": "Check history",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/checks/?astronaut=&from=&include_baseline=&to=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "checks",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "astronaut",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Only this astronaut. Left out: everyone you may see (crew: only yourself)."
+                },
+                {
+                  "key": "from",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Earliest date, inclusive (YYYY-MM-DD)."
+                },
+                {
+                  "key": "include_baseline",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Also list pre-flight baseline checks."
+                },
+                {
+                  "key": "to",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Latest date, inclusive (YYYY-MM-DD)."
+                }
+              ]
+            },
+            "description": "`{check, assessment}` pairs, oldest first. Baseline checks only with `include_baseline=true`."
+          }
+        },
+        {
+          "id": "51e81a01-1018-5793-bcfb-1abf431cade8",
+          "name": "Submit an eye test (scored or baseline)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/checks/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "checks",
+                ""
+              ]
+            },
+            "description": "Saves the test and, in the same step, either updates the astronaut's baseline (`is_baseline: true`, then `assessment` is null and `baseline` is filled) or scores it (`assessment` filled, `baseline` null). `taken_at`, `amsler_*`, `distance_ok`, `notes` are optional. Crew: own astronaut only; Medical Officer: whole crew; Flight surgeon: read-only.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"astronaut\": {{astronaut_id}},\n  \"near_vision_left\": 6,\n  \"near_vision_right\": 8,\n  \"contrast_left\": 5,\n  \"contrast_right\": 6,\n  \"amsler_left\": [\n    [\n      3,\n      4\n    ],\n    [\n      3,\n      5\n    ]\n  ],\n  \"amsler_right\": [],\n  \"headache\": 2,\n  \"eye_pressure\": 1,\n  \"blur\": 2,\n  \"distance_ok\": true,\n  \"notes\": \"\",\n  \"is_baseline\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "1087fad6-6374-5fdb-9937-8672791537e2",
+          "name": "One check + its assessment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/checks/{{check_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "checks",
+                "{{check_id}}",
+                ""
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Daily logs",
+      "item": [
+        {
+          "id": "60d47d4e-237c-5425-b847-83523aca4063",
+          "name": "Daily log history",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/daily-logs/?astronaut=&from=&to=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "daily-logs",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "astronaut",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Only this astronaut. Left out: everyone you may see (crew: only yourself)."
+                },
+                {
+                  "key": "from",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Earliest date, inclusive (YYYY-MM-DD)."
+                },
+                {
+                  "key": "to",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Latest date, inclusive (YYYY-MM-DD)."
+                }
+              ]
+            },
+            "description": "Oldest first. Without `astronaut`: everyone you may see (crew: only yourself)."
+          }
+        },
+        {
+          "id": "baa02d90-0235-5793-90dc-03bf414c8e3c",
+          "name": "Log today's vitals (create or update)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/daily-logs/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "daily-logs",
+                ""
+              ]
+            },
+            "description": "Upsert on (astronaut, date). First post for a date creates the log (201); later posts for the same date update only the fields you send (200). Every value is optional. The response adds `vitals_status`: GREEN/AMBER/RED/UNKNOWN + guidance for heart rate, blood pressure, sleep and mood.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"astronaut\": {{astronaut_id}},\n  \"date\": \"2026-11-14\",\n  \"resting_hr_bpm\": 64,\n  \"systolic_mmhg\": 118,\n  \"diastolic_mmhg\": 76,\n  \"sleep_hours\": 6.0,\n  \"mood\": 3,\n  \"sodium_mg\": 3400,\n  \"exercise_min\": 90\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cabin logs",
+      "item": [
+        {
+          "id": "c1c86cc5-0dd3-5bb5-a008-16ce869fed25",
+          "name": "Cabin CO₂ history",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/cabin-logs/?from=&to=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cabin-logs",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Earliest date, inclusive (YYYY-MM-DD)."
+                },
+                {
+                  "key": "to",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Latest date, inclusive (YYYY-MM-DD)."
+                }
+              ]
+            },
+            "description": "Your mission's cabin logs (the active mission for flight surgeons/admins), oldest first."
+          }
+        },
+        {
+          "id": "3ea0e5d0-e087-5ffd-b01a-86d9e3c7dedc",
+          "name": "Log cabin CO₂ for a day (create or update)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/cabin-logs/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cabin-logs",
+                ""
+              ]
+            },
+            "description": "Upsert on (active mission, date): the first post for a date creates the log (201), later posts for the same date update the fields you send (200). Medical Officer or admin only.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-11-14\",\n  \"co2_mmhg\": 4.6,\n  \"temperature_c\": 22.5,\n  \"humidity_pct\": 45\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "id": "8f3f2177-c705-5d6c-aea4-e4eda0466843",
+          "name": "Body map (eyes, heart, sleep, mind)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/astronauts/{{astronaut_id}}/body-map/?as_of=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "astronauts",
+                "{{astronaut_id}}",
+                "body-map",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "as_of",
+                  "value": "",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD. Default: today."
+                }
+              ]
+            },
+            "description": "Status + info card per part. EYES = latest eye assessment; HEART = worse of heart rate and blood pressure; SLEEP / MIND from the most recent daily log that has them. No data → `UNKNOWN`. `as_of` (default today) shows the map as it was on that date, using only data up to then."
+          }
+        },
+        {
+          "id": "70009ee4-cb8e-5f85-80a5-50fb79c7b264",
+          "name": "Engagement (streak, badges, next test)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/astronauts/{{astronaut_id}}/engagement/?as_of=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "astronauts",
+                "{{astronaut_id}}",
+                "engagement",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "as_of",
+                  "value": "",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD. Default: today (finished missions: their last day)."
+                }
+              ]
+            },
+            "description": "Rules in docs/04 §6. `streak_weeks` counts 7-day windows back from `as_of` with ≥1 scored test."
+          }
+        },
+        {
+          "id": "aae23591-ce3b-58b1-b5eb-f731a59cf777",
+          "name": "Trends (chart series by mission day)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/astronauts/{{astronaut_id}}/trends/?as_of=&days=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "astronauts",
+                "{{astronaut_id}}",
+                "trends",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "as_of",
+                  "value": "",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD. Default: today (finished missions: their last day)."
+                },
+                {
+                  "key": "days",
+                  "value": "",
+                  "disabled": true,
+                  "description": "1–1000, default 90."
+                }
+              ]
+            },
+            "description": "The last `days` days (default 90) up to `as_of`: vision (one point per day with a test), cabin CO₂, daily logs and events, all keyed by `mission_day` so the charts line up. Events: `CO2_HIGH_START` (first day above the high mark after a normal day), `CO2_HIGH_END`, `ESCALATED` (RED result)."
+          }
+        },
+        {
+          "id": "06cdc14f-fb08-52b7-953b-8b9bf0add088",
+          "name": "Crew dashboard (Medical Officer / flight surgeon)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/crew/overview/?as_of=&mission=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "crew",
+                "overview",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "as_of",
+                  "value": "",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD. Default: today (finished missions: their last day)."
+                },
+                {
+                  "key": "mission",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Mission id. Default: yours (MO) / the active one. Flight surgeons and admins may pick any mission."
+                }
+              ]
+            },
+            "description": "Every astronaut's eyes / heart / sleep / mind + `overall` (worst of the four), worst first; cabin CO₂ today (GREEN ≤ 3.5, AMBER > 3.5, RED > 5.0 mmHg: demo values); alerts, RED first: RED eyes (\"escalate to Earth\"), AMBER eyes (retest), RED vitals, overdue tests, high cabin CO₂."
+          }
+        },
+        {
+          "id": "cce462f8-7e01-5e4c-a57e-262db7d70ee5",
+          "name": "Weekly report for Earth",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/weekly/?mission=&week_ending=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "weekly",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "mission",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Mission id. Default: yours (MO) / the active one. Flight surgeons and admins may pick any mission."
+                },
+                {
+                  "key": "week_ending",
+                  "value": "",
+                  "disabled": true,
+                  "description": "YYYY-MM-DD. Default: today."
+                }
+              ]
+            },
+            "description": "The 7 days ending `week_ending` (default today; finished missions: their last day). Per astronaut: the worst eye result that week. Environment: cabin CO₂ average/max and days above the 3.5 mmHg high mark. Insights come from the assessments; recommendations are simple rules."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (admin)",
+      "item": [
+        {
+          "id": "9a690f5f-984b-5b72-a2b4-c9b2e89f0b05",
+          "name": "List users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/users/?is_active=&role=&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "is_active",
+                  "value": "",
+                  "disabled": true,
+                  "description": "true = active accounts, false = deactivated."
+                },
+                {
+                  "key": "role",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Only this role."
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Part of username, name or email."
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "id": "c4d6c743-d764-55bd-9133-95172b8de8bb",
+          "name": "Create a user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/users/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users",
+                ""
+              ]
+            },
+            "description": "Give a `password` to set it directly, **or** leave it out and give an `email`: the user then gets an invite email with a link to choose their password (same page as password reset). CREW and MEDICAL_OFFICER need an `astronaut_id`; FLIGHT_SURGEON must not have one; an astronaut can have only one account.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"osei\",\n  \"role\": \"CREW\",\n  \"astronaut_id\": 1,\n  \"email\": \"osei@example.com\",\n  \"first_name\": \"Ama\",\n  \"last_name\": \"Osei\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "3290647f-af19-58e5-8665-64b178af9061",
+          "name": "One user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/users/{{user_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users",
+                "{{user_id}}",
+                ""
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "id": "2a3e2c5d-55f7-5b57-8c66-7a425ba484af",
+          "name": "Edit a user",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/users/{{user_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users",
+                "{{user_id}}",
+                ""
+              ]
+            },
+            "description": "Change any field. Setting `password` or `is_active: false` logs the user out everywhere. Send `is_active: true` to re-enable a deactivated account.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"MEDICAL_OFFICER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "83b0ba69-e481-534c-b763-469790da7746",
+          "name": "Deactivate a user",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/users/{{user_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "users",
+                "{{user_id}}",
+                ""
+              ]
+            },
+            "description": "Does **not** delete anything: the account is switched off (`is_active: false`) and logged out. The astronaut's health data is untouched. Re-enable with PATCH `is_active: true`."
+          }
+        }
+      ]
+    }
+  ]
+}

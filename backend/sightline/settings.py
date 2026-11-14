@@ -5,6 +5,7 @@ Everything environment-specific comes from env vars (or backend/.env locally):
 - no REDIS_URL    -> in-memory cache;  REDIS_URL set -> Redis
 """
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -12,6 +13,7 @@ from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
 load_dotenv(BASE_DIR / ".env")  # real env vars win over .env values
 
 
@@ -69,6 +71,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "core.middleware.HealthCheckMiddleware",  # first: answers /api/health/ before the host check
+    "core.middleware.RequestLogMiddleware",  # one log line + X-Request-ID per request
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -198,6 +201,7 @@ STORAGES = {
 CORS_ALLOWED_ORIGINS = env_list(
     "CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
 )
+CORS_EXPOSE_HEADERS = ["X-Request-ID"]  # let the frontend read it (to show/quote in bug reports)
 
 # --- Production security (Render terminates HTTPS at its proxy) -------------
 
@@ -253,6 +257,10 @@ LOGGING = {
         "django": {"handlers": [], "level": "INFO", "propagate": True},
         # Bots probing with fake Host headers get a 400; don't print a traceback for each.
         "django.security.DisallowedHost": {"handlers": [], "propagate": False},
+        # 4xx are already in the request log line (with the error code); keep Django's tracebacks for 5xx.
+        "django.request": {"handlers": [], "level": "ERROR", "propagate": True},
+        # One line per request (core.middleware.RequestLogMiddleware). Quiet while running tests.
+        "sightline.requests": {"handlers": [], "level": "WARNING" if TESTING else "INFO", "propagate": True},
     },
 }
 

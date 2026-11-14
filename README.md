@@ -132,25 +132,52 @@ Render dashboard once it exists.
 | T3–T6 Models, scoring engine, `submit_check` | ✅ |
 | T7 Core endpoints (mission, crew, checks, daily/cabin logs) | ✅ |
 | T8 Demo data (`seed_mission`) | ✅ |
-| T9–T11 Body map, trends, engagement, crew overview, Earth report | to do |
+| T9–T11 Body map, trends, engagement, crew overview, Earth report | ✅ |
 | T12 Deploy (Render + Neon) | ✅ (seed the live DB from your laptop) |
+| T13 Polish: login rate limit, request logging, README, Postman collection | ✅ |
 
-### Endpoints available now
+### Endpoints
 
-| Method | Path | Who |
-|---|---|---|
-| POST | `/api/v1/auth/login/` | public |
-| POST | `/api/v1/auth/logout/` | logged in |
-| GET / PATCH | `/api/v1/auth/me/` | logged in |
-| POST | `/api/v1/auth/password/change/` | logged in |
-| POST | `/api/v1/auth/password/reset/` | public |
-| POST | `/api/v1/auth/password/reset/confirm/` | public |
-| GET / POST | `/api/v1/auth/users/` | admin |
-| GET / PATCH / DELETE | `/api/v1/auth/users/{id}/` | admin |
-| GET | `/api/health/` | public |
+All under `/api/v1/` unless noted. Exact shapes: [`docs/03_API_SPECIFICATION.md`](docs/03_API_SPECIFICATION.md)
+and Swagger at `/api/docs/`.
 
-The full planned API (crew, checks, daily logs, body map, trends, reports) is in
-[`docs/03_API_SPECIFICATION.md`](docs/03_API_SPECIFICATION.md).
+| Method | Path | Who | What |
+|---|---|---|---|
+| POST | `auth/login/` | public | Token for a username + password |
+| POST | `auth/logout/` | logged in | Revoke your token |
+| GET / PATCH | `auth/me/` | logged in | Your account / edit email and name |
+| POST | `auth/password/change/` | logged in | New password (returns a new token) |
+| POST | `auth/password/reset/`, `…/confirm/` | public | Forgot-password email + set a new one |
+| GET / POST | `auth/users/` | admin | List / create (email invite) users |
+| GET / PATCH / DELETE | `auth/users/{id}/` | admin | One user / edit / deactivate |
+| GET | `missions/active/` | everyone | Active mission + today's mission day |
+| GET | `astronauts/` | everyone | Crew list with latest status (crew see crewmates' colour only) |
+| GET | `astronauts/{id}/`, `…/baseline/` | own / crew (MO) / all (surgeon) | Astronaut, pre-flight baseline |
+| POST | `checks/` | own / crew (MO) | **Submit an eye test → scored result** |
+| GET | `checks/`, `checks/{id}/` | as above | Test history with results |
+| GET / POST | `daily-logs/` | as above | Vitals history / log a day (returns traffic lights) |
+| GET / POST | `cabin-logs/` | everyone / MO, admin | Cabin CO₂ history / log a day |
+| GET | `astronauts/{id}/body-map/` | as above | Eyes, heart, sleep, mind with info cards |
+| GET | `astronauts/{id}/trends/` | as above | Chart series by mission day + events |
+| GET | `astronauts/{id}/engagement/` | as above | Streak, badges, next test due |
+| GET | `crew/overview/` | MO, surgeon, admin | Crew dashboard with alerts |
+| GET | `reports/weekly/` | MO, surgeon, admin | Weekly report for Earth |
+| GET | `/api/health/` | public | Database + cache check |
+
+### Try the API in Postman / Thunder Client
+
+Import [`docs/api/SightLine.postman_collection.json`](docs/api/SightLine.postman_collection.json) and one
+environment (`SightLine-local` or `SightLine-live`) from [`docs/api/`](docs/api/). Run **Auth → Log in**
+(defaults to `osei` / `sightline-demo`; change the `username` / `password` collection variables): the token and
+your astronaut id are saved, and every other request just works. After changing the API, regenerate the files
+with `python manage.py export_postman` (a test fails if they're out of date).
+
+### Logs
+
+Every request gets one line in the server log (Render → Logs), e.g.
+`INFO sightline.requests: GET /api/v1/astronauts/3/ 403 12ms user=2 id=3f9c2a1b7d4e code=PERMISSION_DENIED`,
+and an `X-Request-ID` response header with the same id: quote it in bug reports to find the line. Bodies,
+tokens and query strings are never logged.
 
 **Roles:** `CREW` sees and edits only their own data · `MEDICAL_OFFICER` sees and edits the whole crew ·
 `FLIGHT_SURGEON` (on Earth) reads everything, edits nothing · `ADMIN` does everything.
