@@ -39,7 +39,7 @@ class Astronaut(models.Model):
         return f"{self.call_sign} ({self.get_crew_role_display()})"
 
     @property
-    def display_name(self):
+    def display_name(self) -> str:
         return f"{self.TITLES.get(self.crew_role, '')} {self.full_name}".strip()
 
 

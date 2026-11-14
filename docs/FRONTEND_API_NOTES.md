@@ -15,12 +15,13 @@ and how to wire the real API in.
 | Login, logout, current user | ✅ live | **Real API** |
 | Forgot / change password, edit profile | ✅ live | **Real API** |
 | User management (admin) | ✅ live | Optional screen |
-| Crew, checks (eye test), daily logs, cabin logs | ⏳ T3–T7 | **Keep mocks** |
+| Mission, crew list/detail, baseline, eye test submit + history, daily logs, cabin logs | ✅ live (T7) | **Real API** |
 | Body map, trends, engagement | ⏳ T9–T10 | **Keep mocks** |
 | Crew overview, weekly Earth report | ⏳ T11 | **Keep mocks** |
 | Demo logins (osei, mensah, adjei, surgeon) | ⏳ T8 seed | Create test users in `/admin` for now (see §8) |
 
-So: **auth uses the real API now; everything else stays on mocks** until we tell you it's live.
+So: **auth + the T7 areas use the real API now; body map, trends, engagement, crew overview and the weekly
+report stay on mocks** until we tell you they're live.
 `FRONTEND_GUIDE.md` §1 describes one `VITE_USE_MOCKS` switch for everything; see §7 for doing it per area.
 
 **Running the backend locally:** in the repo root, `make fresh` (Docker), then open
