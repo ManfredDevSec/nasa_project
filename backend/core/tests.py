@@ -26,3 +26,15 @@ class HealthHostCheckTests(TestCase):
     def test_other_pages_still_reject_unknown_host(self):
         r = self.client.get("/api/v1/auth/me/", HTTP_HOST="evil.example.com")
         self.assertEqual(r.status_code, 400)
+
+
+class MissionDayHelperTests(TestCase):
+    def test_mission_day(self):
+        from datetime import date
+
+        from core.dates import mission_day
+
+        start = date(2026, 8, 15)
+        self.assertEqual(mission_day(start, date(2026, 8, 15)), 1)
+        self.assertEqual(mission_day(start, date(2026, 11, 14)), 92)
+        self.assertEqual(mission_day(start, date(2026, 7, 16)), -29)  # pre-flight baseline days are <= 0
