@@ -1,57 +1,343 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+@import 'tailwindcss';
 
 @theme {
-  --color-bg: #0f100d;
-  --color-surface: #171814;
-  --color-line: #2a2b25;
-  --color-ink: #e8e4d8;
-  --color-muted: #b3afa1;
-  --color-dim: #8a877b;
-  --color-ok: #6fae7c;
-  --color-watch: #d9a441;
-  --color-alert: #d0604f;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-display: 'Instrument Serif', Georgia, serif;
 
-  --font-sans: 'IBM Plex Sans', sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  /*
+   * Sightline palette, shared with the landing page. The slate and sky scales are
+   * re-tinted toward the eye photo's pupil and iris, keeping the same lightness
+   * steps as Tailwind's defaults so every existing contrast pairing still holds.
+   */
+  --color-slate-50: #f6f7fd;
+  --color-slate-100: #eceffb;
+  --color-slate-200: #dde2f5;
+  --color-slate-300: #c3cae8;
+  --color-slate-400: #9aa3cc;
+  --color-slate-500: #6d77a3;
+  --color-slate-600: #4d5682;
+  --color-slate-700: #343c66;
+  --color-slate-800: #222a4d;
+  --color-slate-900: #121935;
+  --color-slate-950: #060918;
+
+  --color-sky-300: #8cf0f9;
+  --color-sky-400: #34ddef;
+  --color-sky-500: #2bc8db;
+  --color-sky-600: #2089ad;
+
+  --color-iris: #34ddef;
+  --color-iris-soft: #a6eef6;
+
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Base text is 18px for readability on a tablet held at arm's length. */
+  --text-base: 1.125rem;
+  --text-base--line-height: 1.6;
+  --text-sm: 0.9375rem;
+
+  /* Status colours. These are the ONLY colours that carry meaning. */
+  --color-status-green: #22c55e;
+  --color-status-amber: #f59e0b;
+  --color-status-red: #ef4444;
+  --color-status-unknown: #64748b;
+
+  --animate-step-in: step-in 320ms ease-out both;
+  --animate-pulse-slow: pulse-slow 2.4s ease-in-out infinite;
+  --animate-celebrate: celebrate 900ms ease-out both;
+  --animate-burst: burst 1100ms ease-out both;
+
+  @keyframes step-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes pulse-slow {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+  @keyframes celebrate {
+    0% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes burst {
+    0% {
+      opacity: 0.9;
+      transform: scale(0.4);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.8);
+    }
+  }
 }
 
-:root {
-  --bg: #0f100d;
-  --surface: #171814;
-  --line: #2a2b25;
-  --text: #e8e4d8;
-  --muted: #b3afa1;
-  --dim: #8a877b;
-  --ok: #6fae7c;
-  --watch: #d9a441;
-  --alert: #d0604f;
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-slate-950 font-sans text-base text-white antialiased;
+  }
+  /* Large, high-contrast focus ring for keyboard users. */
+  :focus-visible {
+    outline: 3px solid var(--color-sky-400);
+    outline-offset: 3px;
+  }
+  button:not(:disabled),
+  [role='button'] {
+    cursor: pointer;
+  }
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
+/* Reusable building blocks (Tailwind v4 custom utilities). */
+/*
+ * Buttons ease with transform only; the hover glow is a pseudo-element that fades
+ * in by opacity, so nothing repaints the whole button on hover.
+ */
+@utility btn-primary {
+  @apply relative isolate inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-sky-400 px-6 text-base font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    0 1px 2px rgb(3 5 18 / 0.5),
+    0 10px 28px -10px rgb(52 221 239 / 0.55);
+  transition: transform 320ms var(--ease-spring);
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--color-sky-300);
+    box-shadow: 0 16px 44px -12px rgb(70 225 240 / 0.75);
+    opacity: 0;
+    transition: opacity 320ms var(--ease-out-soft);
+  }
+  &:hover:not(:disabled)::after,
+  &:focus-visible::after {
+    opacity: 1;
+  }
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+}
+@utility btn-secondary {
+  @apply relative isolate inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-900/70 px-6 text-base font-medium text-white disabled:cursor-not-allowed disabled:opacity-40;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 2px rgb(3 5 18 / 0.4);
+  transition: transform 320ms var(--ease-spring);
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    border: 1px solid rgb(52 221 239 / 0.45);
+    background: rgb(52 221 239 / 0.08);
+    opacity: 0;
+    transition: opacity 320ms var(--ease-out-soft);
+  }
+  &:hover:not(:disabled)::after,
+  &:focus-visible::after {
+    opacity: 1;
+  }
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+}
+/* Elevated surface: a faint top highlight, a tinted border and a layered, colour-tinted shadow. */
+@utility card {
+  @apply rounded-3xl border border-white/[0.07];
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgb(45 190 225 / 0.07), transparent 55%),
+    linear-gradient(180deg, rgb(20 28 62 / 0.82), rgb(10 15 38 / 0.82));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 1px 2px rgb(3 5 18 / 0.5),
+    0 18px 40px -18px rgb(40 58 170 / 0.4),
+    0 50px 100px -40px rgb(10 14 50 / 0.6);
+}
+/* Page titles: the landing page's display serif with tight tracking. */
+@utility display-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.04;
+}
+/* Small uppercase labels in the mono face. */
+@utility eyebrow {
+  @apply font-mono text-xs font-medium tracking-[0.16em] text-sky-400/90 uppercase;
 }
 
-html {
-  font-size: 17px;
+/* The fixed space environment behind the signed-in app (components/SpaceBackdrop.jsx). */
+/* Same seamless fly-through as the landing page, slower and dimmer behind data screens. */
+.space-photo {
+  background-image: var(--space-lg);
+  background-size: cover;
+  background-position: center;
+  opacity: 0.42;
+  transform-origin: 46% 42%;
+  will-change: transform, opacity;
+  animation: space-photo-fly 90s linear infinite;
 }
-
-body {
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: 'IBM Plex Sans', sans-serif;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.space-photo-b {
+  animation-delay: -45s;
 }
-
-*:focus-visible {
-  outline: 2px solid var(--text);
-  outline-offset: 2px;
+@media (max-width: 720px) {
+  .space-photo {
+    background-image: var(--space-sm);
+  }
 }
-
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    transition-duration: 0.01ms !important;
+  .space-photo-b {
+    display: none;
+  }
+}
+@keyframes space-photo-fly {
+  0% {
+    opacity: 0;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.56;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4) rotate(2deg);
+  }
+}
+.space-shade {
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 40%, rgb(6 9 24 / 0.5), rgb(6 9 24 / 0.88) 100%),
+    linear-gradient(rgb(10 16 48 / 0.32), rgb(10 16 48 / 0.32));
+}
+.space-glow {
+  background:
+    radial-gradient(38% 34% at 82% 12%, rgb(76 96 230 / 0.2), transparent 70%),
+    radial-gradient(42% 38% at 10% 88%, rgb(30 130 170 / 0.13), transparent 70%),
+    radial-gradient(60% 50% at 50% 40%, rgb(40 56 150 / 0.1), transparent 75%);
+  animation: space-drift 90s ease-in-out -30s infinite alternate;
+}
+.space-grain {
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@keyframes space-drift {
+  from {
+    transform: translate3d(-3%, -2%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, 2%, 0) scale(1.08);
+  }
+}
+
+/* Body map stage (components/BodyMapScene.jsx): a gentle float and a scan line over the
+   drawn figure. Transform and opacity only. */
+.scene-float {
+  animation: scene-float 6s ease-in-out -1.5s infinite;
+}
+@keyframes scene-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.4%);
+  }
+}
+.scene-scan-mask {
+  -webkit-mask-image: radial-gradient(ellipse 48% 50% at 50% 50%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 48% 50% at 50% 50%, #000 55%, transparent 100%);
+  overflow: hidden;
+}
+.scene-scan {
+  top: 0;
+  background: linear-gradient(to bottom, transparent, rgb(52 221 239 / 0.55) 50%, transparent);
+  opacity: 0;
+  animation: scene-scan 4.5s ease-in-out infinite;
+}
+@keyframes scene-scan {
+  0% {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(720%);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-scan {
+    display: none;
+  }
+}
+
+/* Body map: SVG <g> elements cannot show a CSS outline reliably,
+   so a hidden sky-blue copy of the shape appears on keyboard focus. */
+.body-part:focus {
+  outline: none;
+}
+.body-part .part-focus {
+  opacity: 0;
+}
+.body-part:focus-visible .part-focus {
+  opacity: 1;
+}
+
+/* Respect users who ask the OS for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+    color: #0f172a !important;
+    color-scheme: light;
   }
 }

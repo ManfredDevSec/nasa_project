@@ -1,218 +1,136 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { TrendingUp, TrendingDown } from 'lucide-react'
-import Header from '../components/Header'
-import StatusBadge from '../components/StatusBadge'
-import Loading from '../components/Loading'
-import ErrorBox from '../components/ErrorBox'
-import TrendChart from '../components/TrendChart'
-import Button from '../components/Button'
-import { getMission, getAstronauts, getHistory } from '../api/client'
-import { fmt } from '../lib/format'
-
-const LEVEL_RANK = { RED: 2, AMBER: 1, GREEN: 0 }
-const STATUS_COLORS = { GREEN: '#6fae7c', AMBER: '#d9a441', RED: '#d0604f' }
-
-function toSentenceCase(str) {
-  if (!str) return str
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
-}
-
-function computeNearChange(checks) {
-  if (!checks || checks.length < 2) return null
-  const baseline = checks[0]?.near_vision
-  const latest = checks[checks.length - 1]?.near_vision
-  if (baseline == null || latest == null) return null
-  return Math.round((latest - baseline) / 0.1)
-}
-
-function NearChangePill({ checks, statusLevel }) {
-  const lines = computeNearChange(checks)
-  const statusColor = STATUS_COLORS[statusLevel] ?? 'var(--dim)'
-
-  if (lines == null) return <span className="font-mono text-xs" style={{ color: 'var(--dim)' }}>—</span>
-  if (lines === 0) return <span className="font-mono text-xs" style={{ color: 'var(--muted)' }}>Same as baseline</span>
-  if (lines > 0)
-    return (
-      <span className="inline-flex items-center gap-1 font-mono text-xs" style={{ color: statusColor }}>
-        <TrendingDown size={11} strokeWidth={1.5} />
-        {lines} line{lines !== 1 ? 's' : ''} worse
-      </span>
-    )
-  return (
-    <span className="inline-flex items-center gap-1 font-mono text-xs" style={{ color: 'var(--ok)' }}>
-      <TrendingUp size={11} strokeWidth={1.5} />
-      {Math.abs(lines)} line{Math.abs(lines) !== 1 ? 's' : ''} better
-    </span>
-  )
-}
+import { Link } from 'react-router-dom'
+import { getActiveMission, getCrewOverview } from '../api/index.js'
+import CrewCard from '../components/CrewCard.jsx'
+import { ArrowRightIcon, PrinterIcon, WindIcon } from '../components/Icons.jsx'
+import { EmptyState, ErrorState, LoadingState } from '../components/StateViews.jsx'
+import StatusBadge from '../components/StatusBadge.jsx'
+import { INSIGHT_CAPTION } from '../content/learn.js'
+import { sortBySeverity } from '../utils/status.js'
+import { useApi } from '../utils/useApi.js'
 
 export default function CrewDashboard() {
-  const navigate = useNavigate()
-  const [mission, setMission] = useState(null)
-  const [astronauts, setAstronauts] = useState([])
-  const [histories, setHistories] = useState({})
-  const [selectedId, setSelectedId] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    let cancelled = false
-    async function load() {
-      try {
-        const [missionData, crew] = await Promise.all([getMission(), getAstronauts()])
-        if (cancelled) return
-        setMission(missionData)
-        setAstronauts(crew)
-
-        const hists = await Promise.all(crew.map(a => getHistory(a.id)))
-        if (cancelled) return
-
-        const map = {}
-        let worstId = null
-        let worstRank = -1
-        crew.forEach((a, i) => {
-          map[a.id] = hists[i]
-          const checks = hists[i]?.checks ?? []
-          const level = checks[checks.length - 1]?.status?.level
-          const rank = LEVEL_RANK[level] ?? 0
-          if (rank > worstRank) {
-            worstRank = rank
-            worstId = a.id
-          }
-        })
-
-        setHistories(map)
-        setSelectedId(worstId ?? crew[0]?.id ?? null)
-      } catch (e) {
-        if (!cancelled) setError(e)
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    }
-    load()
-    return () => { cancelled = true }
-  }, [])
-
-  if (loading) return (
-    <div className="min-h-screen bg-bg text-ink">
-      <Header backTo="/" />
-      <Loading label="Loading crew data…" />
-    </div>
+  const { data, loading, error, reload } = useApi(() =>
+    Promise.all([getCrewOverview(), getActiveMission().catch(() => null)]),
   )
 
-  if (error) return (
-    <div className="min-h-screen bg-bg text-ink">
-      <Header backTo="/" />
-      <ErrorBox error={error} onRetry={() => window.location.reload()} />
-    </div>
-  )
+  if (loading) return <LoadingState label="Loading crew overview…" />
+  if (error) return <ErrorState error={error} onRetry={reload} />
 
-  const selectedHistory = selectedId ? histories[selectedId] : null
-  const selectedChecks = selectedHistory?.checks ?? []
-  const selectedEnv = selectedHistory?.env ?? []
-  const latestCheck = selectedChecks[selectedChecks.length - 1]
-  const envInsight = latestCheck?.status?.env_insight
-
-  const co2Value = mission?.today_env?.co2_mmhg
-  const co2High = mission?.co2_high
+  const [overview, mission] = data
+  const alerts = sortBySeverity(overview.alerts ?? []) // RED first
+  const crew = sortBySeverity(overview.crew ?? [], (a) => a.overall)
+  const cabin = overview.cabin
+  const insights = overview.insights ?? []
+  const missionDay = mission?.mission_day_today
 
   return (
-    <div className="min-h-screen bg-bg text-ink">
-      <Header backTo="/" />
-
-      <div className="max-w-2xl lg:max-w-5xl mx-auto px-4 py-5 space-y-5">
-
-        {/* Top strip */}
-        <div
-          className="flex flex-wrap gap-6 py-3 font-mono text-sm"
-          style={{ borderBottom: '1px solid var(--line)' }}
-        >
-          <span>
-            <span style={{ color: 'var(--dim)' }}>Mission day</span>{' '}
-            <span style={{ color: 'var(--text)' }}>{mission?.mission_day ?? '—'}</span>
-          </span>
-          {co2Value != null && (
-            <span>
-              <span style={{ color: 'var(--dim)' }}>CO₂</span>{' '}
-              <span style={{ color: co2High ? 'var(--alert)' : 'var(--text)' }}>
-                {fmt(co2Value, 1)} mmHg
-              </span>
-              {co2High && <span style={{ color: 'var(--alert)' }}> High</span>}
-            </span>
-          )}
-          <span>
-            <span style={{ color: 'var(--dim)' }}>Crew</span>{' '}
-            <span style={{ color: 'var(--text)' }}>{astronauts.length}</span>
-          </span>
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="display-title text-4xl md:text-5xl">Crew health</h1>
+          <p className="text-slate-400">
+            {mission?.name && <>{mission.name} · </>}
+            Mission day <span className="font-mono text-white">{missionDay ?? '–'}</span>
+          </p>
         </div>
+        <Link to="/report" className="btn-primary">
+          <PrinterIcon className="size-5" /> Weekly Earth Report
+        </Link>
+      </div>
 
-        {/* Crew list */}
-        <div style={{ borderTop: '1px solid var(--line)' }}>
-          {astronauts.map(a => {
-            const hist = histories[a.id]
-            const checks = hist?.checks ?? []
-            const level = checks[checks.length - 1]?.status?.level
-            const isSelected = a.id === selectedId
-            return (
-              <button
-                key={a.id}
-                onClick={() => setSelectedId(a.id)}
-                className="flex items-center gap-4 w-full py-3 text-left transition-colors duration-150"
-                style={{
-                  borderBottom: '1px solid var(--line)',
-                  backgroundColor: isSelected ? '#1d1e19' : 'transparent',
-                }}
-              >
-                <div
-                  style={{
-                    width: 2,
-                    height: 28,
-                    flexShrink: 0,
-                    backgroundColor: isSelected ? 'var(--text)' : 'transparent',
-                    transition: 'background-color 150ms',
-                  }}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>{a.name}</p>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--dim)' }}>{toSentenceCase(a.role)}</p>
-                </div>
-                <StatusBadge level={level} />
-                <NearChangePill checks={checks} statusLevel={level} />
-              </button>
-            )
-          })}
-        </div>
+      <section aria-labelledby="alerts-title">
+        <h2 id="alerts-title" className="mb-3 text-xl font-semibold">
+          Alerts
+        </h2>
+        {alerts.length === 0 ? (
+          <p className="card p-5 text-slate-400">No alerts right now.</p>
+        ) : (
+          <ul className="card divide-y divide-white/[0.06] overflow-hidden">
+            {alerts.map((alert, i) => (
+              <li key={`${alert.astronaut_id}-${i}`}>
+                <Link
+                  to={`/trends/${alert.astronaut_id}`}
+                  className="group relative isolate flex min-h-16 items-center gap-4 px-5 py-3"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 -z-10 bg-sky-400/[0.06] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  />
+                  <StatusBadge level={alert.level} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-mono font-medium">{alert.call_sign}</p>
+                    <p className="text-slate-300">{alert.text}</p>
+                  </div>
+                  <ArrowRightIcon className="size-5 shrink-0 text-slate-500 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-sky-300" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
-        {/* Trend chart */}
-        {selectedHistory && (
-          <TrendChart
-            checks={selectedChecks}
-            env={selectedEnv}
-            thresholds={mission?.thresholds ?? {}}
-          />
+      <div className="grid gap-4 md:grid-cols-2">
+        {cabin && (
+          <section className="card flex flex-col gap-4 p-5" aria-labelledby="cabin-title">
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="cabin-title" className="flex items-center gap-2 text-xl font-semibold">
+                <WindIcon className="size-6 text-slate-400" /> Cabin air
+              </h2>
+              <StatusBadge level={cabin.co2_level} size="sm" />
+            </div>
+            <dl className="grid grid-cols-2 gap-3">
+              <CabinValue label="CO₂ today" value={cabin.co2_today} />
+              <CabinValue label="5-day average" value={cabin.co2_5day_avg} />
+            </dl>
+          </section>
         )}
 
-        {/* Env insight */}
-        {envInsight && (
-          <div
-            className="pl-4 py-2 text-sm leading-relaxed"
-            style={{ borderLeft: '3px solid var(--watch)', color: 'var(--text)' }}
-          >
-            {envInsight}
+        <section className="card flex flex-col gap-3 p-5" aria-labelledby="crew-insights-title">
+          <div>
+            <h2 id="crew-insights-title" className="text-xl font-semibold">
+              Insights
+            </h2>
+            <p className="text-sm text-slate-400">{INSIGHT_CAPTION}</p>
+          </div>
+          {insights.length === 0 ? (
+            <p className="text-slate-400">No patterns found this week.</p>
+          ) : (
+            <ul className="space-y-2">
+              {insights.map((insight, i) => (
+                <li key={i} className="rounded-xl bg-slate-950/60 px-4 py-2.5 text-slate-300">
+                  {typeof insight === 'string' ? insight : insight.text}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+
+      <section aria-labelledby="crew-title">
+        <h2 id="crew-title" className="mb-3 text-xl font-semibold">
+          Crew members
+        </h2>
+        {crew.length === 0 ? (
+          <EmptyState title="No crew members" message="No astronauts are linked to this mission yet." />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {crew.map((astronaut) => (
+              <CrewCard key={astronaut.astronaut_id} astronaut={astronaut} />
+            ))}
           </div>
         )}
+      </section>
+    </div>
+  )
+}
 
-        {/* Actions */}
-        <div className="flex gap-3 pt-2">
-          <Button onClick={() => navigate('/report')} className="flex-1">
-            Generate weekly report
-          </Button>
-          <Button variant="secondary" onClick={() => navigate('/')} className="flex-1">
-            Crew select
-          </Button>
-        </div>
-      </div>
+function CabinValue({ label, value }) {
+  return (
+    <div className="rounded-xl bg-slate-950/60 px-4 py-3">
+      <dt className="text-sm text-slate-400">{label}</dt>
+      <dd className="font-mono text-2xl font-semibold">
+        {value ?? '–'} <span className="text-sm font-normal text-slate-400">mmHg</span>
+      </dd>
     </div>
   )
 }

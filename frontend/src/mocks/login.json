@@ -1,0 +1,22 @@
+{
+  "osei": {
+    "token": "demo-token-osei-7f3a9c",
+    "user": { "id": 11, "username": "osei", "display_name": "Cmdr. Ama Osei", "role": "CREW", "astronaut_id": 1, "email": "osei@example.com", "first_name": "Ama", "last_name": "Osei" }
+  },
+  "mensah": {
+    "token": "demo-token-mensah-2b81d4",
+    "user": { "id": 12, "username": "mensah", "display_name": "Kofi Mensah", "role": "CREW", "astronaut_id": 2, "email": "mensah@example.com", "first_name": "Kofi", "last_name": "Mensah" }
+  },
+  "adjei": {
+    "token": "demo-token-adjei-c94e10",
+    "user": { "id": 13, "username": "adjei", "display_name": "Efua Adjei", "role": "MEDICAL_OFFICER", "astronaut_id": 3, "email": "adjei@example.com", "first_name": "Efua", "last_name": "Adjei" }
+  },
+  "surgeon": {
+    "token": "demo-token-surgeon-58aa21",
+    "user": { "id": 20, "username": "surgeon", "display_name": "Dr. Yaw Boateng", "role": "FLIGHT_SURGEON", "astronaut_id": null, "email": "surgeon@example.com", "first_name": "Yaw", "last_name": "Boateng" }
+  },
+  "admin": {
+    "token": "demo-token-admin-3d7e52",
+    "user": { "id": 1, "username": "admin", "display_name": "Mission Admin", "role": "ADMIN", "astronaut_id": null, "email": "admin@example.com", "first_name": "Mission", "last_name": "Admin" }
+  }
+}

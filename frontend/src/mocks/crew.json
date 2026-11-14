@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Cmdr. Ama Osei",
+    "call_sign": "HALO",
+    "crew_role": "Commander",
+    "streak_weeks": 13,
+    "baseline": { "near_vision_left": 8.0, "near_vision_right": 8.33, "contrast_left": 6, "contrast_right": 6 }
+  },
+  {
+    "id": 2,
+    "name": "Kofi Mensah",
+    "call_sign": "KESTREL",
+    "crew_role": "Pilot",
+    "streak_weeks": 13,
+    "baseline": { "near_vision_left": 9, "near_vision_right": 9, "contrast_left": 7, "contrast_right": 7 }
+  },
+  {
+    "id": 3,
+    "name": "Efua Adjei",
+    "call_sign": "NOVA",
+    "crew_role": "Specialist",
+    "streak_weeks": 13,
+    "baseline": { "near_vision_left": 8, "near_vision_right": 8, "contrast_left": 6, "contrast_right": 6 }
+  }
+]
