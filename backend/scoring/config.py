@@ -46,3 +46,13 @@ SYS_AMBER, SYS_RED = 130, 140                # demo values, mmHg (systolic ≥ v
 DIA_AMBER, DIA_RED = 85, 90                  # demo values, mmHg (diastolic ≥ value)
 SLEEP_GREEN_MIN, SLEEP_RED_BELOW = 7.0, 5.0  # demo values, hours: 5–6.9 → AMBER
 MOOD_GREEN_MIN, MOOD_RED_MAX = 4, 2          # demo values, 1–5 scale: 3 → AMBER
+
+# --- Engagement / gamification (docs/04 §6) -------------------------------------
+STREAK_WINDOW_DAYS = 7        # a "week" of the streak: 7-day windows counting back from today
+BADGE_STREAK_4 = 4            # demo value: weeks
+BADGE_STREAK_12 = 12          # demo value: weeks
+BADGE_DAILY_LOGS = 30         # demo value: daily logs
+
+# --- Trends (docs/03 R2) ------------------------------------------------------------
+TRENDS_DEFAULT_DAYS = 90
+TRENDS_MAX_DAYS = 1000
