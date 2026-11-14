@@ -28,6 +28,11 @@ Then check every "Done when" box before moving on. Commit after each task.
 
 ### T3: Mission, Astronaut, Baseline, CabinLog, DailyLog models (≈45 min)
 **Specs:** 02 §3.2–3.4, 3.7, 3.8
+
+> ✅ Already done in T2 (User needed them): `missions.Mission` (one-active rule in `save()`, `mission_day(date)` method)
+> and `crew.Astronaut` (+ admin for both). **Left for T3:** Baseline, CabinLog, DailyLog, the shared `mission_day`
+> helper in `core` (Mission.mission_day can call it), computing `mission_day` on save, admin for the new models.
+> Permission helpers to use from T7 on live in `accounts/permissions.py`.
 - Models, enums, `mission_day` helper in `core`, admin registration
 
 **Done when:** migrations apply on Neon; can add a mission and astronaut in admin; mission_day is computed on save.
