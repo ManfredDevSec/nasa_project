@@ -10,9 +10,32 @@ services:
       - /app/.venv
       - sightline_data:/app/data
     environment:
-      SQLITE_PATH: /app/data/db.sqlite3
-      DEBUG: "1"
+      DJANGO_DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0,backend"
+      # Local DB is SQLite on a Docker volume. Production (Render) uses Neon.
+      DATABASE_URL: "sqlite:////app/data/db.sqlite3"
+      REDIS_URL: "redis://redis:6379/0"
       CORS_ALLOWED_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173"
+    depends_on:
+      redis:
+        condition: service_healthy
+    # "Healthy" = migrations finished and DB + Redis answer. `make up` waits for this.
+    # Checks every 2s while starting, then every 30s (keeps the logs quiet).
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health/', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+      start_interval: 2s
+
+  redis:
+    image: redis:7.4-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   frontend:
     profiles: ["frontend"]
