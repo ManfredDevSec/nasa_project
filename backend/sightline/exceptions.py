@@ -41,6 +41,12 @@ class BadRequestError(SightLineError):
     pass
 
 
+class NotFoundError(SightLineError):
+    status_code = status.HTTP_404_NOT_FOUND
+    error_code = "NOT_FOUND"
+    default_detail = "Not found."
+
+
 class ConflictError(SightLineError):
     status_code = status.HTTP_409_CONFLICT
     error_code = "CONFLICT"

@@ -225,6 +225,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "sightline.exceptions.custom_exception_handler",
     "DEFAULT_PAGINATION_CLASS": None,
+    "COERCE_DECIMAL_TO_STRING": False,  # decimals as JSON numbers (8.33), as in docs/03
 }
 
 SPECTACULAR_SETTINGS = {
