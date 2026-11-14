@@ -371,6 +371,15 @@ Rules in `04_SCORING_RULES.md` §6. As built: also `astronaut_id` and `as_of`; `
 ```
 `overall` = worst of the four parts.
 
+As built (additions): `?mission=<id>` (default: the MO's own mission / the active one; flight surgeon and admin
+may pick any mission, an MO only their own → 403) and `?as_of=`. Response also has `mission {id, name,
+is_active}` and `as_of`. Crew rows add `next_test_due`, sorted worst first. `headline`: the eye result's first
+reason when the eyes drive `overall`, else the worst vitals part, else "All clear" / "No data yet".
+`co2_level` (rule not in the original spec, demo values in `scoring/config.py`): GREEN ≤ 3.5 mmHg,
+AMBER > 3.5, RED > 5.0; null/UNKNOWN if not logged today. `co2_5day_avg` = last 5 logged days.
+Alerts (RED first) also carry `detail`: RED eyes → "<call sign>: escalate to Earth"; AMBER eyes → "retest
+within 48 hours"; RED heart/sleep/mind; overdue eye test; cabin CO₂ above normal (`astronaut_id` null).
+
 ### R5 `GET /reports/weekly/?week_ending=2026-11-14`
 Compact report for Earth. Default week_ending = today.
 ```json
@@ -386,6 +395,11 @@ Compact report for Earth. Default week_ending = today.
   "recommendations_for_surgeon": [ "Review Osei's left-eye trend and Amsler grid." ]
 }
 ```
+As built (additions): `?mission=` as R4. Week = `week_ending` and the 6 days before (finished missions: up to
+their last day). `mission` also has `id`, `from`, `to`. Per astronaut: the **worst** result of the week (so an
+escalation isn't hidden by a later GREEN), plus `tests` that week; no test → `eyes: "UNKNOWN"` and a
+recommendation to ask for one. `environment` adds `high_mark` (3.5) and `days_logged`; `days_above_normal`
+counts days above the high mark. Insights are the assessments' insight texts ("pattern, not a proven cause").
 
 ---
 
@@ -400,7 +414,7 @@ Compact report for Earth. Default week_ending = today.
 | 403 | `PERMISSION_DENIED` |
 | 404 | `NOT_FOUND`, `NO_BASELINE` (on baseline GET) |
 | 409 | `NO_BASELINE` (on scored check POST) |
-| 409 | `NO_ACTIVE_MISSION` (M1, E1, E2 when no mission is active) |
+| 409 | `NO_ACTIVE_MISSION` (M1, E1, E2, R4, R5 when no mission is active and none is given) |
 | 429 | `THROTTLED` (too many login / password attempts) |
 
 All errors use the standard format in `01_SETUP_AND_CONVENTIONS.md`.

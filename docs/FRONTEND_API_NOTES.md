@@ -18,11 +18,10 @@ and how to wire the real API in.
 | Mission, crew list/detail, baseline, eye test submit + history, daily logs, cabin logs | ✅ live (T7) | **Real API** |
 | Body map (`/astronauts/{id}/body-map/`) | ✅ live (T9) | **Real API** |
 | Trends (`/astronauts/{id}/trends/`), engagement (`/astronauts/{id}/engagement/`) | ✅ live (T10) | **Real API** |
-| Crew overview, weekly Earth report | ⏳ T11 | **Keep mocks** |
+| Crew overview (`/crew/overview/`), weekly Earth report (`/reports/weekly/`) | ✅ live (T11) | **Real API** |
 | Demo logins (12 astronauts + surgeon + admin) | ✅ T8 seed | See §8 |
 
-So: **everything except the crew overview and the weekly report uses the real API now**; those two stay on
-mocks until T11 is live.
+So: **the whole API is live** (T1–T11). Switch every area to the real API.
 `FRONTEND_GUIDE.md` §1 describes one `VITE_USE_MOCKS` switch for everything; see §7 for doing it per area.
 
 **Running the backend locally:** in the repo root, `make fresh` (Docker), then open

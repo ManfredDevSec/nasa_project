@@ -1,12 +1,17 @@
-"""Report endpoints (docs/03 R1; R2–R5 come in T10/T11)."""
+"""Report endpoints (docs/03 R1–R5)."""
+from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, inline_serializer
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.api import astronaut_for, parse_query, today
+from accounts.permissions import CanSeeCrewOverview
+from core.api import astronaut_for, parse_query, today, users_mission
 from core.schema import NOT_AUTHENTICATED, error_response
+from missions.models import Mission
 from scoring import config
 
 from . import services
@@ -145,3 +150,93 @@ class EngagementView(APIView):
         astronaut = astronaut_for(request, pk)
         as_of = parse_query(AsOfSerializer, request).get("as_of") or today()
         return Response(services.engagement(astronaut, as_of))
+
+
+# --- T11 -----------------------------------------------------------------------------
+
+class MissionQuerySerializer(AsOfSerializer):
+    mission = serializers.IntegerField(required=False, min_value=1)
+
+
+def mission_for(request, mission_id):
+    """MO: own mission only. Flight surgeon / admin: any mission (default: the active one)."""
+    user = request.user
+    if mission_id is None:
+        return users_mission(user)
+    mission = get_object_or_404(Mission, pk=mission_id)
+    if user.astronaut_id and user.astronaut.mission_id != mission.pk and not user.is_admin_role:
+        raise PermissionDenied("You can only see your own mission.")
+    return mission
+
+
+MISSION_PARAM = OpenApiParameter("mission", int, description="Mission id. Default: yours (MO) / the active one. "
+                                 "Flight surgeons and admins may pick any mission.")
+ROLE_FORBIDDEN = error_response("Medical Officer, flight surgeon or admin only.", "PERMISSION_DENIED", "Your role can't do this.")
+OVERVIEW_EXAMPLE = {
+    "mission": {"id": 1, "name": "Ares Transit 1", "is_active": True}, "as_of": "2026-11-14", "mission_day": 92,
+    "cabin": {"co2_mmhg_today": 3.13, "co2_level": "GREEN", "co2_5day_avg": 3.4},
+    "crew": [{"astronaut_id": 1, "call_sign": "Osei", "eyes": "RED", "heart": "GREEN", "sleep": "GREEN", "mind": "GREEN",
+              "overall": "RED", "headline": "Left eye near vision is 2 lines below your normal.", "overdue": False,
+              "next_test_due": "2026-11-15"}],
+    "alerts": [{"astronaut_id": 1, "level": "RED", "text": "Osei: escalate to Earth",
+                "detail": "Left eye near vision is 2 lines below your normal.", "created_at": "2026-11-13T08:41:00Z"}],
+}
+WEEKLY_EXAMPLE = {
+    "mission": {"id": 1, "name": "Ares Transit 1", "day_range": [86, 92], "from": "2026-11-08", "to": "2026-11-14"},
+    "generated_at": "2026-11-14T10:00:00Z",
+    "crew_summary": [{"call_sign": "Osei", "eyes": "RED", "tests": 2, "near_drift": {"left": 2.0, "right": 0.33},
+                      "symptom_score": 5, "new_amsler": ["LEFT"], "escalated": True}],
+    "environment": {"co2_avg": 3.8, "co2_max": 4.8, "days_above_normal": 3, "high_mark": 3.5, "days_logged": 7},
+    "insights": ["Osei: This change followed 5 days of high cabin CO₂. This is a pattern we noticed, not a proven cause."],
+    "recommendations_for_surgeon": ["Review Osei's left-eye trend and Amsler grid."],
+}
+
+
+class CrewOverviewView(APIView):
+    permission_classes = [IsAuthenticated, CanSeeCrewOverview]
+
+    @extend_schema(
+        tags=["Reports"], summary="Crew dashboard (Medical Officer / flight surgeon)",
+        description=(
+            "Every astronaut's eyes / heart / sleep / mind + `overall` (worst of the four), worst first; cabin CO₂ "
+            "today (GREEN ≤ 3.5, AMBER > 3.5, RED > 5.0 mmHg: demo values); alerts, RED first: RED eyes "
+            "(\"escalate to Earth\"), AMBER eyes (retest), RED vitals, overdue tests, high cabin CO₂."
+        ),
+        parameters=[MISSION_PARAM, AS_OF],
+        responses={200: OpenApiTypes.OBJECT, 401: NOT_AUTHENTICATED, 403: ROLE_FORBIDDEN,
+                   409: error_response("No active mission.", "NO_ACTIVE_MISSION", "There is no active mission yet.")},
+        examples=[OpenApiExample("Ares Transit 1", value=OVERVIEW_EXAMPLE, response_only=True)],
+    )
+    def get(self, request):
+        query = parse_query(MissionQuerySerializer, request)
+        mission = mission_for(request, query.get("mission"))
+        return Response(services.crew_overview(mission, query.get("as_of") or today()))
+
+
+class WeeklyQuerySerializer(MissionQuerySerializer):
+    week_ending = serializers.DateField(required=False)
+
+    def get_fields(self):
+        fields = super().get_fields()
+        fields.pop("as_of")
+        return fields
+
+
+class WeeklyReportView(APIView):
+    permission_classes = [IsAuthenticated, CanSeeCrewOverview]
+
+    @extend_schema(
+        tags=["Reports"], summary="Weekly report for Earth",
+        description=(
+            "The 7 days ending `week_ending` (default today; finished missions: their last day). Per astronaut: "
+            "the worst eye result that week. Environment: cabin CO₂ average/max and days above the 3.5 mmHg high "
+            "mark. Insights come from the assessments; recommendations are simple rules."
+        ),
+        parameters=[MISSION_PARAM, OpenApiParameter("week_ending", str, description="YYYY-MM-DD. Default: today.")],
+        responses={200: OpenApiTypes.OBJECT, 401: NOT_AUTHENTICATED, 403: ROLE_FORBIDDEN},
+        examples=[OpenApiExample("Week to day 92", value=WEEKLY_EXAMPLE, response_only=True)],
+    )
+    def get(self, request):
+        query = parse_query(WeeklyQuerySerializer, request)
+        mission = mission_for(request, query.get("mission"))
+        return Response(services.weekly_report(mission, query.get("week_ending") or today()))

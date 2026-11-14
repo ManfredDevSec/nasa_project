@@ -56,3 +56,10 @@ BADGE_DAILY_LOGS = 30         # demo value: daily logs
 # --- Trends (docs/03 R2) ------------------------------------------------------------
 TRENDS_DEFAULT_DAYS = 90
 TRENDS_MAX_DAYS = 1000
+
+# --- Crew overview + weekly report (docs/03 R4–R5) ----------------------------------
+# Cabin CO₂ traffic light (spec gives no rule): GREEN up to CO2_HIGH_MMHG, AMBER above it,
+# RED above CO2_RED_MMHG. Example in docs/03 R4: 4.1 mmHg → AMBER.
+CO2_RED_MMHG = 5.0            # demo value
+CO2_OVERVIEW_AVG_DAYS = 5     # "co2_5day_avg"
+WEEKLY_REPORT_DAYS = 7        # week = week_ending and the 6 days before

@@ -18,3 +18,11 @@ class Eye(models.TextChoices):
     LEFT = "LEFT", "Left"
     RIGHT = "RIGHT", "Right"
     BOTH = "BOTH", "Both"
+
+# Severity order for "worst of" (UNKNOWN only wins when nothing is known).
+LEVEL_ORDER = {UNKNOWN: -1, Level.GREEN: 0, Level.AMBER: 1, Level.RED: 2}
+
+
+def worst_level(levels):
+    """'RED' if any part is RED, … 'UNKNOWN' only if every part is UNKNOWN."""
+    return str(max(levels, key=lambda level: LEVEL_ORDER[level]))

@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from checks.models import VisionCheck
-from core.enums import UNKNOWN
+from core.enums import LEVEL_ORDER, UNKNOWN, worst_level
 from crew.models import Baseline
 from missions.models import CabinLog
 from scoring import config
@@ -230,6 +230,14 @@ BADGES = [
 ]
 
 
+def next_test_due(astronaut, as_of):
+    """From the latest assessment; before any → mission start + interval (docs/04 §6)."""
+    latest = latest_assessment_on(astronaut, as_of)
+    if latest:
+        return latest.next_test_due
+    return astronaut.mission.start_date + timedelta(days=astronaut.test_interval_days)
+
+
 def streak_weeks(check_dates, today):
     """Consecutive 7-day windows counting back from `today` (window 1 = today and the 6 days
     before) that each contain at least one scored check."""
@@ -249,8 +257,7 @@ def engagement(astronaut, as_of):
     scored = VisionCheck.objects.filter(astronaut=astronaut, is_baseline=False, taken_at__date__lte=today_)
     check_dates = [timezone.localdate(t) for t in scored.values_list("taken_at", flat=True)]
 
-    latest = latest_assessment_on(astronaut, today_)
-    next_due = latest.next_test_due if latest else mission.start_date + timedelta(days=astronaut.test_interval_days)
+    next_due = next_test_due(astronaut, today_)
     streak = streak_weeks(check_dates, today_)
     early_reporter = Assessment.objects.filter(
         astronaut=astronaut, level="AMBER", symptom_score__gte=1, vision_check__taken_at__date__lte=today_
@@ -276,4 +283,168 @@ def engagement(astronaut, as_of):
             "planned": mission.planned_duration_days,
             "pct": float((Decimal(day) * 100 / mission.planned_duration_days).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)),
         },
+    }
+
+
+# --- T11: crew overview (docs/03 R4) -----------------------------------------------------
+
+def mission_reference_date(mission, as_of):
+    return min(as_of, mission_end(mission))
+
+
+def cabin_level(co2):
+    if co2 is None:
+        return UNKNOWN
+    if co2 > Decimal(str(config.CO2_RED_MMHG)):
+        return "RED"
+    if co2 > Decimal(str(config.CO2_HIGH_MMHG)):
+        return "AMBER"
+    return "GREEN"
+
+
+def _round1(value):
+    return float(Decimal(value).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP))
+
+
+def _crew_row(astronaut, as_of):
+    parts = {p["part"]: p for p in body_map(astronaut, as_of)["parts"]}
+    levels = {name.lower(): parts[name]["level"] for name in ("EYES", "HEART", "SLEEP", "MIND")}
+    overall = worst_level(levels.values())
+    due = next_test_due(astronaut, as_of)
+    # Headline: the eye result's first reason when the eyes drive the status, else the worst vitals part.
+    if overall in ("GREEN", UNKNOWN):
+        headline = "All clear" if overall == "GREEN" else "No data yet"
+    elif levels["eyes"] == overall:
+        assessment = latest_assessment_on(astronaut, as_of)
+        headline = assessment.reasons[0]
+    else:
+        part = next(n for n in ("HEART", "SLEEP", "MIND") if parts[n]["level"] == overall)
+        headline = f"{part.capitalize()}: {parts[part]['summary']}"
+    row = {
+        "astronaut_id": astronaut.pk, "call_sign": astronaut.call_sign, **levels, "overall": overall,
+        "headline": headline, "overdue": as_of > due, "next_test_due": due,
+    }
+    return row, parts
+
+
+def _alerts_for(astronaut, row, parts):
+    call = astronaut.call_sign
+    alerts = []
+    eyes = parts["EYES"]
+    if eyes["level"] == "RED":
+        alerts.append(("RED", f"{call}: escalate to Earth", row["headline"], eyes["last_updated"]))
+    elif eyes["level"] == "AMBER":
+        alerts.append(("AMBER", f"{call}: retest within {config.RETEST_HOURS_FLAGGED} hours", row["headline"], eyes["last_updated"]))
+    for name in ("HEART", "SLEEP", "MIND"):
+        if parts[name]["level"] == "RED":
+            alerts.append(("RED", f"{call}: {name.lower()} needs attention", parts[name]["guidance"], parts[name]["last_updated"]))
+    if row["overdue"]:
+        alerts.append(("AMBER", f"{call}: eye test overdue", f"Was due {_short_date(row['next_test_due'])}.",
+                       _day_start(row["next_test_due"])))
+    return [{"astronaut_id": astronaut.pk, "level": level, "text": text, "detail": detail, "created_at": when}
+            for level, text, detail, when in alerts]
+
+
+def crew_overview(mission, as_of):
+    as_of = mission_reference_date(mission, as_of)
+    logs = list(CabinLog.objects.filter(mission=mission, date__lte=as_of).order_by("-date")[: config.CO2_OVERVIEW_AVG_DAYS])
+    today_log = logs[0] if logs and logs[0].date == as_of else None
+    co2_today = today_log.co2_mmhg if today_log else None
+    cabin = {
+        "co2_mmhg_today": co2_today,
+        "co2_level": cabin_level(co2_today),
+        "co2_5day_avg": _round1(sum(l.co2_mmhg for l in logs) / len(logs)) if logs else None,
+    }
+
+    crew, alerts = [], []
+    for astronaut in mission.astronauts.order_by("call_sign"):
+        row, parts = _crew_row(astronaut, as_of)
+        crew.append(row)
+        alerts += _alerts_for(astronaut, row, parts)
+    if cabin["co2_level"] in ("AMBER", "RED"):
+        alerts.append({"astronaut_id": None, "level": cabin["co2_level"],
+                       "text": f"Cabin CO₂ above normal ({co2_today} mmHg)",
+                       "detail": "Ask for a CO₂ scrubber check.", "created_at": _day_start(as_of)})
+
+    crew.sort(key=lambda r: (-LEVEL_ORDER[r["overall"]], r["call_sign"]))  # worst first
+    alerts.sort(key=lambda a: (-LEVEL_ORDER[a["level"]], a["astronaut_id"] is None))
+    return {
+        "mission": {"id": mission.pk, "name": mission.name, "is_active": mission.is_active},
+        "as_of": as_of,
+        "mission_day": mission.mission_day(as_of),
+        "cabin": cabin,
+        "crew": crew,
+        "alerts": alerts,
+    }
+
+
+# --- T11: weekly report for Earth (docs/03 R5) ----------------------------------------------
+
+def _eye_phrase(worse_eye):
+    return {"LEFT": "left-eye", "RIGHT": "right-eye", "BOTH": "both-eye"}.get(worse_eye, "eye")
+
+
+def weekly_report(mission, week_ending):
+    end = mission_reference_date(mission, week_ending)
+    start = end - timedelta(days=config.WEEKLY_REPORT_DAYS - 1)
+
+    logs = list(CabinLog.objects.filter(mission=mission, date__gte=start, date__lte=end))
+    co2 = [l.co2_mmhg for l in logs]
+    high = Decimal(str(config.CO2_HIGH_MMHG))
+    environment = {
+        "co2_avg": _round1(sum(co2) / len(co2)) if co2 else None,
+        "co2_max": float(max(co2)) if co2 else None,
+        "days_above_normal": sum(1 for v in co2 if v > high),
+        "high_mark": config.CO2_HIGH_MMHG,
+        "days_logged": len(co2),
+    }
+
+    crew_summary, insights, recommendations = [], [], []
+    for astronaut in mission.astronauts.order_by("call_sign"):
+        week = list(
+            Assessment.objects.filter(astronaut=astronaut, vision_check__taken_at__date__gte=start,
+                                      vision_check__taken_at__date__lte=end)
+            .select_related("vision_check").order_by("vision_check__taken_at")
+        )
+        call = astronaut.call_sign
+        if not week:
+            crew_summary.append({"call_sign": call, "eyes": UNKNOWN, "tests": 0, "near_drift": None,
+                                 "symptom_score": None, "new_amsler": [], "escalated": False})
+            recommendations.append(f"{call} did no eye test this week: ask for one.")
+            continue
+        worst = max(week, key=lambda a: (LEVEL_ORDER[a.level], a.vision_check.taken_at))  # worst, latest on ties
+        new_amsler = [eye for eye, flag in (("LEFT", any(a.new_amsler_left for a in week)),
+                                            ("RIGHT", any(a.new_amsler_right for a in week))) if flag]
+        crew_summary.append({
+            "call_sign": call, "eyes": worst.level, "tests": len(week),
+            "near_drift": {"left": worst.near_drift_left, "right": worst.near_drift_right},
+            "symptom_score": worst.symptom_score, "new_amsler": new_amsler,
+            "escalated": any(a.escalate_to_earth for a in week),
+        })
+        for insight in worst.env_insights:
+            line = f"{call}: {insight['text']}"
+            if line not in insights:
+                insights.append(line)
+        eye = _eye_phrase(worst.worse_eye)
+        if worst.level == "RED":
+            grid = " and Amsler grid" if new_amsler else ""
+            recommendations.append(f"Review {call}'s {eye} trend{grid}.")
+        elif worst.level == "AMBER":
+            recommendations.append(f"Follow up on {call}'s {config.RETEST_HOURS_FLAGGED}-hour retest.")
+
+    if environment["days_above_normal"] >= config.CO2_HIGH_DAYS_TRIGGER:
+        recommendations.append(f"Cabin CO₂ was above {config.CO2_HIGH_MMHG} mmHg on "
+                               f"{environment['days_above_normal']} days: ask for a scrubber status report.")
+    if not recommendations:
+        recommendations.append("No action needed this week.")
+
+    crew_summary.sort(key=lambda r: (-LEVEL_ORDER[r["eyes"]], r["call_sign"]))
+    return {
+        "mission": {"id": mission.pk, "name": mission.name, "day_range": [mission.mission_day(start), mission.mission_day(end)],
+                    "from": start, "to": end},
+        "generated_at": timezone.now(),
+        "crew_summary": crew_summary,
+        "environment": environment,
+        "insights": insights,
+        "recommendations_for_surgeon": recommendations,
     }
