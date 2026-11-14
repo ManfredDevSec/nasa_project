@@ -1,12 +1,11 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 
+from core.dates import mission_day as compute_mission_day
+
 
 class Mission(models.Model):
-    """docs/02_DATABASE_SCHEMA.md §3.2. Created in T2 because User → Astronaut → Mission.
-
-    T3 adds CabinLog to this app.
-    """
+    """docs/02_DATABASE_SCHEMA.md §3.2."""
 
     class Environment(models.TextChoices):
         STATION = "STATION", "Space station"
@@ -49,4 +48,43 @@ class Mission(models.Model):
 
     def mission_day(self, date):
         """Day 1 = start_date. Pre-flight dates give 0 or less."""
-        return (date - self.start_date).days + 1
+        return compute_mission_day(self.start_date, date)
+
+
+class CabinLog(models.Model):
+    """Cabin environment, once per day per mission (docs/02 §3.8). POST acts as upsert (T7)."""
+
+    mission = models.ForeignKey(Mission, on_delete=models.CASCADE, related_name="cabin_logs")
+    date = models.DateField()
+    mission_day = models.IntegerField(editable=False, help_text="Computed from the date on save.")
+    co2_mmhg = models.DecimalField(
+        "CO₂ (mmHg)",
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(0), MaxValueValidator(15)],
+        help_text="Cabin CO₂ partial pressure, 0–15 mmHg.",
+    )
+    temperature_c = models.DecimalField(
+        "temperature (°C)", max_digits=4, decimal_places=1, null=True, blank=True
+    )
+    humidity_pct = models.DecimalField(
+        "humidity (%)",
+        max_digits=4,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+    )
+
+    class Meta:
+        ordering = ["mission", "date"]
+        constraints = [
+            models.UniqueConstraint(fields=["mission", "date"], name="one_cabin_log_per_mission_day")
+        ]
+
+    def __str__(self):
+        return f"{self.mission} day {self.mission_day}: CO₂ {self.co2_mmhg} mmHg"
+
+    def save(self, *args, **kwargs):
+        self.mission_day = self.mission.mission_day(self.date)
+        super().save(*args, **kwargs)

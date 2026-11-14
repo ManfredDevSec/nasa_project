@@ -1,12 +1,9 @@
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
 class Astronaut(models.Model):
-    """docs/02_DATABASE_SCHEMA.md §3.3. Created in T2 because a User links to one.
-
-    T3 adds Baseline to this app.
-    """
+    """docs/02_DATABASE_SCHEMA.md §3.3."""
 
     class CrewRole(models.TextChoices):
         COMMANDER = "COMMANDER", "Commander"
@@ -44,3 +41,30 @@ class Astronaut(models.Model):
     @property
     def display_name(self):
         return f"{self.TITLES.get(self.crew_role, '')} {self.full_name}".strip()
+
+
+def _range(low, high):
+    return [MinValueValidator(low), MaxValueValidator(high)]
+
+
+class Baseline(models.Model):
+    """An astronaut's pre-flight "normal" (docs/02 §3.4): the average of all their
+    baseline VisionChecks. One row per astronaut, both eyes.
+
+    Not entered by hand: checks.services.submit_check (T6) recomputes it every time a
+    VisionCheck with is_baseline=True is saved. Scales (docs/02 §2): near vision 1–10,
+    contrast 1–8, higher = better. Averages keep 2 decimals (e.g. 8, 9, 8 → 8.33).
+    """
+
+    astronaut = models.OneToOneField(Astronaut, on_delete=models.CASCADE, related_name="baseline")
+    near_vision_left = models.DecimalField(max_digits=4, decimal_places=2, validators=_range(1, 10))
+    near_vision_right = models.DecimalField(max_digits=4, decimal_places=2, validators=_range(1, 10))
+    contrast_left = models.DecimalField(max_digits=4, decimal_places=2, validators=_range(1, 8))
+    contrast_right = models.DecimalField(max_digits=4, decimal_places=2, validators=_range(1, 8))
+    checks_used = models.PositiveSmallIntegerField(
+        default=0, help_text="How many baseline checks went into the average (target 3–5)."
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Baseline({self.astronaut.call_sign}, {self.checks_used} checks)"
