@@ -150,6 +150,7 @@ U5 `DELETE` → 204. Sets `is_active: false` (account and health data kept). Und
   "mission_day_today": 92, "planned_duration_days": 900
 }
 ```
+409 `NO_ACTIVE_MISSION` if no mission is marked active.
 
 ### C1 `GET /astronauts/`
 ```json
@@ -165,7 +166,12 @@ U5 `DELETE` → 204. Sets `is_active: false` (account and health data kept). Und
   }
 ]
 ```
-`latest_status` is null if no scored check yet.
+`latest_status` is null if no scored check yet. `headline` = the first reason of the latest assessment.
+Lists your own mission's crew (flight surgeon/admin: the active mission). A **CREW** user gets a crewmate's
+`level` and `mission_day` only (`headline` and `next_test_due` are null for others).
+
+### C2 `GET /astronauts/{id}/`
+The C1 item plus `display_name`, `mission`, `avatar_url`, `test_interval_days`. 403 if not allowed, 404 if unknown.
 
 ### C3 `GET /astronauts/{id}/baseline/`
 ```json
@@ -225,10 +231,18 @@ Request
 }
 ```
 201 (baseline check): `assessment` is `null`, and the response includes the updated `baseline`.
+The response always has all three keys `check`, `assessment`, `baseline` (one of the last two is null).
+`check` = every request field plus `id`, `mission_day`, `created_at`; `assessment` also has an `id`.
+403: crew submitting for another astronaut, or a flight surgeon (read-only).
 409 `NO_BASELINE`: scored check submitted before any baseline exists.
 
 ### V2 `GET /checks/?astronaut=1&from=2026-08-01&to=2026-11-14`
 List of `{ check, assessment }` objects, oldest first. `include_baseline=false` by default.
+All filters optional; dates inclusive, matched on the day the test was taken. Without `astronaut`: everyone
+you may see (crew: only yourself; Medical Officer: the crew). An astronaut you can't see → 403.
+
+### V3 `GET /checks/{id}/`
+One `{ check, assessment }`. 403 / 404 as above.
 
 ### D1 `POST /daily-logs/` (upsert on astronaut + date)
 ```json
@@ -248,11 +262,21 @@ All value fields optional; sending a field again overwrites it. Returns 200 (upd
 }
 ```
 
+### D2 `GET /daily-logs/?astronaut={id}&from=&to=`
+List of saved records (same fields as D1, without `vitals_status`), oldest first. Filters as V2.
+
 ### E1 `POST /cabin-logs/` (upsert on mission + date)
 ```json
 { "date": "2026-11-14", "co2_mmhg": 4.6, "temperature_c": 22.5, "humidity_pct": 45 }
 ```
-Mission = active mission.
+Mission = active mission. 201 created / 200 updated (only the fields you send change). Medical Officer or
+admin only (others 403). 409 `NO_ACTIVE_MISSION` if none.
+
+### E2 `GET /cabin-logs/?from=&to=`
+Your mission's cabin logs (flight surgeon/admin: the active mission), oldest first. Each:
+`{ "id", "mission", "date", "mission_day", "co2_mmhg", "temperature_c", "humidity_pct" }`.
+
+> **Numbers:** decimals (`8.33`, `4.6`) are JSON numbers, not strings.
 
 ### R1 `GET /astronauts/{id}/body-map/`
 Drives the clickable figure. Each part: status + info card text.
@@ -361,6 +385,7 @@ Compact report for Earth. Default week_ending = today.
 | 403 | `PERMISSION_DENIED` |
 | 404 | `NOT_FOUND`, `NO_BASELINE` (on baseline GET) |
 | 409 | `NO_BASELINE` (on scored check POST) |
+| 409 | `NO_ACTIVE_MISSION` (M1, E1, E2 when no mission is active) |
 | 429 | `THROTTLED` (too many login / password attempts) |
 
 All errors use the standard format in `01_SETUP_AND_CONVENTIONS.md`.
