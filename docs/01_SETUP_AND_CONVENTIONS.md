@@ -175,7 +175,9 @@ python manage.py runserver      # http://localhost:8000/api/docs/
   `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
 - Start command: `gunicorn sightline.wsgi:application`
 - Env vars: as in section 3
-- After first deploy, open Render **Shell** → `python manage.py seed_mission --reset`
+- After first deploy: Render's free plan has **no Shell**, so run commands from your laptop against Neon:
+  `DATABASE_URL='<neon url>' python manage.py createsuperuser` and (after T8) `... seed_mission --reset`
+- The service is defined in `render.yaml` (repo root): create it with Render → New → **Blueprint**
 
 ⚠️ **Render free tier sleeps** after inactivity, and the first request takes ~30–60 s. **Open the API URL a few minutes before judging.**
 
