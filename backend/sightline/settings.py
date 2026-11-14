@@ -4,11 +4,16 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-sightline-dev-key-change-in-prod")
-DEBUG = os.environ.get("DEBUG", "True") == "True"
+
+def _bool_env(name, default="0"):
+    return os.environ.get(name, default).lower() in {"1", "true", "yes", "on"}
+
+DEBUG = _bool_env("DEBUG", "1")
 _allowed_default = "localhost,127.0.0.1,0.0.0.0,backend"
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", _allowed_default).split(",")
 
 INSTALLED_APPS = [
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -27,6 +32,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -75,6 +81,21 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if DEBUG
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
+    },
+}
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 _cors_default = "http://localhost:5173,http://127.0.0.1:5173"
@@ -86,10 +107,41 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+JAZZMIN_SETTINGS = {
+    "site_title": "SightLine Admin",
+    "site_header": "SightLine",
+    "site_brand": "SightLine",
+    "welcome_sign": "SightLine mission control",
+    "copyright": "SightLine · NASA Space Apps 2026",
+    "search_model": ["crew.Astronaut"],
+    "topmenu_links": [{"name": "API docs", "url": "/api/docs/", "new_window": True}],
+    "order_with_respect_to": ["crew", "checks", "scoring", "environment"],
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "crew.Astronaut": "fas fa-user-astronaut",
+        "crew.Baseline": "fas fa-ruler",
+        "checks.VisionCheck": "fas fa-eye",
+        "scoring.Status": "fas fa-traffic-light",
+        "environment.EnvLog": "fas fa-wind",
+    },
+    "related_modal_active": True,
+    "show_ui_builder": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "darkly",
+    "dark_mode_theme": "darkly",
+    "navbar": "navbar-dark",
+    "sidebar": "sidebar-dark-primary",
+    "accent": "accent-info",
+}
+
 SIGHTLINE_THRESHOLDS = {
-    "near_drift_amber": 0.10,    # logMAR, 1 line
-    "near_drift_red": 0.20,      # 2 lines
-    "contrast_drop_amber": 0.15, # logCS
+    "near_drift_amber": 0.10,
+    "near_drift_red": 0.20,
+    "contrast_drop_amber": 0.15,
     "contrast_drop_red": 0.30,
     "symptoms_amber": 3,
     "symptoms_red": 6,

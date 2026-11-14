@@ -3,7 +3,7 @@ FRONTEND := $(shell [ -f frontend/package.json ] && echo "--profile frontend" ||
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build up down restart logs logs-backend migrate makemigrations seed test shell bash superuser reset-db fresh
+.PHONY: help build up down restart logs logs-backend migrate makemigrations collectstatic seed test shell bash superuser reset-db fresh
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -36,6 +36,9 @@ migrate: ## Run database migrations
 
 makemigrations: ## Create new migrations
 	$(COMPOSE) exec backend python manage.py makemigrations
+
+collectstatic: ## Collect static files
+	$(COMPOSE) exec backend python manage.py collectstatic --noinput
 
 seed: ## Seed mission data (python manage.py seed_mission)
 	$(COMPOSE) exec backend python manage.py seed_mission
