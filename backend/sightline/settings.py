@@ -274,6 +274,8 @@ JAZZMIN_SETTINGS = {
         "crew.Astronaut": "fas fa-user-astronaut",
         "crew.Baseline": "fas fa-ruler",
         "vitals.DailyLog": "fas fa-heartbeat",
+        "checks.VisionCheck": "fas fa-eye",
+        "scoring.Assessment": "fas fa-traffic-light",
     },
     "related_modal_active": True,
     "show_ui_builder": False,
