@@ -17,12 +17,12 @@ and how to wire the real API in.
 | User management (admin) | ✅ live | Optional screen |
 | Mission, crew list/detail, baseline, eye test submit + history, daily logs, cabin logs | ✅ live (T7) | **Real API** |
 | Body map (`/astronauts/{id}/body-map/`) | ✅ live (T9) | **Real API** |
-| Trends, engagement | ⏳ T10 | **Keep mocks** |
+| Trends (`/astronauts/{id}/trends/`), engagement (`/astronauts/{id}/engagement/`) | ✅ live (T10) | **Real API** |
 | Crew overview, weekly Earth report | ⏳ T11 | **Keep mocks** |
 | Demo logins (12 astronauts + surgeon + admin) | ✅ T8 seed | See §8 |
 
-So: **auth, the T7 areas and the body map use the real API now; trends, engagement, crew overview and the
-weekly report stay on mocks** until we tell you they're live.
+So: **everything except the crew overview and the weekly report uses the real API now**; those two stay on
+mocks until T11 is live.
 `FRONTEND_GUIDE.md` §1 describes one `VITE_USE_MOCKS` switch for everything; see §7 for doing it per area.
 
 **Running the backend locally:** in the repo root, `make fresh` (Docker), then open
