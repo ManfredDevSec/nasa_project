@@ -5,11 +5,11 @@ import { availableFactors, baselineLines, byMissionDay, factorRows, sharedDayDom
 import StatusBadge from './StatusBadge.jsx'
 
 // Chart colours are neutral greys: colour is reserved for status (the dots).
-const LEFT_STROKE = '#eeecfb'
-const RIGHT_STROKE = '#a199cc'
+const LEFT_STROKE = '#e9eeeb'
+const RIGHT_STROKE = '#8a948f'
 const RIGHT_DASH = '2 6'
-const GRID = '#221a47'
-const AXIS = '#a199cc'
+const GRID = '#232826'
+const AXIS = '#8a948f'
 // Both charts use the same margins and y-axis width so their x-axes line up exactly.
 const MARGIN = { top: 40, right: 24, bottom: 4, left: 4 }
 const Y_AXIS_WIDTH = 52
@@ -19,7 +19,7 @@ function LevelDot({ cx, cy, payload, r = 6 }) {
   if (cx == null || cy == null) return null
   const level = normalizeLevel(payload.level)
   const { color } = getLevel(level)
-  const stroke = '#080516'
+  const stroke = '#0e100f'
   if (level === 'GREEN') return <circle cx={cx} cy={cy} r={r} fill={color} stroke={stroke} strokeWidth={2} />
   if (level === 'AMBER')
     return (
@@ -27,7 +27,7 @@ function LevelDot({ cx, cy, payload, r = 6 }) {
     )
   if (level === 'RED')
     return <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill={color} stroke={stroke} strokeWidth={2} />
-  return <circle cx={cx} cy={cy} r={r - 1} fill="#080516" stroke={color} strokeWidth={2.5} />
+  return <circle cx={cx} cy={cy} r={r - 1} fill="#0e100f" stroke={color} strokeWidth={2.5} />
 }
 
 // Recharts passes a `key` in the props for custom dots; pull it out instead of spreading it.
@@ -41,7 +41,7 @@ const eventText = (event) => event.text ?? event.label
 function EventLabel({ viewBox, text, row }) {
   if (!viewBox) return null
   return (
-    <text x={viewBox.x + 5} y={viewBox.y - 22 + row * 14} fill="#c8c2e8" fontSize={12} fontFamily="IBM Plex Sans">
+    <text x={viewBox.x + 5} y={viewBox.y - 22 + row * 14} fill="#b4bdb8" fontSize={12} fontFamily="IBM Plex Sans">
       {text}
     </text>
   )
@@ -119,12 +119,12 @@ export default function TrendChart({ trends }) {
               <CartesianGrid stroke={GRID} vertical={false} />
               {xAxis}
               <YAxis domain={[1, 10]} ticks={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]} width={Y_AXIS_WIDTH} stroke={AXIS} tick={{ fontSize: 13 }} />
-              <Tooltip content={<VisionTooltip />} cursor={{ stroke: '#51477f' }} />
+              <Tooltip content={<VisionTooltip />} cursor={{ stroke: '#4b544f' }} />
               {events.map((event, i) => (
                 <ReferenceLine
                   key={`${event.mission_day}-${eventText(event)}`}
                   x={event.mission_day}
-                  stroke="#51477f"
+                  stroke="#4b544f"
                   label={<EventLabel text={eventText(event)} row={i % 2} />}
                 />
               ))}
@@ -132,9 +132,9 @@ export default function TrendChart({ trends }) {
                 <ReferenceLine
                   key={b.label}
                   y={b.y}
-                  stroke="#c8c2e8"
+                  stroke="#b4bdb8"
                   strokeDasharray="8 6"
-                  label={{ value: b.label, position: b.position, fill: '#c8c2e8', fontSize: 12 }}
+                  label={{ value: b.label, position: b.position, fill: '#b4bdb8', fontSize: 12 }}
                 />
               ))}
               <Line
@@ -197,11 +197,11 @@ export default function TrendChart({ trends }) {
                 <CartesianGrid stroke={GRID} vertical={false} />
                 {xAxis}
                 <YAxis width={Y_AXIS_WIDTH} stroke={AXIS} tick={{ fontSize: 13 }} domain={['auto', 'auto']} />
-                <Tooltip content={<FactorTooltip factor={factor} />} cursor={{ stroke: '#51477f' }} />
+                <Tooltip content={<FactorTooltip factor={factor} />} cursor={{ stroke: '#4b544f' }} />
                 {events.map((event) => (
-                  <ReferenceLine key={`${event.mission_day}-${eventText(event)}`} x={event.mission_day} stroke="#51477f" />
+                  <ReferenceLine key={`${event.mission_day}-${eventText(event)}`} x={event.mission_day} stroke="#4b544f" />
                 ))}
-                <Line type="monotone" dataKey={factor.key} stroke="#e0dcf5" strokeWidth={2} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey={factor.key} stroke="#d5dcd8" strokeWidth={2} dot={false} isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>

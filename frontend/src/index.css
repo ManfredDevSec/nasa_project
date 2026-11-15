@@ -7,29 +7,30 @@
   --font-display: 'Sora', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
 
   /*
-   * Sightline palette, shared with the landing page. The slate and sky scales are
-   * re-tinted toward the eye photo's pupil and iris, keeping the same lightness
-   * steps as Tailwind's defaults so every existing contrast pairing still holds.
+   * Sightline palette: charcoal neutrals with a muted (sage/teal) brand green.
+   * The slate scale keeps Tailwind's lightness steps so every contrast pairing still holds.
+   * Brand green (sky-*) is deliberately muted so it never reads as the bright status green,
+   * which stays reserved for ALL CLEAR badges.
    */
-  --color-slate-50: #f7f6fd;
-  --color-slate-100: #eeecfb;
-  --color-slate-200: #e0dcf5;
-  --color-slate-300: #c8c2e8;
-  --color-slate-400: #a199cc;
-  --color-slate-500: #7469a3;
-  --color-slate-600: #51477f;
-  --color-slate-700: #352b63;
-  --color-slate-800: #221a47;
-  --color-slate-900: #120c2b;
-  --color-slate-950: #080516;
+  --color-slate-50: #f5f7f6;
+  --color-slate-100: #e9eeeb;
+  --color-slate-200: #d5dcd8;
+  --color-slate-300: #b4bdb8;
+  --color-slate-400: #8a948f;
+  --color-slate-500: #66706b;
+  --color-slate-600: #4b544f;
+  --color-slate-700: #353c38;
+  --color-slate-800: #232826;
+  --color-slate-900: #171a19;
+  --color-slate-950: #0e100f;
 
-  --color-sky-300: #c4b5fd;
-  --color-sky-400: #a78bfa;
-  --color-sky-500: #8b5cf6;
-  --color-sky-600: #6d3be8;
+  --color-sky-300: #b5d6c9;
+  --color-sky-400: #7fb8a4;
+  --color-sky-500: #4f9a82;
+  --color-sky-600: #3a7d67;
 
-  --color-iris: #a78bfa;
-  --color-iris-soft: #d4c8ff;
+  --color-iris: #7fb8a4;
+  --color-iris-soft: #b5d6c9;
 
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
@@ -121,8 +122,8 @@
   @apply relative isolate inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-sky-600 px-6 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.22),
-    0 1px 2px rgb(7 3 18 / 0.5),
-    0 10px 28px -10px rgb(109 59 232 / 0.8);
+    0 1px 2px rgb(4 6 5 / 0.5),
+    0 10px 28px -10px rgb(31 74 60 / 0.8);
   transition: transform 320ms var(--ease-spring);
   &::after {
     content: '';
@@ -130,8 +131,8 @@
     inset: 0;
     z-index: -1;
     border-radius: inherit;
-    background: #7c4dff;
-    box-shadow: 0 16px 44px -12px rgb(124 77 255 / 0.85);
+    background: #2f6b57;
+    box-shadow: 0 16px 44px -12px rgb(68 138 114 / 0.85);
     opacity: 0;
     transition: opacity 320ms var(--ease-out-soft);
   }
@@ -148,7 +149,7 @@
 }
 @utility btn-secondary {
   @apply relative isolate inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-900/70 px-6 text-base font-medium text-white disabled:cursor-not-allowed disabled:opacity-40;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 2px rgb(7 3 18 / 0.4);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 2px rgb(4 6 5 / 0.4);
   transition: transform 320ms var(--ease-spring);
   &::after {
     content: '';
@@ -156,8 +157,8 @@
     inset: -1px;
     z-index: -1;
     border-radius: inherit;
-    border: 1px solid rgb(167 139 250 / 0.45);
-    background: rgb(167 139 250 / 0.08);
+    border: 1px solid rgb(127 184 164 / 0.45);
+    background: rgb(127 184 164 / 0.08);
     opacity: 0;
     transition: opacity 320ms var(--ease-out-soft);
   }
@@ -176,13 +177,13 @@
 @utility card {
   @apply rounded-3xl border border-white/[0.07];
   background:
-    radial-gradient(120% 80% at 0% 0%, rgb(124 77 255 / 0.07), transparent 55%),
-    linear-gradient(180deg, rgb(33 20 62 / 0.82), rgb(18 10 38 / 0.82));
+    radial-gradient(120% 80% at 0% 0%, rgb(68 138 114 / 0.07), transparent 55%),
+    linear-gradient(180deg, rgb(38 44 41 / 0.82), rgb(22 26 24 / 0.82));
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.05),
-    0 1px 2px rgb(7 3 18 / 0.5),
-    0 18px 40px -18px rgb(79 40 170 / 0.4),
-    0 50px 100px -40px rgb(22 10 50 / 0.6);
+    0 1px 2px rgb(4 6 5 / 0.5),
+    0 18px 40px -18px rgb(0 0 0 / 0.4),
+    0 50px 100px -40px rgb(28 32 30 / 0.6);
 }
 /* Page titles: the display sans with tight tracking. */
 @utility display-title {
@@ -194,6 +195,49 @@
 /* Small uppercase labels in the mono face. */
 @utility eyebrow {
   @apply font-mono text-xs font-medium tracking-[0.16em] text-sky-400/90 uppercase;
+}
+
+/*
+ * Clinical theme for the eye test (components/ClinicalPage.jsx): a white page with black type,
+ * like a hospital chart. Inside .clinical the same Tailwind classes resolve to flipped tokens:
+ * the slate scale runs light -> dark, white and black swap (letters and Amsler lines turn black
+ * on white), and the brand green darkens so it keeps AA contrast on white.
+ */
+.clinical {
+  color-scheme: light;
+  --color-slate-950: #ffffff;
+  --color-slate-900: #f4f6f5;
+  --color-slate-800: #e3e8e5;
+  --color-slate-700: #c9d0cc;
+  --color-slate-600: #a4ada8;
+  --color-slate-500: #78827d;
+  --color-slate-400: #5a635f;
+  --color-slate-300: #3f4743;
+  --color-slate-200: #2a302d;
+  --color-slate-100: #1a1e1c;
+  --color-slate-50: #0e100f;
+  --color-white: #0e100f;
+  --color-black: #ffffff;
+  --color-sky-300: #2f6b57;
+  --color-sky-400: #2f7a61;
+  --color-sky-500: #3a7d67;
+  --color-sky-600: #3a7d67;
+  background: #ffffff;
+  color: var(--color-white);
+}
+/* Primary buttons keep white text on brand green. */
+.clinical .btn-primary {
+  color: #ffffff;
+}
+.clinical .card {
+  background: #ffffff;
+  border-color: var(--color-slate-800);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.05),
+    0 8px 24px -16px rgb(0 0 0 / 0.18);
+}
+.clinical .btn-secondary {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
 }
 
 /* Aurora light curtains (landing environment and app backdrop): two blurred stripe layers
@@ -211,7 +255,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(60% 55% at 50% 0%, rgb(124 77 255 / 0.4), transparent 72%);
+  background: radial-gradient(60% 55% at 50% 0%, rgb(68 138 114 / 0.4), transparent 72%);
 }
 .aurora-layer {
   position: absolute;
@@ -223,27 +267,27 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgb(124 77 255 / 0) 6%,
-    rgb(124 77 255 / 0.55) 10%,
-    rgb(124 77 255 / 0) 14%,
-    rgb(192 38 211 / 0.45) 19%,
+    rgb(68 138 114 / 0) 6%,
+    rgb(68 138 114 / 0.55) 10%,
+    rgb(68 138 114 / 0) 14%,
+    rgb(72 177 163 / 0.45) 19%,
     transparent 23%,
-    rgb(99 60 240 / 0.6) 29%,
+    rgb(106 194 165 / 0.6) 29%,
     transparent 34%,
-    rgb(236 72 153 / 0.4) 39%,
+    rgb(112 196 185 / 0.4) 39%,
     transparent 42%,
-    rgb(124 77 255 / 0.7) 47%,
+    rgb(68 138 114 / 0.7) 47%,
     transparent 51%,
-    rgb(190 242 100 / 0.36) 55%,
-    rgb(250 204 21 / 0.28) 58%,
+    rgb(136 206 159 / 0.36) 55%,
+    rgb(85 186 119 / 0.28) 58%,
     transparent 62%,
-    rgb(168 85 247 / 0.6) 67%,
+    rgb(129 203 178 / 0.6) 67%,
     transparent 71%,
-    rgb(244 63 94 / 0.28) 75%,
+    rgb(111 196 185 / 0.28) 75%,
     transparent 78%,
-    rgb(99 60 240 / 0.55) 84%,
+    rgb(106 194 165 / 0.55) 84%,
     transparent 89%,
-    rgb(192 38 211 / 0.35) 93%,
+    rgb(72 177 163 / 0.35) 93%,
     transparent 100%
   );
   animation: aurora-sway-a 26s ease-in-out -8s infinite alternate;
@@ -252,21 +296,21 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgb(99 60 240 / 0.4) 4%,
+    rgb(106 194 165 / 0.4) 4%,
     transparent 8%,
-    rgb(168 85 247 / 0.5) 16%,
+    rgb(129 203 178 / 0.5) 16%,
     transparent 20%,
-    rgb(236 72 153 / 0.3) 26%,
+    rgb(112 196 185 / 0.3) 26%,
     transparent 30%,
-    rgb(124 77 255 / 0.55) 36%,
+    rgb(68 138 114 / 0.55) 36%,
     transparent 40%,
-    rgb(134 239 172 / 0.26) 52%,
+    rgb(158 215 196 / 0.26) 52%,
     transparent 56%,
-    rgb(124 77 255 / 0.5) 63%,
+    rgb(68 138 114 / 0.5) 63%,
     transparent 66%,
-    rgb(192 38 211 / 0.4) 72%,
+    rgb(72 177 163 / 0.4) 72%,
     transparent 76%,
-    rgb(99 60 240 / 0.45) 88%,
+    rgb(106 194 165 / 0.45) 88%,
     transparent 92%
   );
   animation: aurora-sway-b 34s ease-in-out -14s infinite alternate;
@@ -311,11 +355,11 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(rgb(139 92 246 / 0.3), rgb(139 92 246 / 0.3)) 112px 56px / 56px 56px no-repeat,
-    linear-gradient(rgb(139 92 246 / 0.2), rgb(139 92 246 / 0.2)) 224px 112px / 56px 56px no-repeat,
-    linear-gradient(rgb(139 92 246 / 0.26), rgb(139 92 246 / 0.26)) 448px 224px / 56px 56px no-repeat,
-    linear-gradient(rgb(139 92 246 / 0.2), rgb(139 92 246 / 0.2)) 616px 112px / 56px 56px no-repeat,
-    linear-gradient(rgb(139 92 246 / 0.28), rgb(139 92 246 / 0.28)) 728px 56px / 56px 56px no-repeat;
+    linear-gradient(rgb(79 154 130 / 0.3), rgb(79 154 130 / 0.3)) 112px 56px / 56px 56px no-repeat,
+    linear-gradient(rgb(79 154 130 / 0.2), rgb(79 154 130 / 0.2)) 224px 112px / 56px 56px no-repeat,
+    linear-gradient(rgb(79 154 130 / 0.26), rgb(79 154 130 / 0.26)) 448px 224px / 56px 56px no-repeat,
+    linear-gradient(rgb(79 154 130 / 0.2), rgb(79 154 130 / 0.2)) 616px 112px / 56px 56px no-repeat,
+    linear-gradient(rgb(79 154 130 / 0.28), rgb(79 154 130 / 0.28)) 728px 56px / 56px 56px no-repeat;
 }
 
 /* The fixed space environment behind the signed-in app (components/SpaceBackdrop.jsx). */
@@ -357,14 +401,14 @@
 }
 .space-shade {
   background:
-    radial-gradient(ellipse 90% 80% at 50% 40%, rgb(11 6 24 / 0.5), rgb(11 6 24 / 0.88) 100%),
-    linear-gradient(rgb(21 10 48 / 0.32), rgb(21 10 48 / 0.32));
+    radial-gradient(ellipse 90% 80% at 50% 40%, rgb(14 16 15 / 0.5), rgb(14 16 15 / 0.88) 100%),
+    linear-gradient(rgb(27 31 29 / 0.32), rgb(27 31 29 / 0.32));
 }
 .space-glow {
   background:
-    radial-gradient(38% 34% at 82% 12%, rgb(122 76 230 / 0.2), transparent 70%),
-    radial-gradient(42% 38% at 10% 88%, rgb(168 60 200 / 0.13), transparent 70%),
-    radial-gradient(60% 50% at 50% 40%, rgb(73 40 150 / 0.1), transparent 75%);
+    radial-gradient(38% 34% at 82% 12%, rgb(110 196 167 / 0.2), transparent 70%),
+    radial-gradient(42% 38% at 10% 88%, rgb(78 182 168 / 0.13), transparent 70%),
+    radial-gradient(60% 50% at 50% 40%, rgb(55 135 108 / 0.1), transparent 75%);
   animation: space-drift 90s ease-in-out -30s infinite alternate;
 }
 .space-grain {
@@ -383,7 +427,7 @@
 /* Scan line used on the Home eye ring. Transform and opacity only. */
 .scene-scan {
   top: 0;
-  background: linear-gradient(to bottom, transparent, rgb(167 139 250 / 0.55) 50%, transparent);
+  background: linear-gradient(to bottom, transparent, rgb(127 184 164 / 0.55) 50%, transparent);
   opacity: 0;
   animation: scene-scan 4.5s ease-in-out infinite;
 }
@@ -430,7 +474,7 @@
   html,
   body {
     background: #fff !important;
-    color: #170f2a !important;
+    color: #1a1f1c !important;
     color-scheme: light;
   }
 }

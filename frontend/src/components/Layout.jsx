@@ -78,7 +78,7 @@ export default function Layout() {
       <SpaceBackdrop />
 
       <header className="sticky top-0 z-30 px-3 pt-3 md:px-6 print:hidden">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 rounded-2xl border border-white/[0.08] bg-slate-900/65 px-4 shadow-[inset_0_1px_0_rgb(255_255_255/0.05),0_18px_50px_-24px_rgb(109_59_232/0.7)] backdrop-blur-xl md:px-5">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 rounded-2xl border border-white/[0.08] bg-slate-900/65 px-4 shadow-[inset_0_1px_0_rgb(255_255_255/0.05),0_18px_50px_-24px_rgb(31_74_60/0.7)] backdrop-blur-xl md:px-5">
           <Link
             to="/"
             aria-label="Sightline home"
@@ -137,7 +137,7 @@ export default function Layout() {
             >
               <span
                 aria-hidden="true"
-                className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-sky-300 to-sky-600 font-mono text-sm font-semibold text-slate-950 shadow-[0_0_0_3px_rgb(11_6_24),0_0_0_4px_rgb(167_139_250/0.35)]"
+                className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-sky-300 to-sky-600 font-mono text-sm font-semibold text-slate-950 shadow-[0_0_0_3px_rgb(14_16_15),0_0_0_4px_rgb(127_184_164/0.35)]"
               >
                 {initialsOf(name)}
               </span>
@@ -193,7 +193,7 @@ export default function Layout() {
                   <>
                     <span
                       aria-hidden="true"
-                      className={`absolute top-0 h-0.5 w-10 rounded-full bg-sky-400 shadow-[0_0_12px_rgb(167_139_250/0.9)] transition-[transform,opacity] duration-300 ${
+                      className={`absolute top-0 h-0.5 w-10 rounded-full bg-sky-400 shadow-[0_0_12px_rgb(127_184_164/0.9)] transition-[transform,opacity] duration-300 ${
                         isActive ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
                       }`}
                     />

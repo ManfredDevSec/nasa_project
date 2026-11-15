@@ -126,7 +126,7 @@ function StatusCircle({ level }) {
       )}
       <div
         className="flex size-52 flex-col items-center justify-center gap-2 rounded-full border-[10px]"
-        style={{ borderColor: color, backgroundColor: `${color}1a`, color: level === 'UNKNOWN' ? '#c8c2e8' : color }}
+        style={{ borderColor: color, backgroundColor: `${color}1a`, color: level === 'UNKNOWN' ? '#b4bdb8' : color }}
       >
         <StatusIcon level={level} className="size-14" />
         <span className="text-3xl font-bold tracking-wide">{word}</span>

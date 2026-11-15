@@ -97,7 +97,7 @@ export default function Login() {
                 autoCapitalize="none"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="min-h-12 rounded-xl border border-slate-700 bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(7_3_18/0.6)] placeholder:text-slate-500"
+                className="min-h-12 rounded-xl border border-slate-700 bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(4_6_5/0.6)] placeholder:text-slate-500"
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -118,7 +118,7 @@ export default function Login() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="min-h-12 rounded-xl border border-slate-700 bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(7_3_18/0.6)] placeholder:text-slate-500"
+                className="min-h-12 rounded-xl border border-slate-700 bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(4_6_5/0.6)] placeholder:text-slate-500"
               />
             </div>
             {error && (
@@ -145,14 +145,14 @@ function Horizon() {
     <svg viewBox="0 0 480 120" className="w-full max-w-md" aria-hidden="true">
       <defs>
         <linearGradient id="limb" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#a78bfa" stopOpacity="0.5" />
-          <stop offset="1" stopColor="#a78bfa" stopOpacity="0" />
+          <stop offset="0" stopColor="#7fb8a4" stopOpacity="0.5" />
+          <stop offset="1" stopColor="#7fb8a4" stopOpacity="0" />
         </linearGradient>
       </defs>
       <ellipse cx="240" cy="190" rx="300" ry="110" fill="url(#limb)" />
-      <ellipse cx="240" cy="192" rx="300" ry="110" fill="#080516" />
-      <path d="M10 60 Q240 -10 470 60" fill="none" stroke="#352b63" strokeDasharray="3 6" />
-      <circle cx="352" cy="27" r="4" fill="#f7f6fd" />
+      <ellipse cx="240" cy="192" rx="300" ry="110" fill="#0e100f" />
+      <path d="M10 60 Q240 -10 470 60" fill="none" stroke="#353c38" strokeDasharray="3 6" />
+      <circle cx="352" cy="27" r="4" fill="#f5f7f6" />
     </svg>
   )
 }

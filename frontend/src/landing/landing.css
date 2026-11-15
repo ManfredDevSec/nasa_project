@@ -1,19 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&display=swap');
 
-/* Sightline landing page. A violet night-sky palette with aurora light. */
+/* Sightline landing page. Charcoal night sky, muted brand green, real NASA imagery. */
 .lp {
-  --canvas: #080516;
-  --panel: #110a2e;
-  --panel-2: #1a1040;
-  --accent: #a78bfa; /* light violet: text, lines, focus */
-  --accent-solid: #6d3be8; /* solid violet: primary buttons (white text) */
-  --accent-hover: #c4b5fd;
-  --accent-muted: rgba(167, 139, 250, 0.22);
-  --iris-soft: #d4c8ff;
-  --text-primary: #f1eeff;
-  --text-secondary: #aaa2d6;
-  --line: rgba(150, 130, 240, 0.16);
-  --line-strong: rgba(167, 139, 250, 0.42);
+  --canvas: #0c0e0d;
+  --panel: #151817;
+  --panel-2: #1d2120;
+  --accent: #7fb8a4; /* light brand green: text, lines, focus */
+  --accent-solid: #3a7d67; /* solid brand green: primary buttons (white text) */
+  --accent-hover: #b5d6c9;
+  --accent-muted: rgba(127, 184, 164, 0.22);
+  --iris-soft: #c9e2d7;
+  --text-primary: #eef2ef;
+  --text-secondary: #a3ada8;
+  --line: rgba(160, 190, 175, 0.14);
+  --line-strong: rgba(127, 184, 164, 0.42);
 
   /* Where the pupil sits in the hero image (astronaut-visor-eye.webp). The zoom and reticle anchor here. */
   --px: 47%;
@@ -36,13 +36,13 @@
   --s-6: clamp(96px, 14vh, 160px);
   --gutter: 6vw;
 
-  /* Depth: base, elevated, floating. Colour-tinted, low opacity, layered. */
-  --shadow-1: 0 1px 2px rgba(7, 3, 18, 0.5), 0 8px 24px -10px rgba(79, 40, 170, 0.35);
-  --shadow-2: 0 1px 2px rgba(7, 3, 18, 0.5), 0 14px 36px -12px rgba(89, 46, 190, 0.42),
-    0 44px 90px -30px rgba(40, 18, 90, 0.6);
-  --shadow-3: 0 2px 4px rgba(7, 3, 18, 0.5), 0 24px 60px -18px rgba(118, 70, 230, 0.5),
-    0 70px 140px -40px rgba(47, 20, 110, 0.7);
-  --tshadow: 0 1px 2px rgba(5, 5, 14, 0.95), 0 3px 12px rgba(5, 5, 14, 0.78), 0 10px 44px rgba(5, 5, 14, 0.8);
+  /* Depth: base, elevated, floating. Neutral, low opacity, layered. */
+  --shadow-1: 0 1px 2px rgba(3, 4, 4, 0.5), 0 8px 24px -10px rgba(0, 0, 0, 0.45);
+  --shadow-2: 0 1px 2px rgba(3, 4, 4, 0.5), 0 14px 36px -12px rgba(0, 0, 0, 0.5),
+    0 44px 90px -30px rgba(0, 0, 0, 0.6);
+  --shadow-3: 0 2px 4px rgba(3, 4, 4, 0.5), 0 24px 60px -18px rgba(0, 0, 0, 0.55),
+    0 70px 140px -40px rgba(0, 0, 0, 0.7);
+  --tshadow: 0 1px 2px rgba(4, 5, 5, 0.95), 0 3px 12px rgba(4, 5, 5, 0.78), 0 10px 44px rgba(4, 5, 5, 0.8);
 
   position: relative;
   background: var(--canvas);
@@ -61,7 +61,7 @@ html.lp-html,
 html.lp-html body {
   overflow-x: hidden;
   overflow-x: clip;
-  background: #080516;
+  background: #0e100f;
 }
 @media (prefers-reduced-motion: no-preference) {
   html.lp-html {
@@ -82,7 +82,7 @@ html.lp-html body {
   padding: 10px 16px;
   border-radius: 10px;
   background: var(--accent);
-  color: #0a0620;
+  color: #111513;
   font-weight: 600;
   transform: translateY(-160%);
   transition: transform 300ms var(--ease-out);
@@ -148,16 +148,16 @@ html.lp-html body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 85% 75% at 50% 45%, rgba(11, 6, 24, 0.38), rgba(11, 6, 24, 0.82) 100%),
-    linear-gradient(rgba(21, 10, 48, 0.3), rgba(21, 10, 48, 0.3));
+    radial-gradient(ellipse 85% 75% at 50% 45%, rgba(14, 16, 15, 0.38), rgba(14, 16, 15, 0.82) 100%),
+    linear-gradient(rgba(27, 31, 29, 0.3), rgba(27, 31, 29, 0.3));
 }
 .lp-env-glow {
   position: absolute;
   inset: -20%;
   background:
-    radial-gradient(40% 35% at 78% 22%, rgba(122, 76, 230, 0.2), transparent 70%),
-    radial-gradient(45% 40% at 18% 78%, rgba(168, 60, 200, 0.14), transparent 70%),
-    radial-gradient(60% 50% at 50% 50%, rgba(73, 40, 150, 0.12), transparent 75%);
+    radial-gradient(40% 35% at 78% 22%, rgba(110, 196, 167, 0.2), transparent 70%),
+    radial-gradient(45% 40% at 18% 78%, rgba(78, 182, 168, 0.14), transparent 70%),
+    radial-gradient(60% 50% at 50% 50%, rgba(55, 135, 108, 0.12), transparent 75%);
   animation: lp-glow-drift 80s ease-in-out infinite alternate;
   animation-delay: -24s;
 }
@@ -228,13 +228,13 @@ html.lp-html body {
   border-radius: inherit;
 }
 .lp-nav-inner::before {
-  background: rgba(30, 18, 66, 0.42);
+  background: rgba(39, 45, 42, 0.42);
   border: 1px solid rgba(255, 255, 255, 0.09);
   backdrop-filter: blur(16px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 18px 50px -24px rgba(109, 59, 232, 0.7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 18px 50px -24px rgba(31, 74, 60, 0.7);
 }
 .lp-nav-inner::after {
-  background: rgba(13, 7, 32, 0.78);
+  background: rgba(18, 21, 20, 0.78);
   opacity: 0;
   transition: opacity 500ms var(--ease-out);
 }
@@ -345,11 +345,11 @@ a.lp-brand:active {
 }
 .lp-btn-primary::before {
   background: var(--accent-solid);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 1px 2px rgba(7, 3, 18, 0.5), 0 12px 30px -10px rgba(109, 59, 232, 0.85);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 1px 2px rgba(4, 6, 5, 0.5), 0 12px 30px -10px rgba(31, 74, 60, 0.85);
 }
 .lp-btn-primary::after {
-  background: #7c4dff;
-  box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.35), 0 18px 50px -12px rgba(124, 77, 255, 0.85);
+  background: #2f6b57;
+  box-shadow: 0 0 0 1px rgba(181, 214, 201, 0.35), 0 18px 50px -12px rgba(68, 138, 114, 0.85);
   opacity: 0;
 }
 .lp-btn-primary:hover::after,
@@ -360,12 +360,12 @@ a.lp-brand:active {
   color: var(--text-primary);
 }
 .lp-btn-ghost::before {
-  background: rgba(23, 12, 48, 0.55);
+  background: rgba(28, 32, 30, 0.55);
   border: 1px solid var(--line-strong);
   backdrop-filter: blur(10px);
 }
 .lp-btn-ghost::after {
-  background: rgba(167, 139, 250, 0.14);
+  background: rgba(127, 184, 164, 0.14);
   opacity: 0;
 }
 .lp-btn-ghost:hover::after,
@@ -394,7 +394,7 @@ a.lp-brand:active {
 .lp .display em,
 .lp .h2 em {
   font-style: normal;
-  color: #b79cff;
+  color: #c7d4ce;
 }
 .lp .h2 {
   font-family: 'Sora', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
@@ -423,7 +423,7 @@ a.lp-brand:active {
   font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #c0b0fb;
+  color: #d0dbd5;
 }
 .lp .chip {
   display: inline-flex;
@@ -431,16 +431,16 @@ a.lp-brand:active {
   gap: 8px;
   padding: 7px 14px;
   border-radius: 999px;
-  background: rgba(14, 8, 28, 0.58);
-  border: 1px solid rgba(150, 130, 240, 0.26);
+  background: rgba(17, 19, 18, 0.58);
+  border: 1px solid rgba(156, 214, 195, 0.26);
   backdrop-filter: blur(10px);
-  text-shadow: 0 1px 3px rgba(5, 5, 14, 0.85);
+  text-shadow: 0 1px 3px rgba(4, 5, 5, 0.85);
 }
 .lp .sub {
   margin-top: var(--s-3);
   font-size: clamp(1.05rem, 1.35vw, 1.28rem);
   line-height: 1.6;
-  color: #d8cdf0;
+  color: #dae3de;
   max-width: 34ch;
 }
 .lp .cta-row {
@@ -515,9 +515,9 @@ a.lp-brand:active {
   opacity: 0;
   transform-origin: var(--px) var(--py);
   background:
-    radial-gradient(34% 30% at var(--px) var(--py), rgba(124, 77, 255, 0.22), transparent 70%),
-    radial-gradient(28% 24% at 30% 70%, rgba(130, 90, 220, 0.16), transparent 70%),
-    radial-gradient(30% 26% at 78% 26%, rgba(128, 80, 240, 0.16), transparent 70%);
+    radial-gradient(34% 30% at var(--px) var(--py), rgba(68, 138, 114, 0.22), transparent 70%),
+    radial-gradient(28% 24% at 30% 70%, rgba(113, 197, 169, 0.16), transparent 70%),
+    radial-gradient(30% 26% at 78% 26%, rgba(120, 200, 173, 0.16), transparent 70%);
   will-change: transform, opacity;
 }
 /* Both overlays fade out at the stage's bottom edge, so the hero hands over to the page with no seam. */
@@ -531,8 +531,8 @@ a.lp-brand:active {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(to bottom, rgba(11, 6, 24, 0.55), rgba(11, 6, 24, 0) 18%),
-    radial-gradient(ellipse 120% 90% at 50% 45%, rgba(11, 6, 24, 0) 35%, rgba(11, 6, 24, 0.66) 100%);
+    linear-gradient(to bottom, rgba(14, 16, 15, 0.55), rgba(14, 16, 15, 0) 18%),
+    radial-gradient(ellipse 120% 90% at 50% 45%, rgba(14, 16, 15, 0) 35%, rgba(14, 16, 15, 0.66) 100%);
 }
 .reticle {
   position: absolute;
@@ -548,14 +548,14 @@ a.lp-brand:active {
 }
 .ret-line {
   fill: none;
-  stroke: rgba(220, 205, 255, 0.6);
+  stroke: rgba(226, 234, 230, 0.6);
   stroke-width: 1.2;
   vector-effect: non-scaling-stroke;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
 }
 .ret-faint {
-  stroke: rgba(220, 205, 255, 0.4);
+  stroke: rgba(226, 234, 230, 0.4);
   stroke-dasharray: 0.004 0.012;
 }
 
@@ -692,14 +692,14 @@ a.lp-brand:active {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 0.75rem;
   letter-spacing: 0.14em;
-  color: #ddd5fb;
+  color: #e5ebe8;
 }
 .hud-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 10px rgba(167, 139, 250, 0.9);
+  box-shadow: 0 0 10px rgba(127, 184, 164, 0.9);
   animation: lp-blink 2.6s ease-in-out infinite;
   animation-delay: -0.8s;
 }
@@ -725,7 +725,7 @@ a.lp-brand:active {
   font-size: 0.72rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #ece4ff;
+  color: #f0f3f2;
   text-shadow: var(--tshadow);
 }
 .cue-line {
@@ -788,7 +788,7 @@ a.lp-brand:active {
   align-items: flex-start;
   padding: 0 var(--gutter) 14vh;
   text-shadow: var(--tshadow);
-  background: linear-gradient(to top, rgba(11, 6, 24, 0.88), rgba(11, 6, 24, 0.2) 60%, transparent);
+  background: linear-gradient(to top, rgba(14, 16, 15, 0.88), rgba(14, 16, 15, 0.2) 60%, transparent);
 }
 .lp.is-static .hero-static .display {
   margin-top: var(--s-3);
@@ -926,7 +926,7 @@ a.lp-brand:active {
   pointer-events: none;
 }
 .photo-tint::before {
-  background: #5c34b8;
+  background: #44a887;
   mix-blend-mode: multiply;
   opacity: 0.38;
 }
@@ -952,7 +952,7 @@ a.lp-brand:active {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 0.74rem;
   letter-spacing: 0.08em;
-  color: #e9dfff;
+  color: #edf1ef;
 }
 .risk-copy {
   position: relative;
@@ -1089,7 +1089,7 @@ a.lp-brand:active {
   margin-top: -6px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 5px rgba(167, 139, 250, 0.18), 0 0 18px rgba(167, 139, 250, 0.9);
+  box-shadow: 0 0 0 5px rgba(127, 184, 164, 0.18), 0 0 18px rgba(127, 184, 164, 0.9);
 }
 .step:nth-child(even)::before {
   right: auto;
@@ -1116,14 +1116,14 @@ a.lp-brand:active {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 0.78rem;
   letter-spacing: 0.14em;
-  color: #9d86ee;
+  color: #9dd7c4;
 }
 .step-art {
   display: grid;
   place-items: center;
   aspect-ratio: 3 / 2;
   border-radius: 14px;
-  background: radial-gradient(80% 80% at 50% 40%, rgba(122, 80, 220, 0.18), rgba(11, 6, 24, 0.6));
+  background: radial-gradient(80% 80% at 50% 40%, rgba(106, 194, 165, 0.18), rgba(14, 16, 15, 0.6));
   border: 1px solid var(--line);
 }
 .step-art svg {
@@ -1131,13 +1131,13 @@ a.lp-brand:active {
   height: auto;
 }
 .art-text {
-  fill: #e9dfff;
+  fill: #edf1ef;
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-weight: 600;
 }
 .art-grid {
   fill: none;
-  stroke: rgba(167, 139, 250, 0.3);
+  stroke: rgba(127, 184, 164, 0.3);
   stroke-width: 0.8;
 }
 .art-wave {
@@ -1159,7 +1159,7 @@ a.lp-brand:active {
   fill: #fff;
 }
 .art-track {
-  stroke: rgba(167, 139, 250, 0.25);
+  stroke: rgba(127, 184, 164, 0.25);
   stroke-width: 3;
   stroke-linecap: round;
 }
@@ -1169,7 +1169,7 @@ a.lp-brand:active {
   stroke-linecap: round;
 }
 .art-knob {
-  fill: #f1eeff;
+  fill: #f5f8f6;
 }
 
 /* Try it: hold to scan */
@@ -1197,7 +1197,7 @@ a.lp-brand:active {
   border-radius: 50%;
   border: 0;
   padding: 0;
-  background: radial-gradient(circle, #170f3d, #0a0620);
+  background: radial-gradient(circle, #232926, #111513);
   box-shadow: var(--shadow-2);
   touch-action: none;
   user-select: none;
@@ -1211,7 +1211,7 @@ a.lp-brand:active {
   inset: -10px;
   border-radius: 50%;
   z-index: -1;
-  box-shadow: 0 0 60px 6px rgba(139, 92, 246, 0.45), 0 0 140px 20px rgba(135, 90, 240, 0.25);
+  box-shadow: 0 0 60px 6px rgba(79, 154, 130, 0.45), 0 0 140px 20px rgba(127, 203, 178, 0.25);
   opacity: 0.25;
   transition: opacity 500ms var(--ease-out);
   animation: lp-breathe 5s ease-in-out infinite;
@@ -1253,7 +1253,7 @@ a.lp-brand:active {
 }
 .ring-track {
   fill: none;
-  stroke: rgba(167, 139, 250, 0.18);
+  stroke: rgba(127, 184, 164, 0.18);
   stroke-width: 2;
 }
 .ring-fill {
@@ -1286,7 +1286,7 @@ a.lp-brand:active {
 .scanner-sweep {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 44%, rgba(220, 205, 255, 0.7) 50%, transparent 56%);
+  background: linear-gradient(to bottom, transparent 44%, rgba(226, 234, 230, 0.7) 50%, transparent 56%);
   opacity: 0;
   transform: translateY(-60%);
 }
@@ -1327,7 +1327,7 @@ a.lp-brand:active {
   gap: 8px;
   padding: 10px 16px;
   border-radius: 999px;
-  background: rgba(23, 12, 48, 0.7);
+  background: rgba(28, 32, 30, 0.7);
   border: 1px solid var(--line);
   font-weight: 600;
   font-size: 0.95rem;
@@ -1501,11 +1501,11 @@ a.lp-brand:active {
   }
 }
 .final-rings circle {
-  stroke: rgba(167, 139, 250, 0.28);
+  stroke: rgba(127, 184, 164, 0.28);
   stroke-width: 1;
 }
 .final-rings circle.faint {
-  stroke: rgba(167, 139, 250, 0.14);
+  stroke: rgba(127, 184, 164, 0.14);
 }
 
 /* Footer */
@@ -1513,7 +1513,7 @@ a.lp-brand:active {
   position: relative;
   z-index: 1;
   border-top: 1px solid var(--line);
-  background: rgba(11, 6, 24, 0.7);
+  background: rgba(14, 16, 15, 0.7);
 }
 .lp-footer-inner {
   display: flex;
@@ -1531,7 +1531,7 @@ a.lp-brand:active {
   margin-right: auto;
 }
 .lp-footer .muted {
-  color: #998abd;
+  color: #8abdac;
 }
 
 /* ───────────── Black holes (real imagery: EHT photo of M87*, NASA Goddard simulation) ───────────── */
