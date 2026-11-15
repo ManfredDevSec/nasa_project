@@ -225,3 +225,17 @@ Health facts in the app come only from these NASA pages (summarised in
 - Ongoing HRP Research: https://www.nasa.gov/hrp/ongoing-hrp-research/
 
 All crew data is simulated. Scoring thresholds are demo values, not clinical standards.
+
+## Use of AI tools
+
+As the NASA Space Apps rules ask, here is where AI tools were used:
+
+- **GitHub Copilot** helped write parts of the frontend and the Sightline logo (drawn as SVG code).
+- **Claude Code** reviewed our code and helped with repetitive tasks:
+  - code review and bug spotting
+  - writing tests and repetitive boilerplate
+  - build and screenshot checks
+  - drafting the submission text and demo slides
+
+The app's design, the scoring rules and the features were decided by our team. All crew data is
+simulated; the generator for it was written with AI assistance.
