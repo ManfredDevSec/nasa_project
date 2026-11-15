@@ -8,7 +8,7 @@ export default function ProgressBar({ current, total, eyeLabel, stepLabel }) {
           {eyeLabel && <span className="text-slate-500"> · </span>}
           <span className="text-slate-300">{stepLabel}</span>
         </p>
-        <p className="font-mono text-sm text-slate-400">
+        <p className="text-sm text-slate-400">
           Step {Math.min(current, total)} of {total}
         </p>
       </div>
