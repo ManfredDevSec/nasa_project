@@ -43,8 +43,9 @@ export default function AmslerGrid({ onComplete }) {
     onComplete(cells)
   }
 
+  // The grid column gets a real size (up to 30rem): an `auto` column with a 100%-wide child collapses to nothing.
   return (
-    <section aria-labelledby="amsler-title" className="grid items-start gap-6 md:grid-cols-[auto_1fr]">
+    <section aria-labelledby="amsler-title" className="grid items-start gap-6 md:grid-cols-[minmax(0,30rem)_minmax(0,1fr)]">
       <div className="relative mx-auto aspect-square w-[min(30rem,100%)] border-2 border-white bg-black">
         <div role="grid" aria-label="Amsler grid, 10 by 10 squares" className="grid size-full grid-cols-10 grid-rows-10">
           {Array.from({ length: SIZE }, (_, row) => (
@@ -100,7 +101,7 @@ export default function AmslerGrid({ onComplete }) {
           </WhyThisTest>
         </div>
         <ol className="list-decimal space-y-2 pl-6 text-slate-300">
-          <li>Look only at the white dot in the middle. Keep looking at it.</li>
+          <li>Look only at the dot in the middle. Keep looking at it.</li>
           <li>Without moving your eye, notice if any lines look wavy, bent, blurry or missing.</li>
           <li>Tap those squares to mark them. Tap again to unmark.</li>
         </ol>
