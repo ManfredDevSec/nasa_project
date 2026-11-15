@@ -418,23 +418,27 @@ a.lp-brand:active {
   font-size: 0.975rem;
 }
 .lp .kicker {
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #c0b0fb;
-}
-.lp .chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 14px;
-  border-radius: 999px;
-  background: rgba(14, 8, 28, 0.58);
-  border: 1px solid rgba(150, 130, 240, 0.26);
-  backdrop-filter: blur(10px);
-  text-shadow: 0 1px 3px rgba(5, 5, 14, 0.85);
+  gap: 12px;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  color: #c9bcf7;
+}
+/* a short hairline before each label, like a section mark in a mission document */
+.lp .kicker::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.7;
+}
+/* hero label: same plain label, kept legible over the photo */
+.lp .chip {
+  color: #e4dcfb;
+  text-shadow: 0 1px 2px rgba(5, 5, 14, 0.9), 0 0 18px rgba(5, 5, 14, 0.7);
 }
 .lp .sub {
   margin-top: var(--s-3);
@@ -689,10 +693,10 @@ a.lp-brand:active {
   left: var(--gutter);
   bottom: 5vh;
   z-index: 7;
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  color: #ddd5fb;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: #e4dcfb;
 }
 .hud-dot {
   width: 7px;
@@ -721,10 +725,8 @@ a.lp-brand:active {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  font-size: 0.875rem;
+  font-weight: 500;
   color: #ece4ff;
   text-shadow: var(--tshadow);
 }
@@ -948,11 +950,10 @@ a.lp-brand:active {
 .risk-photo figcaption {
   position: absolute;
   left: 18px;
-  bottom: 18px;
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 0.74rem;
-  letter-spacing: 0.08em;
-  color: #e9dfff;
+  bottom: 16px;
+  font-size: 0.85rem;
+  color: #ece6ff;
+  text-shadow: 0 1px 3px rgba(5, 5, 14, 0.9);
 }
 .risk-copy {
   position: relative;
@@ -1113,10 +1114,10 @@ a.lp-brand:active {
   opacity: 1;
 }
 .step-num {
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
-  color: #9d86ee;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: #a993f2;
 }
 .step-art {
   display: grid;
@@ -1307,11 +1308,8 @@ a.lp-brand:active {
   top: calc(100% + 34px);
   left: 50%;
   transform: translateX(-50%);
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-size: 0.95rem;
+  font-weight: 500;
   color: var(--accent);
   white-space: nowrap;
 }
@@ -1708,8 +1706,7 @@ a.lp-brand:active {
     display: none;
   }
   .band .kicker {
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
+    font-size: 0.875rem;
   }
 }
 

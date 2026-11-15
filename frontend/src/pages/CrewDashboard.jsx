@@ -54,25 +54,22 @@ export default function CrewDashboard() {
         ) : (
           <ul className="card divide-y divide-white/[0.06] overflow-hidden">
             {alerts.map((alert, i) => (
-              <li key={`${alert.astronaut_id ?? 'cabin'}-${i}`}>
-                {/* Alerts about one astronaut open their trend; cabin alerts (astronaut_id null) are not links. */}
-                {alert.astronaut_id != null ? (
-                  <Link
-                    to={`/trends/${alert.astronaut_id}`}
-                    className="group relative isolate flex min-h-16 items-center gap-4 px-5 py-3"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-0 -z-10 bg-sky-400/[0.06] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                    />
-                    <AlertBody alert={alert} />
-                    <ArrowRightIcon className="size-5 shrink-0 text-slate-500 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-sky-300" />
-                  </Link>
-                ) : (
-                  <div className="flex min-h-16 items-center gap-4 px-5 py-3">
-                    <AlertBody alert={alert} />
+              <li key={`${alert.astronaut_id}-${i}`}>
+                <Link
+                  to={`/trends/${alert.astronaut_id}`}
+                  className="group relative isolate flex min-h-16 items-center gap-4 px-5 py-3"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 -z-10 bg-sky-400/[0.06] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  />
+                  <StatusBadge level={alert.level} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-mono font-medium">{alert.call_sign}</p>
+                    <p className="text-slate-300">{alert.text}</p>
                   </div>
-                )}
+                  <ArrowRightIcon className="size-5 shrink-0 text-slate-500 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-sky-300" />
+                </Link>
               </li>
             ))}
           </ul>
@@ -90,7 +87,7 @@ export default function CrewDashboard() {
             </div>
             <p className="-mt-2 text-sm text-slate-400">A factor studied in SANS.</p>
             <dl className="grid grid-cols-2 gap-3">
-              <CabinValue label="CO₂ today" value={cabin.co2_mmhg_today} />
+              <CabinValue label="CO₂ today" value={cabin.co2_today} />
               <CabinValue label="5-day average" value={cabin.co2_5day_avg} />
             </dl>
           </section>
@@ -132,18 +129,6 @@ export default function CrewDashboard() {
         )}
       </section>
     </div>
-  )
-}
-
-function AlertBody({ alert }) {
-  return (
-    <>
-      <StatusBadge level={alert.level} size="sm" />
-      <div className="min-w-0 flex-1">
-        <p className="font-mono font-medium">{alert.call_sign ?? 'Cabin'}</p>
-        <p className="text-slate-300">{alert.text}</p>
-      </div>
-    </>
   )
 }
 

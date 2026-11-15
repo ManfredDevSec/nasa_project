@@ -256,7 +256,7 @@ export default function Landing() {
 
           <div className="hud chip" aria-hidden="true">
             <span className="hud-dot" />
-            <span data-hud>SCAN · MAG 1.0×</span>
+            <span data-hud>Zoom 1.0×</span>
           </div>
           <div className="cue" aria-hidden="true">
             <span>Scroll</span>

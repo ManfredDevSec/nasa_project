@@ -191,9 +191,9 @@
   letter-spacing: -0.03em;
   line-height: 1.1;
 }
-/* Small uppercase labels in the mono face. */
+/* Small section labels: plain sentence case in the body face. */
 @utility eyebrow {
-  @apply font-mono text-xs font-medium tracking-[0.16em] text-sky-400/90 uppercase;
+  @apply text-sm font-medium text-sky-300;
 }
 
 /* Aurora light curtains (landing environment and app backdrop): two blurred stripe layers
