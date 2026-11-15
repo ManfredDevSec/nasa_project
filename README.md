@@ -234,7 +234,6 @@ As the NASA Space Apps rules ask, here is where AI tools were used:
 - **Claude Code** reviewed our code and helped with repetitive tasks:
   - code review and bug spotting
   - writing tests and repetitive boilerplate
-  - resolving Git merge conflicts
   - build and screenshot checks
   - drafting the submission text and demo slides
 
