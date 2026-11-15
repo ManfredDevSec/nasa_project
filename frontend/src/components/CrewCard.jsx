@@ -4,7 +4,7 @@ import { ClockIcon, EyeIcon } from './Icons.jsx'
 import StatusBadge from './StatusBadge.jsx'
 
 // The eye (SANS) status for a crew-overview row. Only the eyes count in Sightline.
-export const eyeLevelOf = (row) => row?.parts?.EYES ?? row?.overall
+export const eyeLevelOf = (row) => row?.eyes ?? row?.parts?.EYES ?? row?.overall
 
 // One astronaut on the crew dashboard: their eye status and latest eye-test headline.
 // The whole card links to their trend page.
