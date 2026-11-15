@@ -119,7 +119,7 @@ export function generateMockData(mission, crew) {
     }))
   }
 
-  const events = [{ mission_day: 78, date: date(78), type: 'CO2_HIGH_START', label: 'Cabin CO₂ above normal' }]
+  const events = [{ mission_day: 78, date: date(78), type: 'CO2_HIGH_START', text: 'Cabin CO₂ above normal' }]
 
   return { cabinLogs, dailyLogs, checks, events }
 }
