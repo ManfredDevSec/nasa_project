@@ -89,8 +89,8 @@ export function LogoMark({ className = 'h-8 w-auto' }) {
     <svg viewBox="0 0 40 40" className={className} aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id={`${id}-tile`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#8b5cf6" />
-          <stop offset="1" stopColor="#4c1d95" />
+          <stop offset="0" stopColor="#4f9a82" />
+          <stop offset="1" stopColor="#1f4a3c" />
         </linearGradient>
         <radialGradient id={`${id}-shine`} cx="0.3" cy="0.2" r="0.8">
           <stop offset="0" stopColor="#fff" stopOpacity="0.28" />
@@ -103,9 +103,9 @@ export function LogoMark({ className = 'h-8 w-auto' }) {
       {/* orbit behind the eye */}
       <ellipse cx="20" cy="20" rx="14.5" ry="5.2" transform="rotate(-28 20 20)" fill="none" stroke="#fff" strokeOpacity="0.5" strokeWidth="1.3" />
       {/* the eye */}
-      <path d="M7.5 20C12 13.4 28 13.4 32.5 20C28 26.6 12 26.6 7.5 20Z" fill="#2e1065" fillOpacity="0.35" stroke="#fff" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M7.5 20C12 13.4 28 13.4 32.5 20C28 26.6 12 26.6 7.5 20Z" fill="#12261f" fillOpacity="0.35" stroke="#fff" strokeWidth="2.2" strokeLinejoin="round" />
       <circle cx="20" cy="20" r="4.3" fill="#fff" />
-      <circle cx="20" cy="20" r="1.7" fill="#5b21b6" />
+      <circle cx="20" cy="20" r="1.7" fill="#2c6652" />
       {/* the satellite on its orbit */}
       <circle cx="28.2" cy="11.8" r="1.7" fill="#fff" />
     </svg>
