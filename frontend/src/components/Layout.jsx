@@ -1,8 +1,8 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { currentScreenUsedMocks, getMe, logout, subscribeToMockUsage } from '../api/index.js'
-import { ROLE_LABELS, canSeeCrew, clearSession, getToken, getUser, isAdmin, isAstronaut, saveSession } from '../utils/auth.js'
-import { BookIcon, ChartIcon, EyeIcon, HomeIcon, LockIcon, LogoMark, LogoutIcon, PrinterIcon, UsersIcon } from './Icons.jsx'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { getMe } from '../api/index.js'
+import { ROLE_LABELS, canSeeCrew, getToken, getUser, isAdmin, isAstronaut, saveSession } from '../utils/auth.js'
+import { BookIcon, ChartIcon, HomeIcon, LockIcon, LogoMark, PrinterIcon, UsersIcon } from './Icons.jsx'
 import SpaceBackdrop from './SpaceBackdrop.jsx'
 
 export function Disclaimer() {
@@ -15,9 +15,9 @@ export function Disclaimer() {
 function navItemsFor(user) {
   const items = []
   if (isAstronaut(user)) {
+    // The eye test itself is started from Home (its one primary button), so it is not a nav item.
     items.push({ to: '/home', label: 'Home', Icon: HomeIcon })
-    items.push({ to: '/test', label: 'Eye test', Icon: EyeIcon })
-    items.push({ to: `/trends/${user.astronaut_id}`, label: 'My trend', Icon: ChartIcon })
+    items.push({ to: `/trends/${user.astronaut_id}`, label: 'Trend', Icon: ChartIcon })
   }
   // Crew dashboard and report links are hidden from CREW accounts.
   if (canSeeCrew(user)) {
@@ -37,7 +37,6 @@ function initialsOf(name = '') {
 }
 
 export default function Layout() {
-  const navigate = useNavigate()
   const location = useLocation()
   const [user, setUser] = useState(getUser)
 
@@ -58,106 +57,46 @@ export default function Layout() {
   }, [])
   const items = navItemsFor(user)
   const name = user.display_name ?? user.username
-  const [loggingOut, setLoggingOut] = useState(false)
-
-  // Tell the server first, then forget the token locally even if the server call fails.
-  async function handleLogout() {
-    setLoggingOut(true)
-    try {
-      await logout()
-    } catch {
-      // The token is cleared below either way.
-    } finally {
-      clearSession()
-      navigate('/login', { replace: true })
-    }
-  }
 
   return (
     <div className="relative isolate flex min-h-dvh flex-col">
       <SpaceBackdrop />
 
       <header className="sticky top-0 z-30 px-3 pt-3 md:px-6 print:hidden">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 rounded-2xl border border-white/[0.08] bg-slate-900/65 px-4 shadow-[inset_0_1px_0_rgb(255_255_255/0.05),0_18px_50px_-24px_rgb(31_74_60/0.7)] backdrop-blur-xl md:px-5">
-          <Link
-            to="/"
-            aria-label="Sightline home"
-            className="flex shrink-0 items-center gap-2.5 rounded-xl transition-transform duration-300 ease-[var(--ease-spring)] hover:-translate-y-0.5 active:scale-[0.97]"
-          >
-            <LogoMark className="h-8 w-auto" />
-            <span className="font-display text-lg font-semibold tracking-tight">Sightline</span>
+        <div className="glass-pill mx-auto flex h-14 max-w-6xl items-center gap-4 pr-2 pl-4">
+          <Link to="/" aria-label="Sightline home" className="flex shrink-0 items-center gap-2.5 rounded-full">
+            <LogoMark className="h-7 w-auto" />
+            <span className="font-display text-base font-semibold tracking-tight">Sightline</span>
           </Link>
 
-          {/* Wide screens: a centred pill navigation */}
+          {/* Wide screens: text links in the middle; the current page sits in an inner pill */}
           <nav aria-label="Main" className="mx-auto hidden lg:block">
             <ul className="flex items-center gap-1">
-              {items.map(({ to, label, Icon }) => (
+              {items.map(({ to, label }) => (
                 <li key={to}>
                   <NavLink
                     to={to}
-                    title={label}
                     className={({ isActive }) =>
-                      `group relative flex min-h-11 items-center gap-2 rounded-full px-4 text-[0.95rem] whitespace-nowrap transition-transform duration-300 ease-[var(--ease-spring)] active:scale-[0.96] ${
-                        isActive ? 'text-white' : 'text-slate-300'
+                      `flex min-h-10 items-center rounded-full px-4 text-[0.95rem] whitespace-nowrap transition-colors duration-200 ${
+                        isActive ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'
                       }`
                     }
                   >
-                    {({ isActive }) => (
-                      <>
-                        {/* Active pill and hover wash fade by opacity only */}
-                        <span
-                          aria-hidden="true"
-                          className={`absolute inset-0 rounded-full bg-sky-400/15 ring-1 ring-sky-400/35 transition-opacity duration-300 ${
-                            isActive ? 'opacity-100' : 'opacity-0'
-                          }`}
-                        />
-                        <span
-                          aria-hidden="true"
-                          className={`absolute inset-0 rounded-full bg-white/[0.06] opacity-0 transition-opacity duration-300 ${
-                            isActive ? '' : 'group-hover:opacity-100'
-                          }`}
-                        />
-                        <Icon className={`relative size-[18px] shrink-0 ${isActive ? 'text-sky-300' : ''}`} />
-                        {/* not-sr-only resets white-space to normal, so keep labels on one line explicitly */}
-                        <span className="relative sr-only xl:not-sr-only xl:whitespace-nowrap">{label}</span>
-                      </>
-                    )}
+                    {label}
                   </NavLink>
                 </li>
               ))}
             </ul>
           </nav>
 
-          <div className="ml-auto flex items-center gap-3 lg:ml-0">
-            <Link
-              to="/account"
-              aria-label={`Your account: ${name}, ${ROLE_LABELS[user.role] ?? user.role}`}
-              title="Your account"
-              className="flex items-center gap-3 rounded-full transition-transform duration-300 ease-[var(--ease-spring)] hover:-translate-y-0.5 active:scale-[0.96]"
-            >
-              <span
-                aria-hidden="true"
-                className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-sky-300 to-sky-600 font-mono text-sm font-semibold text-slate-950 shadow-[0_0_0_3px_rgb(14_16_15),0_0_0_4px_rgb(127_184_164/0.35)]"
-              >
-                {initialsOf(name)}
-              </span>
-              <span className="hidden">
-                <span className="block text-sm font-medium">{name}</span>
-                <span className="block text-xs text-slate-400">{ROLE_LABELS[user.role] ?? user.role}</span>
-              </span>
-            </Link>
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={loggingOut}
-              aria-label={loggingOut ? 'Logging out' : 'Log out'}
-              className="group relative flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full border border-white/[0.08] px-3 text-slate-300 transition-transform duration-300 ease-[var(--ease-spring)] hover:-translate-y-0.5 active:scale-[0.96] disabled:opacity-50"
-            >
-              <span aria-hidden="true" className="absolute inset-0 rounded-full bg-white/[0.06] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              <LogoutIcon className="relative size-5" />
-              <span className="relative hidden whitespace-nowrap sm:inline lg:hidden">{loggingOut ? 'Logging out…' : 'Log out'}</span>
-            </button>
-          </div>
+          <Link
+            to="/account"
+            aria-label={`Your account: ${name}, ${ROLE_LABELS[user.role] ?? user.role}`}
+            title="Your account"
+            className="ml-auto grid size-10 shrink-0 place-items-center rounded-full border border-white/10 bg-slate-800 text-sm font-semibold text-slate-100 transition-colors hover:border-white/25 lg:ml-0"
+          >
+            {initialsOf(name)}
+          </Link>
         </div>
       </header>
 
@@ -168,39 +107,28 @@ export default function Layout() {
         </div>
       </main>
 
-      <footer className="border-t border-white/[0.06] pt-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-4 print:hidden">
+      <footer className="border-t border-white/[0.06] pt-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-4 print:hidden">
         <Disclaimer />
       </footer>
 
-      {/* Smaller screens: a bottom tab bar, so the navigation never scrolls sideways */}
-      <nav
-        aria-label="Main"
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-white/[0.07] bg-slate-950/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden print:hidden"
-      >
-        <ul className="mx-auto grid max-w-3xl" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
+      {/* Smaller screens: a floating tab bar, so the navigation never scrolls sideways */}
+      <nav aria-label="Main" className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-30 lg:hidden print:hidden">
+        <ul
+          className="glass-pill mx-auto grid max-w-md p-1"
+          style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
+        >
           {items.map(({ to, label, Icon }) => (
             <li key={to}>
               <NavLink
                 to={to}
-                title={label}
                 className={({ isActive }) =>
-                  `relative flex min-h-[68px] flex-col items-center justify-center gap-1 px-1 text-xs font-medium transition-transform duration-300 ease-[var(--ease-spring)] active:scale-[0.94] ${
-                    isActive ? 'text-white' : 'text-slate-400'
+                  `flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-full px-1 text-xs font-medium transition-colors duration-200 ${
+                    isActive ? 'bg-white/10 text-white' : 'text-slate-400'
                   }`
                 }
               >
-                {({ isActive }) => (
-                  <>
-                    <span
-                      aria-hidden="true"
-                      className={`absolute top-0 h-0.5 w-10 rounded-full bg-sky-400 shadow-[0_0_12px_rgb(127_184_164/0.9)] transition-[transform,opacity] duration-300 ${
-                        isActive ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
-                      }`}
-                    />
-                    <Icon className={`size-6 ${isActive ? 'text-sky-300' : ''}`} />
-                    <span className="max-w-full truncate">{label}</span>
-                  </>
-                )}
+                <Icon className="size-5" />
+                <span className="max-w-full truncate">{label}</span>
               </NavLink>
             </li>
           ))}

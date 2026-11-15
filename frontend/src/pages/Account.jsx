@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { changePassword, getErrorMessage, updateMe } from '../api/index.js'
+import { useNavigate } from 'react-router-dom'
+import { changePassword, getErrorMessage, logout, updateMe } from '../api/index.js'
 import { Field, Notice, PASSWORD_HINT } from '../components/AuthBits.jsx'
-import { ROLE_LABELS, getToken, getUser, saveSession } from '../utils/auth.js'
+import { LogoutIcon } from '../components/Icons.jsx'
+import { ROLE_LABELS, clearSession, getToken, getUser, saveSession } from '../utils/auth.js'
 
 /** Your account: profile (PATCH /auth/me/) and password change (POST /auth/password/change/). */
 export default function Account() {
@@ -9,12 +11,15 @@ export default function Account() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="eyebrow mb-2">Your account</p>
-        <h1 className="display-title text-4xl md:text-5xl">{user.display_name ?? user.username}</h1>
-        <p className="text-slate-400">
-          Signed in as <span className="font-mono text-white">{user.username}</span> · {ROLE_LABELS[user.role] ?? user.role}
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="eyebrow mb-2">Your account</p>
+          <h1 className="display-title text-4xl md:text-5xl">{user.display_name ?? user.username}</h1>
+          <p className="text-slate-400">
+            Signed in as <span className="text-white">{user.username}</span> · {ROLE_LABELS[user.role] ?? user.role}
+          </p>
+        </div>
+        <LogoutButton />
       </div>
       <div className="grid gap-6 md:grid-cols-2">
         <ProfileForm user={user} onSaved={setUser} />
@@ -150,5 +155,28 @@ function PasswordForm({ user }) {
         </button>
       </form>
     </section>
+  )
+}
+
+// Tell the server first, then forget the token locally even if the server call fails.
+function LogoutButton() {
+  const navigate = useNavigate()
+  const [busy, setBusy] = useState(false)
+  async function handleLogout() {
+    setBusy(true)
+    try {
+      await logout()
+    } catch {
+      // The token is cleared below either way.
+    } finally {
+      clearSession()
+      navigate('/login', { replace: true })
+    }
+  }
+  return (
+    <button type="button" onClick={handleLogout} disabled={busy} className="glass-pill inline-flex min-h-11 items-center gap-2 px-5 text-slate-200 hover:text-white disabled:opacity-50">
+      <LogoutIcon className="size-5" />
+      {busy ? 'Logging out…' : 'Log out'}
+    </button>
   )
 }
