@@ -46,7 +46,8 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      VITE_API_URL: http://localhost:8000/api
+      VITE_API_URL: http://localhost:8000/api/v1
+      VITE_LIVE_AREAS: all  # the whole backend is live; leave empty for an offline mock demo
       CHOKIDAR_USEPOLLING: "true"
     depends_on:
       - backend
