@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { getEngagement, getErrorMessage, isNoBaseline, submitCheck } from '../api/index.js'
 import AmslerGrid from '../components/AmslerGrid.jsx'
 import ContrastStep from '../components/ContrastStep.jsx'
-import { CheckIcon, CloseIcon, EyeIcon } from '../components/Icons.jsx'
+import { CloseIcon, EyeIcon } from '../components/Icons.jsx'
 import NearVisionStep from '../components/NearVisionStep.jsx'
 import ProgressBar from '../components/ProgressBar.jsx'
 import SymptomSliders from '../components/SymptomSliders.jsx'
@@ -112,7 +112,12 @@ export default function VisionTest() {
             />
           )}
         </div>
-        <button type="button" onClick={exitTest} className="btn-secondary px-4" aria-label="Exit eye test">
+        <button
+          type="button"
+          onClick={exitTest}
+          className="glass-pill inline-flex min-h-11 shrink-0 items-center gap-2 px-4 text-slate-200 hover:text-white"
+          aria-label="Exit eye test"
+        >
           <CloseIcon className="size-5" />
           <span className="hidden sm:inline">Exit</span>
         </button>
@@ -147,37 +152,34 @@ export default function VisionTest() {
 }
 
 function IntroScreen({ onStart }) {
-  const tips = [
+  const steps = [
     'Sit somewhere with good, even light.',
     'Turn your screen brightness up to full.',
-    'Hold the tablet at the same distance as every week.',
+    'Hold the tablet at the same distance as every week, about an arm\'s length away.',
     'Wear your usual reading glasses or lenses if you normally use them.',
   ]
+  // One plain column, like the instruction sheet in a clinic: what it is, how to prepare, one button.
   return (
-    <div className="grid gap-6 md:grid-cols-2">
-      <div className="card p-6">
-        <h2 className="mb-4 text-xl font-semibold">Before you start</h2>
-        <ul className="space-y-3">
-          {tips.map((tip) => (
-            <li key={tip} className="flex gap-3">
-              <CheckIcon className="mt-1 size-5 shrink-0 text-sky-400" />
-              <span className="text-slate-300">{tip}</span>
+    <div className="flex max-w-2xl flex-col gap-8">
+      <p className="text-lg text-slate-300">
+        About five minutes. Three short tests with each eye, then three questions about how you feel. There are no
+        wrong answers.
+      </p>
+      <section aria-labelledby="prepare-title">
+        <h2 id="prepare-title" className="mb-3 text-lg font-semibold">
+          Before you begin
+        </h2>
+        <ol className="list-decimal space-y-2 pl-6 text-slate-300 marker:text-slate-500">
+          {steps.map((step) => (
+            <li key={step} className="pl-1">
+              {step}
             </li>
           ))}
-        </ul>
-      </div>
-      <div className="card flex flex-col p-6">
-        <h2 className="mb-4 text-xl font-semibold">What happens</h2>
-        <ol className="list-decimal space-y-2 pl-6 text-slate-300">
-          <li>Three short tests with your left eye.</li>
-          <li>The same three tests with your right eye.</li>
-          <li>Three quick questions about how you feel.</li>
         </ol>
-        <p className="mt-4 text-slate-400">It only takes a few minutes. There are no wrong answers, just do your best.</p>
-        <button type="button" onClick={onStart} className="btn-primary mt-auto self-start px-8">
-          Start the test
-        </button>
-      </div>
+      </section>
+      <button type="button" onClick={onStart} className="btn-primary self-start px-10">
+        Begin
+      </button>
     </div>
   )
 }
@@ -195,9 +197,7 @@ function CoverEyeScreen({ testEye, onReady, onExit }) {
       aria-labelledby="cover-title"
       className="fixed inset-0 z-50 flex animate-step-in flex-col items-center justify-center gap-8 bg-slate-950 p-6 text-center"
     >
-      <p className="font-mono text-sm tracking-widest text-slate-400">
-        {testEye === 'left' ? 'PART 1 OF 2 · LEFT EYE' : 'PART 2 OF 2 · RIGHT EYE'}
-      </p>
+      <p className="text-slate-400">{testEye === 'left' ? 'Part 1 of 2 · Left eye' : 'Part 2 of 2 · Right eye'}</p>
       <h1 id="cover-title" className="display-title text-6xl">
         Cover your {coverEye} eye
       </h1>
@@ -237,9 +237,7 @@ function EyeDiagram({ label, covered }) {
         )}
       </div>
       <span className="text-lg font-medium">{label}</span>
-      <span className={`font-mono text-sm tracking-widest ${covered ? 'text-slate-400' : 'text-sky-400'}`}>
-        {covered ? 'COVERED' : 'TESTING'}
-      </span>
+      <span className={`text-sm ${covered ? 'text-slate-400' : 'text-sky-400'}`}>{covered ? 'Covered' : 'Testing'}</span>
     </div>
   )
 }
