@@ -5,20 +5,18 @@ import { AccessDenied } from '../components/StateViews.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 import { INSIGHT_CAPTION } from '../content/learn.js'
 import { LEVELS } from '../utils/status.js'
-import { fieldsOf, inlineObject, labelFor, tableColumns, textOf } from '../utils/report.js'
+import { fieldsOf, formatValue, labelFor, tableColumns, textOf } from '../utils/report.js'
 import { useApi } from '../utils/useApi.js'
 
 // The report is rendered exactly as the API returns it: keys become labels, values are shown as-is.
 // So if the backend adds a column or field, it appears here without code changes.
 
 // Status levels become badges; everything else becomes plain text.
-function Value({ value }) {
+function Value({ name, value }) {
   if (typeof value === 'string' && LEVELS[value]) return <StatusBadge level={value} size="sm" tone="light" pulse={false} />
   if (value === null || value === undefined || value === '') return '–'
   if (typeof value === 'boolean') return value ? 'Yes' : 'No'
-  if (Array.isArray(value)) return value.join(', ')
-  if (typeof value === 'object') return inlineObject(value)
-  return String(value)
+  return formatValue(name, value) ?? String(value)
 }
 
 export default function EarthReport() {
@@ -112,7 +110,7 @@ function ReportBody({ report }) {
                   <tr key={i} className="break-inside-avoid border-b border-slate-200 align-top">
                     {columns.map((key) => (
                       <td key={key} className="py-3 pr-3 text-slate-800">
-                        <Value value={row[key]} />
+                        <Value name={key} value={row[key]} />
                       </td>
                     ))}
                   </tr>
@@ -172,7 +170,7 @@ function KeyValueGrid({ data }) {
         <div key={key}>
           <dt className="text-sm text-slate-500">{labelFor(key)}</dt>
           <dd className="font-medium text-slate-900">
-            <Value value={value} />
+            <Value name={key} value={value} />
           </dd>
         </div>
       ))}
