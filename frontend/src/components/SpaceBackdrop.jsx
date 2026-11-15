@@ -28,7 +28,7 @@ export default function SpaceBackdrop() {
       for (let i = 0; i < count; i++) {
         const big = r() > 0.92
         const alpha = big ? 0.5 + r() * 0.4 : 0.12 + r() * 0.35
-        ctx.fillStyle = r() > 0.8 ? `rgba(210,190,255,${alpha})` : `rgba(241,235,255,${alpha})`
+        ctx.fillStyle = r() > 0.8 ? `rgba(205,225,215,${alpha})` : `rgba(240,244,242,${alpha})`
         ctx.beginPath()
         ctx.arc(r() * w, r() * h, big ? 0.9 + r() * 0.8 : 0.3 + r() * 0.6, 0, Math.PI * 2)
         ctx.fill()

@@ -84,7 +84,7 @@ export default function Home() {
         <section className="card relative isolate flex flex-col items-center gap-6 overflow-hidden p-6" aria-labelledby="eyes-title">
           <span
             aria-hidden="true"
-            className="absolute top-[34%] left-1/2 -z-10 aspect-square w-[min(90%,420px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(167_139_250/0.16),transparent_68%)]"
+            className="absolute top-[34%] left-1/2 -z-10 aspect-square w-[min(90%,420px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(127_184_164/0.16),transparent_68%)]"
           />
           <h2 id="eyes-title" className="eyebrow self-start">
             Your eyes

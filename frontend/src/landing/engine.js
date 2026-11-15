@@ -60,7 +60,7 @@ export function initLanding(root) {
         const alpha = layer ? 0.45 + r() * 0.5 : 0.18 + r() * 0.45
         const tint = r()
         ctx.fillStyle =
-          tint > 0.82 ? `rgba(210,190,255,${alpha})` : tint > 0.7 ? `rgba(255,236,220,${alpha})` : `rgba(241,235,255,${alpha})`
+          tint > 0.82 ? `rgba(205,225,215,${alpha})` : tint > 0.7 ? `rgba(255,236,220,${alpha})` : `rgba(240,244,242,${alpha})`
         ctx.beginPath()
         ctx.arc(x, y, size, 0, Math.PI * 2)
         ctx.fill()
