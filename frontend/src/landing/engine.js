@@ -313,24 +313,8 @@ export function initLanding(root) {
   function scramble(el) {
     if (el.dataset.done) return
     el.dataset.done = '1'
-    const final = String(el.dataset.count).padStart(2, '0')
-    if (reduced) {
-      el.textContent = final
-      return
-    }
-    const start = performance.now()
-    const run = () => {
-      const t = performance.now() - start
-      if (t >= 900) {
-        el.textContent = final
-        return
-      }
-      // Digits lock in from left to right, like a readout settling.
-      const locked = Math.floor((t / 900) * final.length)
-      el.textContent = [...final].map((ch, i) => (i < locked ? ch : String(Math.floor(Math.random() * 10)))).join('')
-      timers.push(setTimeout(run, 55))
-    }
-    run()
+    // The number is already in the markup; the entrance animation in CSS does the rest.
+    el.textContent = String(el.dataset.count)
   }
 
   const revealIO = new IntersectionObserver(

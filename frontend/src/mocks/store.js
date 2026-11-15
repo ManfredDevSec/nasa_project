@@ -113,7 +113,7 @@ function cabinSummary() {
   const recent = lastDays(cabinLogs, TODAY, CONFIG.cabin.averageDays)
   const avg = Math.round(average(recent, 'co2_mmhg') * 100) / 100
   const co2_level = avg < CONFIG.cabin.greenBelow ? 'GREEN' : avg < CONFIG.cabin.amberBelow ? 'AMBER' : 'RED'
-  return { co2_today: today?.co2_mmhg ?? null, co2_5day_avg: avg, co2_level }
+  return { co2_mmhg_today: today?.co2_mmhg ?? null, co2_5day_avg: avg, co2_level }
 }
 
 // Patterns across the crew for the last 7 days (shown with the "not a proven cause" caption).
@@ -143,7 +143,11 @@ function crewRow(member) {
     name: member.name,
     call_sign: member.call_sign,
     overall: worst(Object.values(parts)),
-    parts,
+    // like the real API (docs/03 R4): one field per part
+    eyes: parts.EYES,
+    heart: parts.HEART,
+    sleep: parts.SLEEP,
+    mind: parts.MIND,
     headline: headlineFor(member.id),
     overdue: isOverdue(member.id),
   }
@@ -483,7 +487,7 @@ export function trends(auth, id) {
     })),
     cabin_co2: cabinLogs.map((l) => ({ mission_day: l.mission_day, co2_mmhg: l.co2_mmhg })),
     daily: dailyLogs[member.id].map(dailyResponse),
-    events: generated.events.map((e) => ({ mission_day: e.mission_day, type: e.type, label: e.label })),
+    events: generated.events.map((e) => ({ mission_day: e.mission_day, type: e.type, text: e.text })),
   }
 }
 
@@ -581,7 +585,7 @@ export function weeklyReport(auth) {
       astronaut: r.name,
       call_sign: r.call_sign,
       overall: r.overall,
-      eyes: r.parts.EYES,
+      eyes: r.eyes,
       near_vision_l_r: latest ? `${latest.near_vision_left} / ${latest.near_vision_right}` : null,
       baseline_l_r: `${member.baseline.near_vision_left} / ${member.baseline.near_vision_right}`,
       tests_this_week: history[r.astronaut_id].filter((h) => h.check.mission_day >= fromDay).length,
@@ -625,7 +629,7 @@ export function weeklyReport(auth) {
     },
     crew_summary,
     environment: {
-      co2_today_mmhg: cabin.co2_today,
+      co2_today_mmhg: cabin.co2_mmhg_today,
       co2_5day_avg_mmhg: cabin.co2_5day_avg,
       co2_7day_avg_mmhg: Math.round(average(week, 'co2_mmhg') * 100) / 100,
       co2_high_days: week.filter((l) => l.co2_mmhg > CONFIG.insights.co2HighMmhg).length,
