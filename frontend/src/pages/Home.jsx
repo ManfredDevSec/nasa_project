@@ -107,7 +107,7 @@ export default function Home() {
             </h1>
           </div>
           <div className="rounded-2xl border border-white/[0.06] bg-slate-950/40 p-4">
-            <p className="eyebrow mb-2 !text-[0.68rem]">Your SANS check</p>
+            <p className="eyebrow mb-2 !text-[0.8rem]">Your SANS check</p>
             <p className="text-lg text-white">{eyes.summary}</p>
           </div>
 
@@ -119,7 +119,7 @@ export default function Home() {
               .filter((s) => s.text)
               .map((s) => (
                 <div key={s.title} className="border-l-2 border-sky-400/40 pl-4">
-                  <h2 className="mb-1 text-sm font-semibold tracking-wide text-slate-400 uppercase">{s.title}</h2>
+                  <h2 className="mb-1 text-sm font-medium text-slate-400">{s.title}</h2>
                   <SourcedText text={s.text} className="text-slate-200" />
                 </div>
               ))}
@@ -188,7 +188,7 @@ function EyeReading({ side, latest, baseline }) {
   }
   return (
     <div className="rounded-xl border border-white/[0.06] bg-slate-950/50 px-4 py-3">
-      <dt className="eyebrow !text-[0.66rem] !text-slate-400">{side}</dt>
+      <dt className="eyebrow !text-[0.8rem] !text-slate-400">{side}</dt>
       <dd>
         <span className="font-mono text-2xl font-semibold">{formatLine(latest)}</span>
         <span className="ml-1 text-sm text-slate-400">/ {formatLine(baseline)} baseline</span>
@@ -205,7 +205,7 @@ function Stat({ Icon, label, value, detail }) {
         <Icon className="size-[22px] text-sky-300" />
       </span>
       <div className="leading-tight">
-        <p className="eyebrow mb-1 !text-[0.68rem] !text-slate-400">{label}</p>
+        <p className="eyebrow mb-1 !text-[0.8rem] !text-slate-400">{label}</p>
         <p className="font-mono text-lg font-semibold">
           {value}
           {detail && <span className="ml-2 font-sans text-sm font-normal text-slate-400">{detail}</span>}

@@ -175,7 +175,7 @@ export function initLanding(root) {
 
     // HUD readout, about 10 times a second and only when the text changes.
     if (now - lastHudAt > 100) {
-      const text = p > 0.84 ? 'INSIDE · BASELINE LOCKED' : `SCAN · MAG ${scale.toFixed(1)}×`
+      const text = p > 0.84 ? 'Inside the eye, baseline locked' : `Zoom ${scale.toFixed(1)}×`
       if (text !== lastHud) {
         lastHud = text
         hud.textContent = text

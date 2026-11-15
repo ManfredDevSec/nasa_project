@@ -34,9 +34,6 @@ function LevelDot({ cx, cy, payload, r = 6 }) {
 const renderDot = ({ key, ...props }) => <LevelDot key={key ?? props.index} {...props} />
 const renderActiveDot = ({ key, ...props }) => <LevelDot key={key ?? props.index} {...props} r={8} />
 
-// Events carry `text` (docs/03 R2); `label` is the older mock name.
-const eventText = (event) => event.text ?? event.label
-
 // Event labels alternate between two rows so close events do not overlap.
 function EventLabel({ viewBox, text, row }) {
   if (!viewBox) return null
@@ -122,10 +119,10 @@ export default function TrendChart({ trends }) {
               <Tooltip content={<VisionTooltip />} cursor={{ stroke: '#51477f' }} />
               {events.map((event, i) => (
                 <ReferenceLine
-                  key={`${event.mission_day}-${eventText(event)}`}
+                  key={`${event.mission_day}-${event.label}`}
                   x={event.mission_day}
                   stroke="#51477f"
-                  label={<EventLabel text={eventText(event)} row={i % 2} />}
+                  label={<EventLabel text={event.label} row={i % 2} />}
                 />
               ))}
               {baselines.map((b) => (
@@ -199,7 +196,7 @@ export default function TrendChart({ trends }) {
                 <YAxis width={Y_AXIS_WIDTH} stroke={AXIS} tick={{ fontSize: 13 }} domain={['auto', 'auto']} />
                 <Tooltip content={<FactorTooltip factor={factor} />} cursor={{ stroke: '#51477f' }} />
                 {events.map((event) => (
-                  <ReferenceLine key={`${event.mission_day}-${eventText(event)}`} x={event.mission_day} stroke="#51477f" />
+                  <ReferenceLine key={`${event.mission_day}-${event.label}`} x={event.mission_day} stroke="#51477f" />
                 ))}
                 <Line type="monotone" dataKey={factor.key} stroke="#e0dcf5" strokeWidth={2} dot={false} isAnimationActive={false} />
               </LineChart>
