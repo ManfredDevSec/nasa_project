@@ -37,7 +37,11 @@ export default function Home() {
 
   const [bodyMap, mission, engagement, trends] = data
   const eyes = findPart(bodyMap.parts ?? [], 'EYES')
-  const today = missionToday(mission)
+  // A finished mission (e.g. a crew member from an earlier mission) shows 100 % progress. Dates are then
+  // counted from the backend's own "as of" day for this astronaut, never from today's active mission.
+  const progress = engagement?.mission_progress
+  const missionEnded = progress?.pct >= 100
+  const today = engagement?.as_of ?? missionToday(mission)
   const badges = earnedBadges(engagement)
   const latest = latestRow(trends?.vision)
   const baseline = trends?.baseline ?? {}
@@ -54,10 +58,16 @@ export default function Home() {
     <div className="mx-auto flex max-w-3xl flex-col gap-10">
       <header className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
         <h1 className="display-title text-3xl md:text-4xl">{user.display_name ?? user.username}</h1>
-        {mission && (
+        {missionEnded ? (
           <p className="text-slate-400">
-            Day <span className="text-white">{mission.mission_day_today}</span> · {mission.name}
+            Mission complete · Day <span className="text-white">{progress.day}</span> of {progress.planned}
           </p>
+        ) : (
+          mission && (
+            <p className="text-slate-400">
+              Day <span className="text-white">{mission.mission_day_today}</span> · {mission.name}
+            </p>
+          )
         )}
       </header>
 
@@ -67,8 +77,14 @@ export default function Home() {
           Your eye status
         </h2>
         <StatusBadge level={eyes.level} size="lg" />
-        <p className="text-2xl leading-snug text-white md:text-3xl">{eyes.summary}</p>
-        <StartTestButton />
+        <p className="text-2xl leading-snug text-white md:text-3xl">
+          {missionEnded ? withoutNextTest(eyes.summary) : eyes.summary}
+        </p>
+        {missionEnded ? (
+          <p className="text-slate-400">Your mission is complete, so no more weekly tests are due. This is your last result.</p>
+        ) : (
+          <StartTestButton />
+        )}
       </section>
 
       {/* The numbers, quietly */}
@@ -78,8 +94,8 @@ export default function Home() {
         <Row label="Streak" value={engagement ? `${engagement.streak_weeks} weeks` : null} />
         <Row
           label="Next test"
-          value={engagement?.next_test_due ? relativeDue(engagement.next_test_due, today) : null}
-          note={engagement?.next_test_due ? shortDate(engagement.next_test_due) : null}
+          value={missionEnded ? 'None, mission complete' : engagement?.next_test_due ? relativeDue(engagement.next_test_due, today) : null}
+          note={!missionEnded && engagement?.next_test_due ? shortDate(engagement.next_test_due) : null}
         />
       </dl>
 
@@ -102,6 +118,11 @@ export default function Home() {
       )}
     </div>
   )
+}
+
+// "Vision matches your normal. Next test by 6 Mar." -> "Vision matches your normal."
+function withoutNextTest(summary = '') {
+  return summary.replace(/s*(Next test|Test again)[^.]*.?/gi, '').trim()
 }
 
 function StartTestButton() {

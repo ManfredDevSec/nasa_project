@@ -39,6 +39,10 @@ function initialsOf(name = '') {
   return ((words[0]?.[0] ?? '') + (words.length > 1 ? words[words.length - 1][0] : '')).toUpperCase() || '?'
 }
 
+// Pages that read as one narrow column (Home, Result). The header shrinks to the same width there,
+// so the logo lines up with the page's left edge instead of floating far out to the side.
+const NARROW_PAGES = new Set(['/home', '/result'])
+
 export default function Layout() {
   const location = useLocation()
   const [user, setUser] = useState(getUser)
@@ -59,6 +63,7 @@ export default function Layout() {
     }
   }, [])
   const items = navItemsFor(user)
+  const narrow = NARROW_PAGES.has(location.pathname)
   const name = user.display_name ?? user.username
 
   return (
@@ -66,7 +71,7 @@ export default function Layout() {
       <SpaceBackdrop />
 
       <header className="sticky top-0 z-30 px-3 pt-3 md:px-6 print:hidden">
-        <div className="glass-pill mx-auto flex h-14 max-w-6xl items-center gap-4 pr-2 pl-4">
+        <div className={`glass-pill mx-auto flex h-14 items-center gap-3 pr-2 pl-4 ${narrow ? 'max-w-[50rem]' : 'max-w-[71rem]'}`}>
           <Link to="/" aria-label="Sightline home" className="flex shrink-0 items-center gap-2.5 rounded-full">
             <LogoMark className="h-7 w-auto" />
             <span className="font-display text-base font-semibold tracking-tight">Sightline</span>
@@ -80,7 +85,7 @@ export default function Layout() {
                   <NavLink
                     to={to}
                     className={({ isActive }) =>
-                      `flex min-h-10 items-center rounded-full px-4 text-[0.95rem] whitespace-nowrap transition-colors duration-200 ${
+                      `flex min-h-10 items-center rounded-full px-3.5 text-[0.95rem] whitespace-nowrap transition-colors duration-200 ${
                         isActive ? 'bg-white/10 text-white' : 'text-slate-300 hover:text-white'
                       }`
                     }
