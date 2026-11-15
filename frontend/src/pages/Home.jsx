@@ -98,7 +98,7 @@ export default function Home() {
       </section>
 
       {badges.length > 0 && (
-        <p className="text-sm text-slate-400">Badges: {badges.map((b) => badgeName(b.code)).join(' · ')}</p>
+        <p className="text-sm text-slate-400">Badges: {badges.map((b) => b.name ?? badgeName(b.code)).join(' · ')}</p>
       )}
     </div>
   )

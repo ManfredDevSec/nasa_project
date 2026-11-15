@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react
 import { getErrorMessage, login } from '../api/index.js'
 import { LogoMark } from '../components/Icons.jsx'
 import { Disclaimer } from '../components/Layout.jsx'
+import PlanetHorizon from '../components/PlanetHorizon.jsx'
 import SpaceBackdrop from '../components/SpaceBackdrop.jsx'
 import { getToken, getUser, homePathFor, saveSession } from '../utils/auth.js'
 
@@ -73,7 +74,7 @@ export default function Login() {
             Each result is shown as all clear, watch or act now, with plain reasons and next steps for the crew and
             the flight surgeon.
           </p>
-          <Horizon />
+          <PlanetHorizon />
         </section>
 
         {/* Sign-in panel */}
@@ -136,23 +137,5 @@ export default function Login() {
         <Disclaimer />
       </footer>
     </div>
-  )
-}
-
-// Decorative planet horizon with a faint orbit line.
-function Horizon() {
-  return (
-    <svg viewBox="0 0 480 120" className="w-full max-w-md" aria-hidden="true">
-      <defs>
-        <linearGradient id="limb" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#7fb8a4" stopOpacity="0.5" />
-          <stop offset="1" stopColor="#7fb8a4" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <ellipse cx="240" cy="190" rx="300" ry="110" fill="url(#limb)" />
-      <ellipse cx="240" cy="192" rx="300" ry="110" fill="#0e100f" />
-      <path d="M10 60 Q240 -10 470 60" fill="none" stroke="#353c38" strokeDasharray="3 6" />
-      <circle cx="352" cy="27" r="4" fill="#f5f7f6" />
-    </svg>
   )
 }
