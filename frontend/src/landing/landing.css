@@ -1003,13 +1003,13 @@ a.lp-brand:active {
   border-left: 1px solid var(--line);
 }
 .readout-num {
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-weight: 600;
+  font-family: 'Sora', system-ui, sans-serif;
+  font-weight: 500;
   font-size: clamp(2.6rem, 5vw, 4.2rem);
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
-  color: var(--accent);
+  color: #f1ecff;
 }
 .readout-label {
   color: var(--text-secondary);
@@ -1532,9 +1532,9 @@ a.lp-brand:active {
   color: #998abd;
 }
 
-/* ───────────── Black holes (real imagery: EHT photo of M87*, NASA Goddard simulation) ───────────── */
+/* ───────────── Planet horizons (Try it and the final call to action) ───────────── */
 
-/* Try it: the scanner sits inside the vertical black hole. The image's black was baked to transparent (brightness becomes opacity), so it blends into the page with no box. */
+/* Try it: the scanner rises over a planet's lit edge; a small moon glides along the orbit above. */
 .scanner-stage {
   position: relative;
   margin: var(--s-5) 0 84px;
@@ -1546,90 +1546,52 @@ a.lp-brand:active {
   position: relative;
   z-index: 1;
 }
-.blackhole-v {
+.planet-scan {
   position: absolute;
   left: 50%;
   top: 50%;
   z-index: 0;
-  width: 1500px;
-  height: auto;
+  width: 1100px;
   max-width: none;
-  /* the black hole's dark centre is at 50% / 45% of the EHT image */
-  transform: translate(-50%, -45%) scale(1);
-  opacity: 0.7;
+  height: auto;
+  transform: translate(-50%, -30%);
+  opacity: 0.85;
   pointer-events: none;
-  transition:
-    opacity 700ms var(--ease-out),
-    transform 900ms var(--ease-out);
-  animation: lp-hole-breathe 7s ease-in-out -2s infinite;
+  transition: opacity 700ms var(--ease-out);
 }
-@keyframes lp-hole-breathe {
-  0%,
-  100% {
-    opacity: 0.55;
-  }
-  50% {
-    opacity: 0.72;
-  }
-}
-/* Holding the scan feeds the accretion disk */
-.try.holding .blackhole-v,
-.try.done .blackhole-v {
-  animation: none;
+.try.holding .planet-scan,
+.try.done .planet-scan {
   opacity: 1;
-  transform: translate(-50%, -45%) scale(1.06);
 }
 .try-copy .h2,
 .try-copy .body {
   text-shadow: var(--tshadow);
 }
 
-/* Final call to action: the button waits inside the wide black hole's dark centre. */
+/* Final call to action: the button waits just above the horizon. */
 .final {
   overflow: hidden;
   gap: var(--s-3);
 }
-.blackhole-stage {
+.planet-stage {
   position: relative;
-  isolation: isolate;
-  width: 1300px;
+  width: 1200px;
   max-width: none;
-  aspect-ratio: 1024 / 700;
+  aspect-ratio: 480 / 150;
   flex-shrink: 0;
 }
-.blackhole-w {
+.planet-cta {
   position: absolute;
-  inset: 0;
+  left: 0;
+  bottom: 0;
   width: 100%;
-  height: 100%;
-  z-index: -1;
-  opacity: 0.8;
+  height: auto;
   pointer-events: none;
-  animation: lp-hole-breathe 9s ease-in-out -4s infinite;
 }
-/* The transparent centre gets a dark event horizon back, right behind the button */
-.blackhole-stage::before {
-  content: '';
+.planet-stage-cta {
   position: absolute;
   left: 50%;
-  top: 50%;
-  width: 15.6%;
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  border-radius: 50%;
-  background: radial-gradient(circle, #02030a 62%, rgba(2, 3, 10, 0) 72%);
-  z-index: -2;
-}
-.blackhole-stage .final-rings {
-  left: 50%;
-  top: 50%;
-  width: 470px;
-  height: 470px;
-}
-.blackhole-cta {
-  position: absolute;
-  left: 50%;
-  top: 50%;
+  top: 42%;
   translate: -50% -50%;
 }
 
