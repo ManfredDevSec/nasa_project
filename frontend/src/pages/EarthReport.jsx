@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { getErrorMessage, getWeeklyReport, isForbidden } from '../api/index.js'
 import { ArrowLeftIcon, LogoMark, PrinterIcon } from '../components/Icons.jsx'
-import { DemoChip } from '../components/Layout.jsx'
 import { AccessDenied } from '../components/StateViews.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 import { INSIGHT_CAPTION } from '../content/learn.js'
@@ -36,7 +35,6 @@ export default function EarthReport() {
             >
               <ArrowLeftIcon className="size-5" /> Back to crew
             </Link>
-            <DemoChip tone="light" />
           </div>
           <button
             type="button"

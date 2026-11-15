@@ -3,7 +3,7 @@ import Layout from './components/Layout.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import { MEDICAL_ROLES, getToken, getUser, homePathFor } from './utils/auth.js'
 import Login from './pages/Login.jsx'
-import BodyMap from './pages/BodyMap.jsx'
+import Home from './pages/Home.jsx'
 import VisionTest from './pages/VisionTest.jsx'
 import Result from './pages/Result.jsx'
 import Trends from './pages/Trends.jsx'
@@ -38,7 +38,7 @@ export default function App() {
           <Route element={<Layout />}>
             {/* Only accounts linked to an astronaut (crew + medical officer) */}
             <Route element={<ProtectedRoute requireAstronaut />}>
-              <Route path="/home" element={<BodyMap />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/test" element={<VisionTest />} />
               <Route path="/result" element={<Result />} />
             </Route>

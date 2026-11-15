@@ -152,6 +152,12 @@ export default function Landing() {
           <div className="lp-space lp-space-b" />
         </div>
         <div className="lp-space-shade" />
+        {/* Aurora light curtains and a faint grid over the night sky */}
+        <div className="aurora" style={{ '--aurora': 0.6 }}>
+          <div className="aurora-layer aurora-a" />
+          <div className="aurora-layer aurora-b" />
+        </div>
+        <div className="aurora-grid" />
         <div className="lp-env-glow" />
         <canvas className="lp-stars lp-stars-far" data-stars="far" />
         <canvas className="lp-stars lp-stars-near" data-stars="near" />
@@ -170,7 +176,7 @@ export default function Landing() {
             <a href="#try">Try it</a>
             <a href="#crew">Crew</a>
           </nav>
-          <Link to={appPath} className="lp-btn lp-btn-ghost lp-nav-cta">
+          <Link to={appPath} className="lp-btn lp-btn-primary lp-nav-cta">
             {user ? 'Open app' : 'Sign in'}
           </Link>
         </div>
@@ -180,7 +186,9 @@ export default function Landing() {
       <section className="hero" data-hero aria-label="Introduction">
         <div className="stage" data-stage>
           <div className="eye" data-eye aria-hidden="true">
-            <img src={`${import.meta.env.BASE_URL}landing/eye-real.jpg`} alt="" decoding="async" fetchPriority="high" />
+            <img className="eye-base" src={`${import.meta.env.BASE_URL}landing/astronaut-visor-eye.webp`} alt="" decoding="async" fetchPriority="high" />
+            {/* The eye region at 4x detail, laid exactly over the eye so the deep zoom stays sharp */}
+            <img className="eye-detail" src={`${import.meta.env.BASE_URL}landing/astronaut-visor-eye-detail.webp`} alt="" decoding="async" />
           </div>
           <div className="deep" data-deep aria-hidden="true" />
           <div className="scrim" aria-hidden="true" />
@@ -304,8 +312,10 @@ export default function Landing() {
               Four short tests. <em>One clear answer.</em>
             </h2>
           </div>
-          <svg className="how-path" viewBox="0 0 1000 40" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M0 20 H1000" pathLength="1" data-scrolldraw />
+          {/* A timeline: the line draws itself down the middle as you scroll */}
+          <div className="steps-wrap">
+          <svg className="how-path" viewBox="0 0 40 1000" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M20 0 V1000" pathLength="1" data-scrolldraw />
           </svg>
           <ol className="steps">
             {STEPS.map(({ name, text, art: Art }, i) => (
@@ -319,6 +329,7 @@ export default function Landing() {
               </li>
             ))}
           </ol>
+          </div>
         </section>
 
         {/* ── The one interactive moment ── */}
@@ -428,7 +439,7 @@ export default function Landing() {
           </span>
           <p>Prototype, not a medical device. Simulated data.</p>
           <p className="muted">
-            Image credits: Hubble Ultra Deep Field, NASA/ESA. Eye: Petr Novák, Wikipedia (CC BY-SA 2.5), mirrored. Black hole M87*: EHT Collaboration (CC BY 4.0). Black hole simulation: NASA’s Goddard Space Flight Center/Jeremy Schnittman. Astronaut photos used for demonstration.
+            Image credits: Hubble Ultra Deep Field, NASA/ESA. Scanner eye: Petr Novák, Wikipedia (CC BY-SA 2.5), mirrored. Black hole M87*: EHT Collaboration (CC BY 4.0). Black hole simulation: NASA’s Goddard Space Flight Center/Jeremy Schnittman. Astronaut photos used for demonstration.
           </p>
         </div>
       </footer>

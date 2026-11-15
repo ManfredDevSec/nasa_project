@@ -17,7 +17,7 @@ export default function StatusBadge({ level, size = 'md', tone = 'dark', pulse =
   const key = normalizeLevel(level)
   const { word, color, textOnLight } = getLevel(key)
   // On dark backgrounds grey text is too faint, so NO DATA uses a lighter grey.
-  const textColor = tone === 'light' ? textOnLight : key === 'UNKNOWN' ? '#c3cae8' : color
+  const textColor = tone === 'light' ? textOnLight : key === 'UNKNOWN' ? '#c8c2e8' : color
 
   return (
     <span

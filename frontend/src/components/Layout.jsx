@@ -5,26 +5,6 @@ import { ROLE_LABELS, canSeeCrew, clearSession, getToken, getUser, isAdmin, isAs
 import { BookIcon, ChartIcon, EyeIcon, HomeIcon, LockIcon, LogoMark, LogoutIcon, PrinterIcon, UsersIcon } from './Icons.jsx'
 import SpaceBackdrop from './SpaceBackdrop.jsx'
 
-/**
- * Small "DEMO DATA" chip. It only shows on screens that used at least one mocked endpoint
- * (or when `force` is true, e.g. on the login page when login itself is mocked).
- */
-export function DemoChip({ force = false, tone = 'dark' }) {
-  useLocation() // re-check whenever the screen changes
-  const usedMocks = useSyncExternalStore(subscribeToMockUsage, currentScreenUsedMocks)
-  if (!force && !usedMocks) return null
-  return (
-    <span
-      className={`rounded-full border px-2.5 py-0.5 whitespace-nowrap font-mono text-[0.7rem] font-semibold tracking-[0.14em] ${
-        tone === 'light' ? 'border-slate-400 text-slate-600' : 'border-sky-400/30 bg-sky-400/10 text-sky-300'
-      }`}
-      title="This screen shows simulated data from src/mocks"
-    >
-      DEMO DATA
-    </span>
-  )
-}
-
 export function Disclaimer() {
   return <p className="text-center text-sm text-slate-400">
       Prototype, not a medical device. Simulated data. <span className="text-slate-500">Space image: NASA/ESA Hubble.</span>
@@ -97,21 +77,20 @@ export default function Layout() {
     <div className="relative isolate flex min-h-dvh flex-col">
       <SpaceBackdrop />
 
-      <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-slate-950/70 backdrop-blur-xl print:hidden">
-        <div className="mx-auto flex h-[72px] max-w-6xl items-center gap-4 px-4 md:px-6">
+      <header className="sticky top-0 z-30 px-3 pt-3 md:px-6 print:hidden">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 rounded-2xl border border-white/[0.08] bg-slate-900/65 px-4 shadow-[inset_0_1px_0_rgb(255_255_255/0.05),0_18px_50px_-24px_rgb(109_59_232/0.7)] backdrop-blur-xl md:px-5">
           <Link
             to="/"
             aria-label="Sightline home"
             className="flex shrink-0 items-center gap-2.5 rounded-xl transition-transform duration-300 ease-[var(--ease-spring)] hover:-translate-y-0.5 active:scale-[0.97]"
           >
             <LogoMark className="h-8 w-auto" />
-            <span className="text-lg font-semibold tracking-tight">Sightline</span>
+            <span className="font-display text-lg font-semibold tracking-tight">Sightline</span>
           </Link>
-          <DemoChip />
 
           {/* Wide screens: a centred pill navigation */}
           <nav aria-label="Main" className="mx-auto hidden lg:block">
-            <ul className="flex items-center gap-1 rounded-full border border-white/[0.07] bg-slate-900/60 p-1 shadow-[inset_0_1px_0_rgb(255_255_255/0.04),0_10px_30px_-14px_rgb(40_58_170/0.5)]">
+            <ul className="flex items-center gap-1">
               {items.map(({ to, label, Icon }) => (
                 <li key={to}>
                   <NavLink
@@ -158,7 +137,7 @@ export default function Layout() {
             >
               <span
                 aria-hidden="true"
-                className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-sky-300 to-sky-600 font-mono text-sm font-semibold text-slate-950 shadow-[0_0_0_3px_rgb(6_9_24),0_0_0_4px_rgb(52_221_239/0.35)]"
+                className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-sky-300 to-sky-600 font-mono text-sm font-semibold text-slate-950 shadow-[0_0_0_3px_rgb(11_6_24),0_0_0_4px_rgb(167_139_250/0.35)]"
               >
                 {initialsOf(name)}
               </span>
@@ -214,7 +193,7 @@ export default function Layout() {
                   <>
                     <span
                       aria-hidden="true"
-                      className={`absolute top-0 h-0.5 w-10 rounded-full bg-sky-400 shadow-[0_0_12px_rgb(52_221_239/0.9)] transition-[transform,opacity] duration-300 ${
+                      className={`absolute top-0 h-0.5 w-10 rounded-full bg-sky-400 shadow-[0_0_12px_rgb(167_139_250/0.9)] transition-[transform,opacity] duration-300 ${
                         isActive ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
                       }`}
                     />

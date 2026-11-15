@@ -11,7 +11,7 @@ export function LoadingState({ label = 'Loading…' }) {
       <span className="relative size-14" aria-hidden="true">
         <span className="absolute inset-0 rounded-full border border-sky-400/25" />
         <span className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-sky-300 [animation-duration:1.4s]" />
-        <span className="absolute inset-[36%] animate-pulse-slow rounded-full bg-sky-300 shadow-[0_0_18px_rgb(52_221_239/0.9)]" />
+        <span className="absolute inset-[36%] animate-pulse-slow rounded-full bg-sky-300 shadow-[0_0_18px_rgb(167_139_250/0.9)]" />
       </span>
       <span>{label}</span>
     </div>

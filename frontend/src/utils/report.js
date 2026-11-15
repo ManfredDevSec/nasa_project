@@ -14,8 +14,10 @@ export function labelFor(key) {
 }
 
 // Table columns = the keys of the first row, in the order the API sends them.
+// Sightline reports on the eyes (SANS) only, so the all-parts "overall" column is left out.
+const HIDDEN_COLUMNS = new Set(['overall'])
 export function tableColumns(rows) {
-  return rows?.length ? Object.keys(rows[0]) : []
+  return rows?.length ? Object.keys(rows[0]).filter((key) => !HIDDEN_COLUMNS.has(key)) : []
 }
 
 // [key, value] pairs of an object, for key/value grids.

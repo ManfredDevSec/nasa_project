@@ -1,5 +1,5 @@
 /*
- * Scroll engine for the Sightline landing page (10K Websites engineering standard).
+ * Scroll engine for the Sightline landing page.
  *
  * - The hero maps scroll progress (0..1 through the pinned section) to an eased
  *   zoom into the pupil of the eye photo. Progress is lerped in a rAF loop that
@@ -18,6 +18,7 @@ const smoothstep = (p, e0, e1) => {
   return t * t * (3 - 2 * t)
 }
 const REDUCED = '(prefers-reduced-motion: reduce)'
+const ZOOM_MAX = 46 // how far the dive magnifies the hero image by the time it reaches the pupil
 
 export function initLanding(root) {
   if (!root) return () => {}
@@ -59,7 +60,7 @@ export function initLanding(root) {
         const alpha = layer ? 0.45 + r() * 0.5 : 0.18 + r() * 0.45
         const tint = r()
         ctx.fillStyle =
-          tint > 0.82 ? `rgba(190,205,255,${alpha})` : tint > 0.7 ? `rgba(255,236,220,${alpha})` : `rgba(235,240,255,${alpha})`
+          tint > 0.82 ? `rgba(210,190,255,${alpha})` : tint > 0.7 ? `rgba(255,236,220,${alpha})` : `rgba(241,235,255,${alpha})`
         ctx.beginPath()
         ctx.arc(x, y, size, 0, Math.PI * 2)
         ctx.fill()
@@ -124,7 +125,8 @@ export function initLanding(root) {
   function applyHero(p, now) {
     // Zoom: an eased exponential dive that reaches the pupil by 0.84.
     const e = smoothstep(p, 0, 0.84)
-    const scale = 1.06 * Math.pow(14 / 1.06, e)
+    // The hero eye is small in its image (pupil about 4% of it), so the dive zooms deep to enter it.
+    const scale = 1.06 * Math.pow(ZOOM_MAX / 1.06, e)
     const calm = 1 - e
     const tx = -px * 14 * calm
     const ty = -py * 10 * calm
