@@ -149,6 +149,7 @@ export default function VisionTest() {
 function IntroScreen({ onStart }) {
   const tips = [
     'Sit somewhere with good, even light.',
+    'Turn your screen brightness up to full.',
     'Hold the tablet at the same distance as every week.',
     'Wear your usual reading glasses or lenses if you normally use them.',
   ]
