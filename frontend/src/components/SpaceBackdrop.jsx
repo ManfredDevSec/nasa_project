@@ -2,9 +2,8 @@ import { useEffect, useRef } from 'react'
 
 /**
  * The fixed "one environment" layer behind the signed-in app, shared in spirit with
- * the landing page: soft iris-blue glows, a starfield painted once onto a canvas,
- * and a little grain. Nothing here redraws per frame; the photo flies forward on a slow
- * two-layer loop and the glow drifts (both stopped by reduced motion) and the stars repaint only on resize.
+ * the landing page: a still Hubble photo, faint green glows, a starfield painted once onto a canvas,
+ * and a little grain. Everything is still: nothing animates, and the stars repaint only on resize.
  */
 export default function SpaceBackdrop() {
   const canvasRef = useRef(null)
@@ -57,16 +56,8 @@ export default function SpaceBackdrop() {
       }}
     >
       {/* Real space: the Hubble Ultra Deep Field (NASA/ESA), dimmed for a data-heavy screen */}
-      <div className="absolute -inset-[6%]">
-        <div className="space-photo absolute inset-0" />
-        <div className="space-photo space-photo-b absolute inset-0" />
-      </div>
+      <div className="space-photo absolute inset-0" />
       <div className="space-shade absolute inset-0" />
-      {/* Aurora light curtains, kept dim behind data screens */}
-      <div className="aurora" style={{ '--aurora': 0.38 }}>
-        <div className="aurora-layer aurora-a" />
-        <div className="aurora-layer aurora-b" />
-      </div>
       <div className="space-glow absolute -inset-[20%]" />
       <canvas ref={canvasRef} className="absolute inset-0" />
       <div className="space-grain absolute inset-0" />
