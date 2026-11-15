@@ -15,6 +15,7 @@ import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import Account from './pages/Account.jsx'
 import AdminUsers from './pages/AdminUsers.jsx'
+import ClinicalPage from './components/ClinicalPage.jsx'
 
 // Unknown URLs go to the right home page for whoever is logged in.
 function RootRedirect() {
@@ -39,7 +40,6 @@ export default function App() {
             {/* Only accounts linked to an astronaut (crew + medical officer) */}
             <Route element={<ProtectedRoute requireAstronaut />}>
               <Route path="/home" element={<Home />} />
-              <Route path="/test" element={<VisionTest />} />
               <Route path="/result" element={<Result />} />
             </Route>
             <Route element={<ProtectedRoute roles={MEDICAL_ROLES} />}>
@@ -51,6 +51,18 @@ export default function App() {
             <Route element={<ProtectedRoute roles={['ADMIN']} />}>
               <Route path="/admin/users" element={<AdminUsers />} />
             </Route>
+          </Route>
+
+          {/* The eye test is a white "clinical" page without the dark app frame, like a hospital chart */}
+          <Route element={<ProtectedRoute requireAstronaut />}>
+            <Route
+              path="/test"
+              element={
+                <ClinicalPage>
+                  <VisionTest />
+                </ClinicalPage>
+              }
+            />
           </Route>
 
           {/* The report is a plain white page without the dark app frame */}
