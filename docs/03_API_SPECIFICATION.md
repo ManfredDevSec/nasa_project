@@ -329,7 +329,7 @@ Arrays ready for charts (one point per day where data exists).
 }
 ```
 As built (additions): `?days=` 1–1000 (default 90) and `?as_of=YYYY-MM-DD` (default today). Also returns
-`astronaut_id` and `period: {from, to, days}`. One vision point per day (the day's last test); `baseline` is
+`astronaut_id`, `astronaut: {id, name, call_sign}` (for the page title) and `period: {from, to, days}`. One vision point per day (the day's last test); `baseline` is
 null before any baseline check. Events: `CO2_HIGH_START` (first day above the CO₂ high mark after a normal
 day), `CO2_HIGH_END` (first day back at/below it), `ESCALATED` (a RED result). For a finished mission "today"
 is its last planned day, so its charts aren't empty.
@@ -373,11 +373,12 @@ Rules in `04_SCORING_RULES.md` §6. As built: also `astronaut_id` and `as_of`; `
 
 As built (additions): `?mission=<id>` (default: the MO's own mission / the active one; flight surgeon and admin
 may pick any mission, an MO only their own → 403) and `?as_of=`. Response also has `mission {id, name,
-is_active}` and `as_of`. Crew rows add `next_test_due`, sorted worst first. `headline`: the eye result's first
+is_active}`, `as_of` and `insights` (strings like "Osei: This change followed…", from each astronaut's current
+AMBER/RED result, the same texts as R5). Crew rows add `name` (full name) and `next_test_due`, sorted worst first. `headline`: the eye result's first
 reason when the eyes drive `overall`, else the worst vitals part, else "All clear" / "No data yet".
 `co2_level` (rule not in the original spec, demo values in `scoring/config.py`): GREEN ≤ 3.5 mmHg,
 AMBER > 3.5, RED > 5.0; null/UNKNOWN if not logged today. `co2_5day_avg` = last 5 logged days.
-Alerts (RED first) also carry `detail`: RED eyes → "<call sign>: escalate to Earth"; AMBER eyes → "retest
+Alerts (RED first) also carry `call_sign` (null for the cabin alert) and `detail`: RED eyes → "<call sign>: escalate to Earth"; AMBER eyes → "retest
 within 48 hours"; RED heart/sleep/mind; overdue eye test; cabin CO₂ above normal (`astronaut_id` null).
 
 ### R5 `GET /reports/weekly/?week_ending=2026-11-14`
