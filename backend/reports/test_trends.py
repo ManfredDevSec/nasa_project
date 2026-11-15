@@ -33,6 +33,7 @@ class SeededTrendsTests(AuthTestBase):
             for p in t[series]:
                 self.assertEqual(date.fromisoformat(p["date"]), start + timedelta(days=p["mission_day"] - 1))
         self.assertEqual(t["baseline"]["near_vision_right"], 8.33)
+        self.assertEqual(t["astronaut"], {"id": self.osei.pk, "name": "Ama Osei", "call_sign": "Osei"})
 
     def test_co2_high_start_at_day_78_lines_up_with_vision_drop(self):
         t = self.client.get(f"/api/v1/astronauts/{self.osei.pk}/trends/").json()

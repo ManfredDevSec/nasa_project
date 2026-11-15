@@ -39,6 +39,10 @@ class SeededOverviewTests(AuthTestBase):
         self.assertEqual(o["alerts"][0]["text"], "Osei: escalate to Earth")
         self.assertEqual(o["alerts"][0]["level"], "RED")
         self.assertEqual(o["alerts"][0]["astronaut_id"], Astronaut.objects.get(call_sign="Osei").pk)
+        self.assertEqual(o["alerts"][0]["call_sign"], "Osei")
+        self.assertEqual(crew["Osei"]["name"], "Ama Osei")
+        self.assertTrue(any(i.startswith("Osei: This change followed") for i in o["insights"]))
+        self.assertFalse(any(i.startswith("Mensah:") for i in o["insights"]))  # GREEN → no insights
 
     def test_spec_05_overview_check(self):
         """docs/05 §9: Osei RED, Mensah GREEN, Adjei GREEN."""
@@ -53,7 +57,8 @@ class SeededOverviewTests(AuthTestBase):
         self.assertEqual(set(o["cabin"]), {"co2_mmhg_today", "co2_level", "co2_5day_avg"})
         row = o["crew"][0]
         self.assertTrue({"astronaut_id", "call_sign", "eyes", "heart", "sleep", "mind", "overall", "headline", "overdue"} <= set(row))
-        self.assertTrue({"astronaut_id", "level", "text", "created_at"} <= set(o["alerts"][0]))
+        self.assertTrue({"astronaut_id", "call_sign", "level", "text", "created_at"} <= set(o["alerts"][0]))
+        self.assertIsInstance(o["insights"], list)
 
     def test_weekly_report_today(self):
         self.as_user("surgeon")
