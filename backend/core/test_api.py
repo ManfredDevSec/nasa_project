@@ -31,9 +31,11 @@ class ApiTestBase(AuthTestBase):
         super().setUp()
         self.mission = Mission.objects.get(is_active=True)
         self.osei, self.mensah, self.adjei, self.far = (self.astronauts[k] for k in ("osei", "mensah", "adjei", "stranger"))
-        patcher = mock.patch("core.api.today", return_value=TODAY)
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        # Freeze "today" where it's used: modules that did `from core.api import today` hold their own reference.
+        for target in ("core.api.today", "missions.serializers.today"):
+            patcher = mock.patch(target, return_value=TODAY)
+            patcher.start()
+            self.addCleanup(patcher.stop)
 
     def as_user(self, username):
         self.client.credentials()

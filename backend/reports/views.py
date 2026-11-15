@@ -96,7 +96,8 @@ class TrendsQuerySerializer(AsOfSerializer):
 VISION_POINT = {"date": "2026-11-13", "mission_day": 91, "near_vision_left": 6, "near_vision_right": 8,
                 "contrast_left": 5, "contrast_right": 6, "level": "RED"}
 TRENDS_EXAMPLE = {
-    "astronaut_id": 1, "period": {"from": "2026-08-17", "to": "2026-11-14", "days": 90},
+    "astronaut_id": 1, "astronaut": {"id": 1, "name": "Ama Osei", "call_sign": "Osei"},
+    "period": {"from": "2026-08-17", "to": "2026-11-14", "days": 90},
     "baseline": {"near_vision_left": 8.0, "near_vision_right": 8.33, "contrast_left": 6.0, "contrast_right": 6.0},
     "vision": [{"date": "2026-08-21", "mission_day": 7, "near_vision_left": 8, "near_vision_right": 8,
                 "contrast_left": 6, "contrast_right": 6, "level": "GREEN"}, VISION_POINT],
@@ -175,11 +176,12 @@ ROLE_FORBIDDEN = error_response("Medical Officer, flight surgeon or admin only."
 OVERVIEW_EXAMPLE = {
     "mission": {"id": 1, "name": "Ares Transit 1", "is_active": True}, "as_of": "2026-11-14", "mission_day": 92,
     "cabin": {"co2_mmhg_today": 3.13, "co2_level": "GREEN", "co2_5day_avg": 3.4},
-    "crew": [{"astronaut_id": 1, "call_sign": "Osei", "eyes": "RED", "heart": "GREEN", "sleep": "GREEN", "mind": "GREEN",
+    "crew": [{"astronaut_id": 1, "call_sign": "Osei", "name": "Ama Osei", "eyes": "RED", "heart": "GREEN", "sleep": "GREEN", "mind": "GREEN",
               "overall": "RED", "headline": "Left eye near vision is 2 lines below your normal.", "overdue": False,
               "next_test_due": "2026-11-15"}],
-    "alerts": [{"astronaut_id": 1, "level": "RED", "text": "Osei: escalate to Earth",
+    "alerts": [{"astronaut_id": 1, "call_sign": "Osei", "level": "RED", "text": "Osei: escalate to Earth",
                 "detail": "Left eye near vision is 2 lines below your normal.", "created_at": "2026-11-13T08:41:00Z"}],
+    "insights": ["Osei: This change followed 5 days of high cabin CO₂. This is a pattern we noticed, not a proven cause."],
 }
 WEEKLY_EXAMPLE = {
     "mission": {"id": 1, "name": "Ares Transit 1", "day_range": [86, 92], "from": "2026-11-08", "to": "2026-11-14"},
