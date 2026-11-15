@@ -19,7 +19,7 @@ export default function CrewCard({ astronaut }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="font-mono text-xl font-semibold tracking-wide">{call_sign ?? name}</h3>
+          <h3 className="text-xl font-semibold">{call_sign ?? name}</h3>
           {call_sign && <p className="text-sm text-slate-400">{name}</p>}
         </div>
         <div className="flex flex-col items-end gap-2">

@@ -1,22 +1,11 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { getErrorMessage, login } from '../api/index.js'
-import { ArrowRightIcon, LogoMark } from '../components/Icons.jsx'
+import { LogoMark } from '../components/Icons.jsx'
 import { Disclaimer } from '../components/Layout.jsx'
 import PlanetHorizon from '../components/PlanetHorizon.jsx'
 import SpaceBackdrop from '../components/SpaceBackdrop.jsx'
 import { getToken, getUser, homePathFor, saveSession } from '../utils/auth.js'
-
-// ── Demo quick-login accounts: edit usernames here ───────────────────────────
-// The password is read from VITE_DEMO_PASSWORD in .env (never typed into a component).
-const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD ?? ''
-const QUICK_LOGINS = {
-  osei: { username: 'osei', password: DEMO_PASSWORD, label: 'Commander Osei', detail: 'Crew' },
-  mensah: { username: 'mensah', password: DEMO_PASSWORD, label: 'Pilot Mensah', detail: 'Crew' },
-  adjei: { username: 'adjei', password: DEMO_PASSWORD, label: 'Medical Officer Adjei', detail: 'Crew + Medical Officer' },
-  surgeon: { username: 'surgeon', password: DEMO_PASSWORD, label: 'Flight Surgeon', detail: 'Mission Control' },
-  admin: { username: 'admin', password: DEMO_PASSWORD, label: 'Mission Admin', detail: 'Admin: manages accounts' },
-}
 
 // Notices the app sends people here with (see the API notes, sections 3 and 5).
 const NOTICES = {
@@ -109,7 +98,7 @@ export default function Login() {
                 autoCapitalize="none"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="min-h-12 rounded-xl border border-slate-700 bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(7_3_18/0.6)] placeholder:text-slate-500"
+                className="min-h-12 rounded-xl border border-slate-700 bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(4_6_5/0.6)] placeholder:text-slate-500"
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -130,7 +119,7 @@ export default function Login() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="min-h-12 rounded-xl border border-slate-700 bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(7_3_18/0.6)] placeholder:text-slate-500"
+                className="min-h-12 rounded-xl border border-slate-700 bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(4_6_5/0.6)] placeholder:text-slate-500"
               />
             </div>
             {error && (
@@ -142,30 +131,6 @@ export default function Login() {
               {busy === 'form' ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
-
-          <div className="flex items-center gap-3 text-sm text-slate-500">
-            <span className="h-px flex-1 bg-slate-800" />
-            Demo quick login
-            <span className="h-px flex-1 bg-slate-800" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 [&>*:last-child:nth-child(odd)]:col-span-2">
-            {Object.entries(QUICK_LOGINS).map(([key, q]) => (
-              <button
-                key={key}
-                type="button"
-                disabled={!!busy}
-                onClick={() => signIn(q.username, q.password, key)}
-                className="group relative flex min-h-16 items-center justify-between gap-2 rounded-2xl border border-slate-700/80 bg-slate-950/60 px-4 py-2 text-left transition-transform duration-300 ease-[var(--ease-spring)] hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50"
-              >
-                <span>
-                  <span className="block font-medium">{busy === key ? 'Signing in…' : q.label}</span>
-                  <span className="block text-sm text-slate-400">{q.detail}</span>
-                </span>
-                <ArrowRightIcon className="size-5 shrink-0 text-slate-500 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-sky-400" />
-              </button>
-            ))}
-          </div>
         </section>
       </div>
       <footer className="border-t border-slate-800 py-3">

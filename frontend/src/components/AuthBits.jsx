@@ -43,7 +43,7 @@ export function Field({ id, label, error, hint, className = '', ...inputProps })
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
-        className={`min-h-12 rounded-xl border bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(7_3_18/0.6)] placeholder:text-slate-500 ${
+        className={`min-h-12 rounded-xl border bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(4_6_5/0.6)] placeholder:text-slate-500 ${
           error ? 'border-status-red/70' : 'border-slate-700'
         }`}
         {...inputProps}

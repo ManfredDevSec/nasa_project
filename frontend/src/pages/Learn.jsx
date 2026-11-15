@@ -81,7 +81,6 @@ export default function Learn() {
         <h3 className="mt-6 mb-2 font-semibold">Image credits</h3>
         <ul className="space-y-1 text-sm text-slate-400">
           <li>Space background: Hubble Ultra Deep Field, NASA/ESA.</li>
-          <li>Close-up eye in the scanner: Petr Novák, Wikipedia (CC BY-SA 2.5), mirrored.</li>
           <li>Astronaut photos: used for demonstration.</li>
         </ul>
       </section>

@@ -13,8 +13,3 @@ export function sortedActions(assessment) {
 export function topInsights(assessment, max = MAX_INSIGHTS) {
   return (assessment?.env_insights ?? []).slice(0, max)
 }
-
-// True for the action(s) sharing the most urgent priority, to tag them "FIRST".
-export function isFirstPriority(action, sorted) {
-  return sorted.length > 0 && action.priority === sorted[0].priority
-}

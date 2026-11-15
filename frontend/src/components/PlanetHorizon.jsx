@@ -28,8 +28,8 @@ export default function PlanetHorizon({ className = 'w-full max-w-md', duration 
     <svg viewBox="0 0 480 120" className={className} aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id={`${id}-limb`} x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#a78bfa" stopOpacity="0.55" />
-          <stop offset="1" stopColor="#a78bfa" stopOpacity="0" />
+          <stop offset="0" stopColor="#7fb8a4" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#7fb8a4" stopOpacity="0" />
         </linearGradient>
         {/* the planet fades out at the bottom instead of ending in a hard edge */}
         <linearGradient id={`${id}-fade`} x1="0" x2="0" y1="0" y2="1">
@@ -40,26 +40,26 @@ export default function PlanetHorizon({ className = 'w-full max-w-md', duration 
           <rect width="480" height="120" fill={`url(#${id}-fade)`} />
         </mask>
         <radialGradient id={`${id}-glow`}>
-          <stop offset="0" stopColor="#ddd6fe" stopOpacity="0.55" />
-          <stop offset="1" stopColor="#ddd6fe" stopOpacity="0" />
+          <stop offset="0" stopColor="#d5e8e0" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#d5e8e0" stopOpacity="0" />
         </radialGradient>
       </defs>
 
       <g mask={`url(#${id}-mask)`}>
         <ellipse cx="240" cy="190" rx="300" ry="110" fill={`url(#${id}-limb)`} />
-        <ellipse cx="240" cy="192" rx="300" ry="110" fill="#080516" />
+        <ellipse cx="240" cy="192" rx="300" ry="110" fill="#0e100f" />
       </g>
-      <path d={ORBIT} fill="none" stroke="#4a3d85" strokeDasharray="3 6" />
+      <path d={ORBIT} fill="none" stroke="#353c38" strokeDasharray="3 6" />
 
       {reduced ? (
         <g transform="translate(352 27)">
           <circle r="11" fill={`url(#${id}-glow)`} />
-          <circle r="4" fill="#f7f6fd" />
+          <circle r="4" fill="#f5f7f6" />
         </g>
       ) : (
         <g>
           <circle r="11" fill={`url(#${id}-glow)`} />
-          <circle r="4" fill="#f7f6fd" />
+          <circle r="4" fill="#f5f7f6" />
           {/* glide along the orbit and back, easing at each end */}
           <animateMotion
             dur={`${duration}s`}

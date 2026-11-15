@@ -72,8 +72,8 @@ export default function AmslerGrid({ onComplete }) {
                   >
                     {/* A cross as well as colour, so marked squares are visible without colour vision */}
                     {isMarked && (
-                      <svg viewBox="0 0 10 10" className="absolute inset-[30%]" aria-hidden="true">
-                        <path d="M1 1l8 8M9 1 1 9" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+                      <svg viewBox="0 0 10 10" className="absolute inset-[30%] text-white" aria-hidden="true">
+                        <path d="M1 1l8 8M9 1 1 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                       </svg>
                     )}
                   </button>

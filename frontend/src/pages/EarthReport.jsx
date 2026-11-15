@@ -29,7 +29,7 @@ export default function EarthReport() {
           <div className="flex items-center gap-3">
             <Link
               to="/crew"
-              className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-slate-300 px-4 font-medium hover:bg-slate-50 focus-visible:outline-sky-600"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-300 px-4 text-slate-700 hover:border-slate-400 hover:text-slate-900 focus-visible:outline-sky-600"
             >
               <ArrowLeftIcon className="size-5" /> Back to crew
             </Link>
@@ -38,7 +38,7 @@ export default function EarthReport() {
             type="button"
             onClick={() => window.print()}
             disabled={!data}
-            className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-slate-900 px-5 font-semibold text-white hover:bg-slate-700 focus-visible:outline-sky-600 disabled:opacity-40"
+            className="btn-primary"
           >
             <PrinterIcon className="size-5" /> Print / Save as PDF
           </button>
@@ -56,7 +56,7 @@ export default function EarthReport() {
           <div role="alert" className="flex flex-col items-center gap-4 py-16 text-center">
             <p className="text-lg font-semibold">Could not load the weekly report</p>
             <p className="text-slate-600">{getErrorMessage(error)}</p>
-            <button type="button" onClick={reload} className="min-h-12 rounded-xl bg-slate-900 px-5 font-semibold text-white">
+            <button type="button" onClick={reload} className="btn-primary">
               Try again
             </button>
           </div>
@@ -73,9 +73,9 @@ function ReportBody({ report }) {
 
   return (
     <div className="flex flex-col gap-8 text-base">
-      <header className="flex items-start justify-between gap-6 border-b-2 border-slate-900 pb-5">
+      <header className="flex items-start justify-between gap-6 border-b-2 border-sky-600 pb-5">
         <div>
-          <p className="text-sm font-medium text-slate-500">Weekly Earth report</p>
+          <p className="text-sm text-slate-500">Weekly Earth report</p>
           <h1 className="text-3xl font-semibold">{mission.name ?? 'Mission'}</h1>
         </div>
         <div className="flex items-center gap-2">

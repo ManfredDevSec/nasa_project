@@ -91,42 +91,42 @@ export function LogoMark({ className = 'h-8 w-auto' }) {
     <svg viewBox="2 10 60 45" className={className} aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id={`${id}-ringBack`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#5b21b6" />
-          <stop offset="0.5" stopColor="#7c3aed" />
-          <stop offset="1" stopColor="#4c1d95" />
+          <stop offset="0" stopColor="#2f6b57" />
+          <stop offset="0.5" stopColor="#4f9a82" />
+          <stop offset="1" stopColor="#24594a" />
         </linearGradient>
         <linearGradient id={`${id}-ringFront`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#8b5cf6" />
-          <stop offset="0.45" stopColor="#ede9fe" />
-          <stop offset="1" stopColor="#a78bfa" />
+          <stop offset="0" stopColor="#64a993" />
+          <stop offset="0.45" stopColor="#e6f2ed" />
+          <stop offset="1" stopColor="#7fb8a4" />
         </linearGradient>
         <linearGradient id={`${id}-rim`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ede9fe" />
-          <stop offset="0.45" stopColor="#a78bfa" />
-          <stop offset="1" stopColor="#5b21b6" />
+          <stop offset="0" stopColor="#e6f2ed" />
+          <stop offset="0.45" stopColor="#7fb8a4" />
+          <stop offset="1" stopColor="#2f6b57" />
         </linearGradient>
         <radialGradient id={`${id}-socket`} cx="0.5" cy="0.42" r="0.62">
-          <stop offset="0" stopColor="#3b1a85" />
-          <stop offset="0.7" stopColor="#1e0b4b" />
-          <stop offset="1" stopColor="#0f0529" />
+          <stop offset="0" stopColor="#1f4a3c" />
+          <stop offset="0.7" stopColor="#12302a" />
+          <stop offset="1" stopColor="#0a1a15" />
         </radialGradient>
         <radialGradient id={`${id}-iris`} cx="0.36" cy="0.3" r="0.78">
-          <stop offset="0" stopColor="#f5f3ff" />
-          <stop offset="0.28" stopColor="#c4b5fd" />
-          <stop offset="0.62" stopColor="#7c3aed" />
-          <stop offset="1" stopColor="#2e1065" />
+          <stop offset="0" stopColor="#f3f9f6" />
+          <stop offset="0.28" stopColor="#b5d6c9" />
+          <stop offset="0.62" stopColor="#4f9a82" />
+          <stop offset="1" stopColor="#173a30" />
         </radialGradient>
         <radialGradient id={`${id}-pupil`} cx="0.4" cy="0.35" r="0.7">
-          <stop offset="0" stopColor="#2e1065" />
-          <stop offset="1" stopColor="#07021a" />
+          <stop offset="0" stopColor="#173a30" />
+          <stop offset="1" stopColor="#04100c" />
         </radialGradient>
         <radialGradient id={`${id}-moon`} cx="0.35" cy="0.3" r="0.75">
           <stop offset="0" stopColor="#ffffff" />
-          <stop offset="0.45" stopColor="#ddd6fe" />
-          <stop offset="1" stopColor="#6d28d9" />
+          <stop offset="0.45" stopColor="#d5e8e0" />
+          <stop offset="1" stopColor="#3a7d67" />
         </radialGradient>
         <filter id={`${id}-lift`} x="-20%" y="-20%" width="140%" height="150%" colorInterpolationFilters="sRGB">
-          <feDropShadow dx="0" dy="1.6" stdDeviation="1.4" floodColor="#1e0b4b" floodOpacity="0.55" />
+          <feDropShadow dx="0" dy="1.6" stdDeviation="1.4" floodColor="#12302a" floodOpacity="0.55" />
         </filter>
       </defs>
       <g filter={u('lift')}>
@@ -140,7 +140,7 @@ export function LogoMark({ className = 'h-8 w-auto' }) {
         <path d="M12.2 30.6C19.5 21.6 44.5 21.6 51.8 30.6" fill="none" stroke="#fff" strokeWidth="0.9" strokeLinecap="round" opacity="0.55" />
         {/* iris sphere, pupil and catch-lights */}
         <circle cx="32" cy="32" r="9.2" fill={u('iris')} />
-        <circle cx="32" cy="32" r="9.2" fill="none" stroke="#1e0b4b" strokeWidth="0.8" opacity="0.6" />
+        <circle cx="32" cy="32" r="9.2" fill="none" stroke="#12302a" strokeWidth="0.8" opacity="0.6" />
         <circle cx="32" cy="32" r="3.9" fill={u('pupil')} />
         <ellipse cx="28.6" cy="28.4" rx="2.1" ry="1.5" transform="rotate(-30 28.6 28.4)" fill="#fff" opacity="0.95" />
         <circle cx="35.6" cy="35.4" r="0.8" fill="#fff" opacity="0.55" />
