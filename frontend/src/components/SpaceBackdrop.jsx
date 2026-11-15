@@ -28,7 +28,7 @@ export default function SpaceBackdrop() {
       for (let i = 0; i < count; i++) {
         const big = r() > 0.92
         const alpha = big ? 0.5 + r() * 0.4 : 0.12 + r() * 0.35
-        ctx.fillStyle = r() > 0.8 ? `rgba(190,205,255,${alpha})` : `rgba(235,240,255,${alpha})`
+        ctx.fillStyle = r() > 0.8 ? `rgba(210,190,255,${alpha})` : `rgba(241,235,255,${alpha})`
         ctx.beginPath()
         ctx.arc(r() * w, r() * h, big ? 0.9 + r() * 0.8 : 0.3 + r() * 0.6, 0, Math.PI * 2)
         ctx.fill()
@@ -62,6 +62,11 @@ export default function SpaceBackdrop() {
         <div className="space-photo space-photo-b absolute inset-0" />
       </div>
       <div className="space-shade absolute inset-0" />
+      {/* Aurora light curtains, kept dim behind data screens */}
+      <div className="aurora" style={{ '--aurora': 0.38 }}>
+        <div className="aurora-layer aurora-a" />
+        <div className="aurora-layer aurora-b" />
+      </div>
       <div className="space-glow absolute -inset-[20%]" />
       <canvas ref={canvasRef} className="absolute inset-0" />
       <div className="space-grain absolute inset-0" />

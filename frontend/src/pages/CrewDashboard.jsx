@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { getActiveMission, getCrewOverview } from '../api/index.js'
-import CrewCard from '../components/CrewCard.jsx'
+import CrewCard, { eyeLevelOf } from '../components/CrewCard.jsx'
 import { ArrowRightIcon, PrinterIcon, WindIcon } from '../components/Icons.jsx'
 import { EmptyState, ErrorState, LoadingState } from '../components/StateViews.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
@@ -17,8 +17,15 @@ export default function CrewDashboard() {
   if (error) return <ErrorState error={error} onRetry={reload} />
 
   const [overview, mission] = data
-  const alerts = sortBySeverity(overview.alerts ?? []) // RED first
-  const crew = sortBySeverity(overview.crew ?? [], (a) => a.overall)
+  // Sightline is about the eyes (SANS) only, so status, sorting and alerts use the eye level.
+  const rows = overview.crew ?? []
+  const rowById = Object.fromEntries(rows.map((r) => [r.astronaut_id, r]))
+  const alerts = sortBySeverity(
+    (overview.alerts ?? [])
+      .map((a) => ({ ...a, level: eyeLevelOf(rowById[a.astronaut_id]) ?? a.level, overdue: rowById[a.astronaut_id]?.overdue }))
+      .filter((a) => a.level === 'RED' || a.level === 'AMBER' || a.overdue),
+  ) // RED first
+  const crew = sortBySeverity(rows, eyeLevelOf)
   const cabin = overview.cabin
   const insights = overview.insights ?? []
   const missionDay = mission?.mission_day_today
@@ -27,7 +34,7 @@ export default function CrewDashboard() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="display-title text-4xl md:text-5xl">Crew health</h1>
+          <h1 className="display-title text-4xl md:text-5xl">Crew eye health</h1>
           <p className="text-slate-400">
             {mission?.name && <>{mission.name} · </>}
             Mission day <span className="font-mono text-white">{missionDay ?? '–'}</span>
@@ -40,7 +47,7 @@ export default function CrewDashboard() {
 
       <section aria-labelledby="alerts-title">
         <h2 id="alerts-title" className="mb-3 text-xl font-semibold">
-          Alerts
+          Eye alerts
         </h2>
         {alerts.length === 0 ? (
           <p className="card p-5 text-slate-400">No alerts right now.</p>
@@ -74,10 +81,11 @@ export default function CrewDashboard() {
           <section className="card flex flex-col gap-4 p-5" aria-labelledby="cabin-title">
             <div className="flex items-center justify-between gap-3">
               <h2 id="cabin-title" className="flex items-center gap-2 text-xl font-semibold">
-                <WindIcon className="size-6 text-slate-400" /> Cabin air
+                <WindIcon className="size-6 text-slate-400" /> Cabin CO₂
               </h2>
               <StatusBadge level={cabin.co2_level} size="sm" />
             </div>
+            <p className="-mt-2 text-sm text-slate-400">A factor studied in SANS.</p>
             <dl className="grid grid-cols-2 gap-3">
               <CabinValue label="CO₂ today" value={cabin.co2_today} />
               <CabinValue label="5-day average" value={cabin.co2_5day_avg} />
@@ -88,9 +96,9 @@ export default function CrewDashboard() {
         <section className="card flex flex-col gap-3 p-5" aria-labelledby="crew-insights-title">
           <div>
             <h2 id="crew-insights-title" className="text-xl font-semibold">
-              Insights
+              SANS factor insights
             </h2>
-            <p className="text-sm text-slate-400">{INSIGHT_CAPTION}</p>
+            <p className="text-sm text-slate-400">Cabin CO₂, salt and exercise are studied as possible factors in SANS. {INSIGHT_CAPTION}</p>
           </div>
           {insights.length === 0 ? (
             <p className="text-slate-400">No patterns found this week.</p>

@@ -1,35 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600&display=swap');
 @import 'tailwindcss';
 
 @theme {
   --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-display: 'Sora', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
 
   /*
    * Sightline palette, shared with the landing page. The slate and sky scales are
    * re-tinted toward the eye photo's pupil and iris, keeping the same lightness
    * steps as Tailwind's defaults so every existing contrast pairing still holds.
    */
-  --color-slate-50: #f6f7fd;
-  --color-slate-100: #eceffb;
-  --color-slate-200: #dde2f5;
-  --color-slate-300: #c3cae8;
-  --color-slate-400: #9aa3cc;
-  --color-slate-500: #6d77a3;
-  --color-slate-600: #4d5682;
-  --color-slate-700: #343c66;
-  --color-slate-800: #222a4d;
-  --color-slate-900: #121935;
-  --color-slate-950: #060918;
+  --color-slate-50: #f7f6fd;
+  --color-slate-100: #eeecfb;
+  --color-slate-200: #e0dcf5;
+  --color-slate-300: #c8c2e8;
+  --color-slate-400: #a199cc;
+  --color-slate-500: #7469a3;
+  --color-slate-600: #51477f;
+  --color-slate-700: #352b63;
+  --color-slate-800: #221a47;
+  --color-slate-900: #120c2b;
+  --color-slate-950: #080516;
 
-  --color-sky-300: #8cf0f9;
-  --color-sky-400: #34ddef;
-  --color-sky-500: #2bc8db;
-  --color-sky-600: #2089ad;
+  --color-sky-300: #c4b5fd;
+  --color-sky-400: #a78bfa;
+  --color-sky-500: #8b5cf6;
+  --color-sky-600: #6d3be8;
 
-  --color-iris: #34ddef;
-  --color-iris-soft: #a6eef6;
+  --color-iris: #a78bfa;
+  --color-iris-soft: #d4c8ff;
 
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
@@ -118,11 +118,11 @@
  * in by opacity, so nothing repaints the whole button on hover.
  */
 @utility btn-primary {
-  @apply relative isolate inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-sky-400 px-6 text-base font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40;
+  @apply relative isolate inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-sky-600 px-6 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.45),
-    0 1px 2px rgb(3 5 18 / 0.5),
-    0 10px 28px -10px rgb(52 221 239 / 0.55);
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    0 1px 2px rgb(7 3 18 / 0.5),
+    0 10px 28px -10px rgb(109 59 232 / 0.8);
   transition: transform 320ms var(--ease-spring);
   &::after {
     content: '';
@@ -130,8 +130,8 @@
     inset: 0;
     z-index: -1;
     border-radius: inherit;
-    background: var(--color-sky-300);
-    box-shadow: 0 16px 44px -12px rgb(70 225 240 / 0.75);
+    background: #7c4dff;
+    box-shadow: 0 16px 44px -12px rgb(124 77 255 / 0.85);
     opacity: 0;
     transition: opacity 320ms var(--ease-out-soft);
   }
@@ -147,8 +147,8 @@
   }
 }
 @utility btn-secondary {
-  @apply relative isolate inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-900/70 px-6 text-base font-medium text-white disabled:cursor-not-allowed disabled:opacity-40;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 2px rgb(3 5 18 / 0.4);
+  @apply relative isolate inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-900/70 px-6 text-base font-medium text-white disabled:cursor-not-allowed disabled:opacity-40;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 2px rgb(7 3 18 / 0.4);
   transition: transform 320ms var(--ease-spring);
   &::after {
     content: '';
@@ -156,8 +156,8 @@
     inset: -1px;
     z-index: -1;
     border-radius: inherit;
-    border: 1px solid rgb(52 221 239 / 0.45);
-    background: rgb(52 221 239 / 0.08);
+    border: 1px solid rgb(167 139 250 / 0.45);
+    background: rgb(167 139 250 / 0.08);
     opacity: 0;
     transition: opacity 320ms var(--ease-out-soft);
   }
@@ -176,24 +176,146 @@
 @utility card {
   @apply rounded-3xl border border-white/[0.07];
   background:
-    radial-gradient(120% 80% at 0% 0%, rgb(45 190 225 / 0.07), transparent 55%),
-    linear-gradient(180deg, rgb(20 28 62 / 0.82), rgb(10 15 38 / 0.82));
+    radial-gradient(120% 80% at 0% 0%, rgb(124 77 255 / 0.07), transparent 55%),
+    linear-gradient(180deg, rgb(33 20 62 / 0.82), rgb(18 10 38 / 0.82));
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.05),
-    0 1px 2px rgb(3 5 18 / 0.5),
-    0 18px 40px -18px rgb(40 58 170 / 0.4),
-    0 50px 100px -40px rgb(10 14 50 / 0.6);
+    0 1px 2px rgb(7 3 18 / 0.5),
+    0 18px 40px -18px rgb(79 40 170 / 0.4),
+    0 50px 100px -40px rgb(22 10 50 / 0.6);
 }
-/* Page titles: the landing page's display serif with tight tracking. */
+/* Page titles: the display sans with tight tracking. */
 @utility display-title {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: -0.03em;
-  line-height: 1.04;
+  line-height: 1.1;
 }
 /* Small uppercase labels in the mono face. */
 @utility eyebrow {
   @apply font-mono text-xs font-medium tracking-[0.16em] text-sky-400/90 uppercase;
+}
+
+/* Aurora light curtains (landing environment and app backdrop): two blurred stripe layers
+   that sway slowly, plus a faint grid with a few lit squares. Transform and opacity only. */
+.aurora {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 80%;
+  opacity: var(--aurora, 0.55);
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 28%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 28%, transparent 100%);
+}
+.aurora::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 55% at 50% 0%, rgb(124 77 255 / 0.4), transparent 72%);
+}
+.aurora-layer {
+  position: absolute;
+  inset: -4% -12%;
+  filter: blur(22px);
+  will-change: transform, opacity;
+}
+.aurora-a {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(124 77 255 / 0) 6%,
+    rgb(124 77 255 / 0.55) 10%,
+    rgb(124 77 255 / 0) 14%,
+    rgb(192 38 211 / 0.45) 19%,
+    transparent 23%,
+    rgb(99 60 240 / 0.6) 29%,
+    transparent 34%,
+    rgb(236 72 153 / 0.4) 39%,
+    transparent 42%,
+    rgb(124 77 255 / 0.7) 47%,
+    transparent 51%,
+    rgb(190 242 100 / 0.36) 55%,
+    rgb(250 204 21 / 0.28) 58%,
+    transparent 62%,
+    rgb(168 85 247 / 0.6) 67%,
+    transparent 71%,
+    rgb(244 63 94 / 0.28) 75%,
+    transparent 78%,
+    rgb(99 60 240 / 0.55) 84%,
+    transparent 89%,
+    rgb(192 38 211 / 0.35) 93%,
+    transparent 100%
+  );
+  animation: aurora-sway-a 26s ease-in-out -8s infinite alternate;
+}
+.aurora-b {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(99 60 240 / 0.4) 4%,
+    transparent 8%,
+    rgb(168 85 247 / 0.5) 16%,
+    transparent 20%,
+    rgb(236 72 153 / 0.3) 26%,
+    transparent 30%,
+    rgb(124 77 255 / 0.55) 36%,
+    transparent 40%,
+    rgb(134 239 172 / 0.26) 52%,
+    transparent 56%,
+    rgb(124 77 255 / 0.5) 63%,
+    transparent 66%,
+    rgb(192 38 211 / 0.4) 72%,
+    transparent 76%,
+    rgb(99 60 240 / 0.45) 88%,
+    transparent 92%
+  );
+  animation: aurora-sway-b 34s ease-in-out -14s infinite alternate;
+}
+@keyframes aurora-sway-a {
+  from {
+    transform: translate3d(-2.5%, 0, 0) scaleX(1);
+    opacity: 0.7;
+  }
+  to {
+    transform: translate3d(2.5%, 0, 0) scaleX(1.08);
+    opacity: 1;
+  }
+}
+@keyframes aurora-sway-b {
+  from {
+    transform: translate3d(3%, 0, 0) scaleX(1.06);
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(-3%, 0, 0) scaleX(1);
+    opacity: 0.55;
+  }
+}
+.aurora-grid {
+  position: absolute;
+  top: 9%;
+  left: 50%;
+  width: min(896px, 86%);
+  height: 336px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.07) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 70% at 50% 45%, #000 20%, transparent 100%);
+  mask-image: radial-gradient(ellipse 60% 70% at 50% 45%, #000 20%, transparent 100%);
+}
+.aurora-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgb(139 92 246 / 0.3), rgb(139 92 246 / 0.3)) 112px 56px / 56px 56px no-repeat,
+    linear-gradient(rgb(139 92 246 / 0.2), rgb(139 92 246 / 0.2)) 224px 112px / 56px 56px no-repeat,
+    linear-gradient(rgb(139 92 246 / 0.26), rgb(139 92 246 / 0.26)) 448px 224px / 56px 56px no-repeat,
+    linear-gradient(rgb(139 92 246 / 0.2), rgb(139 92 246 / 0.2)) 616px 112px / 56px 56px no-repeat,
+    linear-gradient(rgb(139 92 246 / 0.28), rgb(139 92 246 / 0.28)) 728px 56px / 56px 56px no-repeat;
 }
 
 /* The fixed space environment behind the signed-in app (components/SpaceBackdrop.jsx). */
@@ -235,14 +357,14 @@
 }
 .space-shade {
   background:
-    radial-gradient(ellipse 90% 80% at 50% 40%, rgb(6 9 24 / 0.5), rgb(6 9 24 / 0.88) 100%),
-    linear-gradient(rgb(10 16 48 / 0.32), rgb(10 16 48 / 0.32));
+    radial-gradient(ellipse 90% 80% at 50% 40%, rgb(11 6 24 / 0.5), rgb(11 6 24 / 0.88) 100%),
+    linear-gradient(rgb(21 10 48 / 0.32), rgb(21 10 48 / 0.32));
 }
 .space-glow {
   background:
-    radial-gradient(38% 34% at 82% 12%, rgb(76 96 230 / 0.2), transparent 70%),
-    radial-gradient(42% 38% at 10% 88%, rgb(30 130 170 / 0.13), transparent 70%),
-    radial-gradient(60% 50% at 50% 40%, rgb(40 56 150 / 0.1), transparent 75%);
+    radial-gradient(38% 34% at 82% 12%, rgb(122 76 230 / 0.2), transparent 70%),
+    radial-gradient(42% 38% at 10% 88%, rgb(168 60 200 / 0.13), transparent 70%),
+    radial-gradient(60% 50% at 50% 40%, rgb(73 40 150 / 0.1), transparent 75%);
   animation: space-drift 90s ease-in-out -30s infinite alternate;
 }
 .space-grain {
@@ -258,28 +380,10 @@
   }
 }
 
-/* Body map stage (components/BodyMapScene.jsx): a gentle float and a scan line over the
-   drawn figure. Transform and opacity only. */
-.scene-float {
-  animation: scene-float 6s ease-in-out -1.5s infinite;
-}
-@keyframes scene-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-1.4%);
-  }
-}
-.scene-scan-mask {
-  -webkit-mask-image: radial-gradient(ellipse 48% 50% at 50% 50%, #000 55%, transparent 100%);
-  mask-image: radial-gradient(ellipse 48% 50% at 50% 50%, #000 55%, transparent 100%);
-  overflow: hidden;
-}
+/* Scan line used on the Home eye ring. Transform and opacity only. */
 .scene-scan {
   top: 0;
-  background: linear-gradient(to bottom, transparent, rgb(52 221 239 / 0.55) 50%, transparent);
+  background: linear-gradient(to bottom, transparent, rgb(167 139 250 / 0.55) 50%, transparent);
   opacity: 0;
   animation: scene-scan 4.5s ease-in-out infinite;
 }
@@ -305,17 +409,6 @@
   }
 }
 
-/* Body map: SVG <g> elements cannot show a CSS outline reliably,
-   so a hidden sky-blue copy of the shape appears on keyboard focus. */
-.body-part:focus {
-  outline: none;
-}
-.body-part .part-focus {
-  opacity: 0;
-}
-.body-part:focus-visible .part-focus {
-  opacity: 1;
-}
 
 /* Respect users who ask the OS for less motion. */
 @media (prefers-reduced-motion: reduce) {
@@ -337,7 +430,7 @@
   html,
   body {
     background: #fff !important;
-    color: #0f172a !important;
+    color: #170f2a !important;
     color-scheme: light;
   }
 }

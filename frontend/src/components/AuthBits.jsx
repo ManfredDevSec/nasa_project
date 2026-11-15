@@ -15,10 +15,10 @@ export function AuthShell({ title, children }) {
           className="flex items-center gap-3 self-start rounded-xl transition-transform duration-300 ease-[var(--ease-spring)] hover:-translate-y-0.5 active:scale-[0.97]"
         >
           <LogoMark className="h-10 w-auto" />
-          <span className="text-2xl font-semibold tracking-tight">Sightline</span>
+          <span className="font-display text-2xl font-semibold tracking-tight">Sightline</span>
         </Link>
         <section className="card flex animate-step-in flex-col gap-5 p-8" aria-labelledby="auth-title">
-          <h1 id="auth-title" className="display-title text-4xl">
+          <h1 id="auth-title" className="display-title text-3xl">
             {title}
           </h1>
           {children}
@@ -43,7 +43,7 @@ export function Field({ id, label, error, hint, className = '', ...inputProps })
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
-        className={`min-h-12 rounded-xl border bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(3_5_18/0.6)] placeholder:text-slate-500 ${
+        className={`min-h-12 rounded-xl border bg-slate-950/70 px-4 shadow-[inset_0_1px_2px_rgb(7_3_18/0.6)] placeholder:text-slate-500 ${
           error ? 'border-status-red/70' : 'border-slate-700'
         }`}
         {...inputProps}

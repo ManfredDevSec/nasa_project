@@ -5,11 +5,11 @@ import { availableFactors, baselineLines, byMissionDay, factorRows, sharedDayDom
 import StatusBadge from './StatusBadge.jsx'
 
 // Chart colours are neutral greys: colour is reserved for status (the dots).
-const LEFT_STROKE = '#eceffb'
-const RIGHT_STROKE = '#9aa3cc'
+const LEFT_STROKE = '#eeecfb'
+const RIGHT_STROKE = '#a199cc'
 const RIGHT_DASH = '2 6'
-const GRID = '#222a4d'
-const AXIS = '#9aa3cc'
+const GRID = '#221a47'
+const AXIS = '#a199cc'
 // Both charts use the same margins and y-axis width so their x-axes line up exactly.
 const MARGIN = { top: 40, right: 24, bottom: 4, left: 4 }
 const Y_AXIS_WIDTH = 52
@@ -19,7 +19,7 @@ function LevelDot({ cx, cy, payload, r = 6 }) {
   if (cx == null || cy == null) return null
   const level = normalizeLevel(payload.level)
   const { color } = getLevel(level)
-  const stroke = '#060918'
+  const stroke = '#080516'
   if (level === 'GREEN') return <circle cx={cx} cy={cy} r={r} fill={color} stroke={stroke} strokeWidth={2} />
   if (level === 'AMBER')
     return (
@@ -27,7 +27,7 @@ function LevelDot({ cx, cy, payload, r = 6 }) {
     )
   if (level === 'RED')
     return <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill={color} stroke={stroke} strokeWidth={2} />
-  return <circle cx={cx} cy={cy} r={r - 1} fill="#060918" stroke={color} strokeWidth={2.5} />
+  return <circle cx={cx} cy={cy} r={r - 1} fill="#080516" stroke={color} strokeWidth={2.5} />
 }
 
 // Recharts passes a `key` in the props for custom dots; pull it out instead of spreading it.
@@ -38,7 +38,7 @@ const renderActiveDot = ({ key, ...props }) => <LevelDot key={key ?? props.index
 function EventLabel({ viewBox, text, row }) {
   if (!viewBox) return null
   return (
-    <text x={viewBox.x + 5} y={viewBox.y - 22 + row * 14} fill="#c3cae8" fontSize={12} fontFamily="IBM Plex Sans">
+    <text x={viewBox.x + 5} y={viewBox.y - 22 + row * 14} fill="#c8c2e8" fontSize={12} fontFamily="IBM Plex Sans">
       {text}
     </text>
   )
@@ -116,12 +116,12 @@ export default function TrendChart({ trends }) {
               <CartesianGrid stroke={GRID} vertical={false} />
               {xAxis}
               <YAxis domain={[1, 10]} ticks={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]} width={Y_AXIS_WIDTH} stroke={AXIS} tick={{ fontSize: 13 }} />
-              <Tooltip content={<VisionTooltip />} cursor={{ stroke: '#4d5682' }} />
+              <Tooltip content={<VisionTooltip />} cursor={{ stroke: '#51477f' }} />
               {events.map((event, i) => (
                 <ReferenceLine
                   key={`${event.mission_day}-${event.label}`}
                   x={event.mission_day}
-                  stroke="#4d5682"
+                  stroke="#51477f"
                   label={<EventLabel text={event.label} row={i % 2} />}
                 />
               ))}
@@ -129,9 +129,9 @@ export default function TrendChart({ trends }) {
                 <ReferenceLine
                   key={b.label}
                   y={b.y}
-                  stroke="#c3cae8"
+                  stroke="#c8c2e8"
                   strokeDasharray="8 6"
-                  label={{ value: b.label, position: b.position, fill: '#c3cae8', fontSize: 12 }}
+                  label={{ value: b.label, position: b.position, fill: '#c8c2e8', fontSize: 12 }}
                 />
               ))}
               <Line
@@ -165,7 +165,7 @@ export default function TrendChart({ trends }) {
         <section className="card p-5" aria-labelledby="factor-chart-title">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
             <h2 id="factor-chart-title" className="text-xl font-semibold">
-              Cabin and lifestyle factors
+              Factors studied in SANS
             </h2>
             <div role="group" aria-label="Choose a factor" className="flex flex-wrap gap-2">
               {factors.map((f) => (
@@ -186,7 +186,7 @@ export default function TrendChart({ trends }) {
             </div>
           </div>
           <p className="mb-2 text-sm text-slate-400">
-            {factor.label} per day, in {factor.unit}. Same days as the chart above.
+            {factor.label} per day, in {factor.unit}. Same days as the eye chart above. Researchers study these as possible factors in SANS; a pattern here is not a proven cause.
           </p>
           <div className="h-52" role="img" aria-label={`Line chart of ${factor.label} by mission day`}>
             <ResponsiveContainer width="100%" height="100%">
@@ -194,11 +194,11 @@ export default function TrendChart({ trends }) {
                 <CartesianGrid stroke={GRID} vertical={false} />
                 {xAxis}
                 <YAxis width={Y_AXIS_WIDTH} stroke={AXIS} tick={{ fontSize: 13 }} domain={['auto', 'auto']} />
-                <Tooltip content={<FactorTooltip factor={factor} />} cursor={{ stroke: '#4d5682' }} />
+                <Tooltip content={<FactorTooltip factor={factor} />} cursor={{ stroke: '#51477f' }} />
                 {events.map((event) => (
-                  <ReferenceLine key={`${event.mission_day}-${event.label}`} x={event.mission_day} stroke="#4d5682" />
+                  <ReferenceLine key={`${event.mission_day}-${event.label}`} x={event.mission_day} stroke="#51477f" />
                 ))}
-                <Line type="monotone" dataKey={factor.key} stroke="#dde2f5" strokeWidth={2} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey={factor.key} stroke="#e0dcf5" strokeWidth={2} dot={false} isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>

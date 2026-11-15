@@ -1,22 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&display=swap');
 
-/* Sightline landing page. Palette sampled from the eye photo: the pupil, the iris, its highlight. */
+/* Sightline landing page. A violet night-sky palette with aurora light. */
 .lp {
-  --canvas: #060918;
-  --panel: #0c1230;
-  --panel-2: #111a42;
-  --accent: #34ddef;
-  --accent-hover: #8cf0f9;
-  --accent-muted: rgba(52, 221, 239, 0.22);
-  --iris-soft: #a6eef6;
-  --text-primary: #edf0ff;
-  --text-secondary: #a4add6;
-  --line: rgba(110, 200, 230, 0.16);
-  --line-strong: rgba(52, 221, 239, 0.42);
+  --canvas: #080516;
+  --panel: #110a2e;
+  --panel-2: #1a1040;
+  --accent: #a78bfa; /* light violet: text, lines, focus */
+  --accent-solid: #6d3be8; /* solid violet: primary buttons (white text) */
+  --accent-hover: #c4b5fd;
+  --accent-muted: rgba(167, 139, 250, 0.22);
+  --iris-soft: #d4c8ff;
+  --text-primary: #f1eeff;
+  --text-secondary: #aaa2d6;
+  --line: rgba(150, 130, 240, 0.16);
+  --line-strong: rgba(167, 139, 250, 0.42);
 
-  /* Where the pupil sits in the hero eye photo (eye-real.jpg). The zoom and reticle anchor here. */
-  --px: 58.9%;
-  --py: 49.1%;
+  /* Where the pupil sits in the hero image (astronaut-visor-eye.webp). The zoom and reticle anchor here. */
+  --px: 47%;
+  --py: 46.2%;
+  --pxn: 0.47; /* the same, as plain numbers, for calc() */
+  --pyn: 0.462;
+  /* Where the pupil sits in the scanner photo (eye-real.jpg). */
+  --scan-px: 58.9%;
+  --scan-py: 49.1%;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -31,11 +37,11 @@
   --gutter: 6vw;
 
   /* Depth: base, elevated, floating. Colour-tinted, low opacity, layered. */
-  --shadow-1: 0 1px 2px rgba(3, 5, 18, 0.5), 0 8px 24px -10px rgba(40, 58, 170, 0.35);
-  --shadow-2: 0 1px 2px rgba(3, 5, 18, 0.5), 0 14px 36px -12px rgba(46, 66, 190, 0.42),
-    0 44px 90px -30px rgba(18, 26, 90, 0.6);
-  --shadow-3: 0 2px 4px rgba(3, 5, 18, 0.5), 0 24px 60px -18px rgba(70, 92, 230, 0.5),
-    0 70px 140px -40px rgba(20, 28, 110, 0.7);
+  --shadow-1: 0 1px 2px rgba(7, 3, 18, 0.5), 0 8px 24px -10px rgba(79, 40, 170, 0.35);
+  --shadow-2: 0 1px 2px rgba(7, 3, 18, 0.5), 0 14px 36px -12px rgba(89, 46, 190, 0.42),
+    0 44px 90px -30px rgba(40, 18, 90, 0.6);
+  --shadow-3: 0 2px 4px rgba(7, 3, 18, 0.5), 0 24px 60px -18px rgba(118, 70, 230, 0.5),
+    0 70px 140px -40px rgba(47, 20, 110, 0.7);
   --tshadow: 0 1px 2px rgba(5, 5, 14, 0.95), 0 3px 12px rgba(5, 5, 14, 0.78), 0 10px 44px rgba(5, 5, 14, 0.8);
 
   position: relative;
@@ -55,7 +61,7 @@ html.lp-html,
 html.lp-html body {
   overflow-x: hidden;
   overflow-x: clip;
-  background: #060918;
+  background: #080516;
 }
 @media (prefers-reduced-motion: no-preference) {
   html.lp-html {
@@ -76,7 +82,7 @@ html.lp-html body {
   padding: 10px 16px;
   border-radius: 10px;
   background: var(--accent);
-  color: #070b20;
+  color: #0a0620;
   font-weight: 600;
   transform: translateY(-160%);
   transition: transform 300ms var(--ease-out);
@@ -142,16 +148,16 @@ html.lp-html body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 85% 75% at 50% 45%, rgba(6, 9, 24, 0.38), rgba(6, 9, 24, 0.82) 100%),
-    linear-gradient(rgba(10, 16, 48, 0.3), rgba(10, 16, 48, 0.3));
+    radial-gradient(ellipse 85% 75% at 50% 45%, rgba(11, 6, 24, 0.38), rgba(11, 6, 24, 0.82) 100%),
+    linear-gradient(rgba(21, 10, 48, 0.3), rgba(21, 10, 48, 0.3));
 }
 .lp-env-glow {
   position: absolute;
   inset: -20%;
   background:
-    radial-gradient(40% 35% at 78% 22%, rgba(76, 96, 230, 0.2), transparent 70%),
-    radial-gradient(45% 40% at 18% 78%, rgba(30, 130, 170, 0.14), transparent 70%),
-    radial-gradient(60% 50% at 50% 50%, rgba(40, 56, 150, 0.12), transparent 75%);
+    radial-gradient(40% 35% at 78% 22%, rgba(122, 76, 230, 0.2), transparent 70%),
+    radial-gradient(45% 40% at 18% 78%, rgba(168, 60, 200, 0.14), transparent 70%),
+    radial-gradient(60% 50% at 50% 50%, rgba(73, 40, 150, 0.12), transparent 75%);
   animation: lp-glow-drift 80s ease-in-out infinite alternate;
   animation-delay: -24s;
 }
@@ -196,36 +202,50 @@ html.lp-html body {
 
 .lp-nav {
   position: fixed;
-  inset: 0 0 auto 0;
+  inset: 14px 0 auto 0;
   z-index: 50;
+  padding: 0 16px;
 }
-.lp-nav::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(6, 9, 24, 0.78);
-  border-bottom: 1px solid var(--line);
-  backdrop-filter: blur(14px);
-  opacity: 0;
-  transition: opacity 500ms var(--ease-out);
-}
-.lp-nav.solid::before {
-  opacity: 1;
-}
+/* A floating glass panel; a second layer fades in to darken it once the page scrolls. */
 .lp-nav-inner {
   position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   gap: var(--s-3);
-  max-width: 1320px;
-  height: 68px;
+  max-width: 1180px;
+  height: 64px;
   margin: 0 auto;
-  padding: 0 var(--gutter);
+  padding: 0 12px 0 22px;
+  border-radius: 16px;
+}
+.lp-nav-inner::before,
+.lp-nav-inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+}
+.lp-nav-inner::before {
+  background: rgba(30, 18, 66, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 18px 50px -24px rgba(109, 59, 232, 0.7);
+}
+.lp-nav-inner::after {
+  background: rgba(13, 7, 32, 0.78);
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out);
+}
+.lp-nav.solid .lp-nav-inner::after {
+  opacity: 1;
 }
 .lp-brand {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  font-family: 'Sora', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
   font-size: 1.125rem;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -296,7 +316,7 @@ a.lp-brand:active {
   gap: 8px;
   min-height: 50px;
   padding: 0 24px;
-  border-radius: 999px;
+  border-radius: 12px;
   font-size: 0.9875rem;
   font-weight: 600;
   letter-spacing: 0.005em;
@@ -321,15 +341,15 @@ a.lp-brand:active {
   transform: translateY(0) scale(0.97);
 }
 .lp-btn-primary {
-  color: #070b20;
+  color: #fff;
 }
 .lp-btn-primary::before {
-  background: var(--accent);
-  box-shadow: var(--shadow-1);
+  background: var(--accent-solid);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 1px 2px rgba(7, 3, 18, 0.5), 0 12px 30px -10px rgba(109, 59, 232, 0.85);
 }
 .lp-btn-primary::after {
-  background: var(--accent-hover);
-  box-shadow: 0 0 0 1px rgba(205, 217, 255, 0.4), 0 18px 50px -12px rgba(70, 225, 240, 0.65);
+  background: #7c4dff;
+  box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.35), 0 18px 50px -12px rgba(124, 77, 255, 0.85);
   opacity: 0;
 }
 .lp-btn-primary:hover::after,
@@ -340,12 +360,12 @@ a.lp-brand:active {
   color: var(--text-primary);
 }
 .lp-btn-ghost::before {
-  background: rgba(12, 18, 48, 0.55);
+  background: rgba(23, 12, 48, 0.55);
   border: 1px solid var(--line-strong);
   backdrop-filter: blur(10px);
 }
 .lp-btn-ghost::after {
-  background: rgba(52, 221, 239, 0.14);
+  background: rgba(167, 139, 250, 0.14);
   opacity: 0;
 }
 .lp-btn-ghost:hover::after,
@@ -361,26 +381,26 @@ a.lp-brand:active {
 /* ───────────── Shared type ───────────── */
 
 .lp .display {
-  font-family: 'Instrument Serif', Georgia, serif;
-  font-weight: 400;
-  font-size: clamp(2.6rem, 5.4vw, 5rem);
-  line-height: 1.02;
+  font-family: 'Sora', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(2rem, 3.8vw, 3.4rem);
+  line-height: 1.1;
   letter-spacing: -0.03em;
   color: var(--text-primary);
 }
 .lp .display.big {
-  font-size: clamp(3rem, 7vw, 6.4rem);
+  font-size: clamp(2.4rem, 5.4vw, 4.6rem);
 }
 .lp .display em,
 .lp .h2 em {
-  font-style: italic;
-  color: var(--iris-soft);
+  font-style: normal;
+  color: #b79cff;
 }
 .lp .h2 {
-  font-family: 'Instrument Serif', Georgia, serif;
-  font-weight: 400;
-  font-size: clamp(2.3rem, 4.4vw, 4rem);
-  line-height: 1.04;
+  font-family: 'Sora', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(1.9rem, 3.4vw, 3.1rem);
+  line-height: 1.12;
   letter-spacing: -0.03em;
   max-width: 18ch;
 }
@@ -403,7 +423,7 @@ a.lp-brand:active {
   font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #7fe3ef;
+  color: #c0b0fb;
 }
 .lp .chip {
   display: inline-flex;
@@ -411,8 +431,8 @@ a.lp-brand:active {
   gap: 8px;
   padding: 7px 14px;
   border-radius: 999px;
-  background: rgba(8, 10, 28, 0.58);
-  border: 1px solid rgba(110, 200, 230, 0.26);
+  background: rgba(14, 8, 28, 0.58);
+  border: 1px solid rgba(150, 130, 240, 0.26);
   backdrop-filter: blur(10px);
   text-shadow: 0 1px 3px rgba(5, 5, 14, 0.85);
 }
@@ -420,7 +440,7 @@ a.lp-brand:active {
   margin-top: var(--s-3);
   font-size: clamp(1.05rem, 1.35vw, 1.28rem);
   line-height: 1.6;
-  color: #cdd3f0;
+  color: #d8cdf0;
   max-width: 34ch;
 }
 .lp .cta-row {
@@ -450,20 +470,44 @@ a.lp-brand:active {
   height: 100vh;
   height: 100svh;
   overflow: hidden;
+  container-type: size;
 }
 .eye {
   position: absolute;
   inset: 0;
   transform-origin: var(--px) var(--py);
-  will-change: transform, opacity;
+  /* No will-change here on purpose: with it, Chrome paints this layer once at normal size and then
+     stretches that snapshot, so the deep zoom goes blurry. Without it, the eye is repainted from the
+     full-resolution images at each zoom level and stays sharp. */
   transform: scale(1.06);
 }
-.eye img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* Same as the pupil's position in the photo, so the pupil sits at this point of the screen at any size. */
-  object-position: var(--px) var(--py);
+/*
+ * The whole square image is shown (never cropped): it is as large as the stage's shorter side,
+ * placed so the pupil lands at --px / --py of the stage, which is also the zoom's origin.
+ * Its edges fade into the night sky behind it.
+ */
+.eye .eye-base {
+  position: absolute;
+  width: min(100cqw, 100cqh);
+  height: min(100cqw, 100cqh);
+  left: calc((100cqw - min(100cqw, 100cqh)) * var(--pxn));
+  top: calc((100cqh - min(100cqw, 100cqh)) * var(--pyn));
+  -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
+}
+/*
+ * Sharper eye: a 320 x 320 crop of the source around the eye (from x 322, y 313 of 1024), enlarged 4x.
+ * It sits exactly on top of the same area of the base image, with feathered edges so no seam shows.
+ */
+.eye .eye-detail {
+  --side: min(100cqw, 100cqh);
+  position: absolute;
+  width: calc(var(--side) * 0.3125);
+  height: calc(var(--side) * 0.3125);
+  left: calc((100cqw - var(--side)) * var(--pxn) + var(--side) * 0.314453);
+  top: calc((100cqh - var(--side)) * var(--pyn) + var(--side) * 0.305664);
+  -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
 }
 .deep {
   position: absolute;
@@ -471,9 +515,9 @@ a.lp-brand:active {
   opacity: 0;
   transform-origin: var(--px) var(--py);
   background:
-    radial-gradient(34% 30% at var(--px) var(--py), rgba(45, 190, 225, 0.22), transparent 70%),
+    radial-gradient(34% 30% at var(--px) var(--py), rgba(124, 77, 255, 0.22), transparent 70%),
     radial-gradient(28% 24% at 30% 70%, rgba(130, 90, 220, 0.16), transparent 70%),
-    radial-gradient(30% 26% at 78% 26%, rgba(80, 110, 240, 0.16), transparent 70%);
+    radial-gradient(30% 26% at 78% 26%, rgba(128, 80, 240, 0.16), transparent 70%);
   will-change: transform, opacity;
 }
 /* Both overlays fade out at the stage's bottom edge, so the hero hands over to the page with no seam. */
@@ -487,15 +531,15 @@ a.lp-brand:active {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(to bottom, rgba(6, 9, 24, 0.55), rgba(6, 9, 24, 0) 18%),
-    radial-gradient(ellipse 120% 90% at 50% 45%, rgba(6, 9, 24, 0) 35%, rgba(6, 9, 24, 0.66) 100%);
+    linear-gradient(to bottom, rgba(11, 6, 24, 0.55), rgba(11, 6, 24, 0) 18%),
+    radial-gradient(ellipse 120% 90% at 50% 45%, rgba(11, 6, 24, 0) 35%, rgba(11, 6, 24, 0.66) 100%);
 }
 .reticle {
   position: absolute;
   left: var(--px);
   top: var(--py);
-  width: max(28vw, 28vh);
-  height: max(28vw, 28vh);
+  width: 30cqmin;
+  height: 30cqmin;
   overflow: visible;
   opacity: 0;
   transform: translate(-50%, -50%);
@@ -504,14 +548,14 @@ a.lp-brand:active {
 }
 .ret-line {
   fill: none;
-  stroke: rgba(205, 217, 255, 0.6);
+  stroke: rgba(220, 205, 255, 0.6);
   stroke-width: 1.2;
   vector-effect: non-scaling-stroke;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
 }
 .ret-faint {
-  stroke: rgba(205, 217, 255, 0.4);
+  stroke: rgba(220, 205, 255, 0.4);
   stroke-dasharray: 0.004 0.012;
 }
 
@@ -536,9 +580,9 @@ a.lp-brand:active {
   opacity: calc(0.25 + 0.75 * var(--k, 1));
   background: radial-gradient(
     ellipse 74% 62% at 50% 50%,
-    rgba(5, 6, 16, 0.7) 0%,
-    rgba(5, 6, 16, 0.46) 46%,
-    rgba(5, 6, 16, 0) 76%
+    rgba(8, 5, 16, 0.7) 0%,
+    rgba(8, 5, 16, 0.46) 46%,
+    rgba(8, 5, 16, 0) 76%
   );
 }
 .band .lp-btn {
@@ -568,7 +612,7 @@ a.lp-brand:active {
   transform: translate(-50%, -50%);
 }
 .band-4::before {
-  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(5, 6, 16, 0.62) 0%, rgba(5, 6, 16, 0) 76%);
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(8, 5, 16, 0.62) 0%, rgba(8, 5, 16, 0) 76%);
 }
 .band-4 .sub {
   margin-inline: auto;
@@ -648,14 +692,14 @@ a.lp-brand:active {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 0.75rem;
   letter-spacing: 0.14em;
-  color: #bfeef4;
+  color: #ddd5fb;
 }
 .hud-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 10px rgba(52, 221, 239, 0.9);
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.9);
   animation: lp-blink 2.6s ease-in-out infinite;
   animation-delay: -0.8s;
 }
@@ -681,7 +725,7 @@ a.lp-brand:active {
   font-size: 0.72rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #e4e9ff;
+  color: #ece4ff;
   text-shadow: var(--tshadow);
 }
 .cue-line {
@@ -744,7 +788,7 @@ a.lp-brand:active {
   align-items: flex-start;
   padding: 0 var(--gutter) 14vh;
   text-shadow: var(--tshadow);
-  background: linear-gradient(to top, rgba(6, 9, 24, 0.88), rgba(6, 9, 24, 0.2) 60%, transparent);
+  background: linear-gradient(to top, rgba(11, 6, 24, 0.88), rgba(11, 6, 24, 0.2) 60%, transparent);
 }
 .lp.is-static .hero-static .display {
   margin-top: var(--s-3);
@@ -882,7 +926,7 @@ a.lp-brand:active {
   pointer-events: none;
 }
 .photo-tint::before {
-  background: #3446b8;
+  background: #5c34b8;
   mix-blend-mode: multiply;
   opacity: 0.38;
 }
@@ -908,7 +952,7 @@ a.lp-brand:active {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 0.74rem;
   letter-spacing: 0.08em;
-  color: #dfe5ff;
+  color: #e9dfff;
 }
 .risk-copy {
   position: relative;
@@ -964,7 +1008,7 @@ a.lp-brand:active {
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
+  color: var(--accent);
 }
 .readout-label {
   color: var(--text-secondary);
@@ -982,33 +1026,74 @@ a.lp-brand:active {
 .how-head .h2 {
   max-width: 20ch;
 }
+/* A timeline: steps alternate left and right of a centre line that draws itself on scroll. */
+.steps-wrap {
+  position: relative;
+  margin-top: var(--s-5);
+}
 .how-path {
-  display: block;
-  width: 100%;
-  height: 40px;
-  margin: var(--s-5) 0 calc(-1 * var(--s-2));
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 40px;
+  height: 100%;
+  margin-left: -20px;
+  overflow: visible;
 }
 .how-path path {
-  stroke: var(--line-strong);
-  stroke-width: 1;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  opacity: 0.7;
 }
 .steps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
   list-style: none;
   padding: 0;
 }
 .step {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  column-gap: 20px;
+  row-gap: 6px;
+  align-items: center;
+  width: calc(50% - 44px);
   padding: var(--s-3);
   border-radius: 20px;
   background: linear-gradient(180deg, var(--panel-2), var(--panel));
   border: 1px solid var(--line);
   box-shadow: var(--shadow-1);
+}
+.step:nth-child(even) {
+  margin-left: auto;
+}
+.step > .step-art {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+}
+.step > .step-num,
+.step > .h3,
+.step > .body {
+  grid-column: 2;
+}
+/* The step's node on the centre line */
+.step::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -50px;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 5px rgba(167, 139, 250, 0.18), 0 0 18px rgba(167, 139, 250, 0.9);
+}
+.step:nth-child(even)::before {
+  right: auto;
+  left: -50px;
 }
 .step::after {
   content: '';
@@ -1031,14 +1116,14 @@ a.lp-brand:active {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 0.78rem;
   letter-spacing: 0.14em;
-  color: #5fc9d9;
+  color: #9d86ee;
 }
 .step-art {
   display: grid;
   place-items: center;
   aspect-ratio: 3 / 2;
   border-radius: 14px;
-  background: radial-gradient(80% 80% at 50% 40%, rgba(80, 100, 220, 0.18), rgba(6, 9, 24, 0.6));
+  background: radial-gradient(80% 80% at 50% 40%, rgba(122, 80, 220, 0.18), rgba(11, 6, 24, 0.6));
   border: 1px solid var(--line);
 }
 .step-art svg {
@@ -1046,13 +1131,13 @@ a.lp-brand:active {
   height: auto;
 }
 .art-text {
-  fill: #dfe5ff;
+  fill: #e9dfff;
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-weight: 600;
 }
 .art-grid {
   fill: none;
-  stroke: rgba(52, 221, 239, 0.3);
+  stroke: rgba(167, 139, 250, 0.3);
   stroke-width: 0.8;
 }
 .art-wave {
@@ -1074,7 +1159,7 @@ a.lp-brand:active {
   fill: #fff;
 }
 .art-track {
-  stroke: rgba(52, 221, 239, 0.25);
+  stroke: rgba(167, 139, 250, 0.25);
   stroke-width: 3;
   stroke-linecap: round;
 }
@@ -1084,7 +1169,7 @@ a.lp-brand:active {
   stroke-linecap: round;
 }
 .art-knob {
-  fill: #edf0ff;
+  fill: #f1eeff;
 }
 
 /* Try it: hold to scan */
@@ -1112,7 +1197,7 @@ a.lp-brand:active {
   border-radius: 50%;
   border: 0;
   padding: 0;
-  background: radial-gradient(circle, #0e1640, #070b20);
+  background: radial-gradient(circle, #170f3d, #0a0620);
   box-shadow: var(--shadow-2);
   touch-action: none;
   user-select: none;
@@ -1126,7 +1211,7 @@ a.lp-brand:active {
   inset: -10px;
   border-radius: 50%;
   z-index: -1;
-  box-shadow: 0 0 60px 6px rgba(70, 225, 240, 0.45), 0 0 140px 20px rgba(90, 110, 240, 0.25);
+  box-shadow: 0 0 60px 6px rgba(139, 92, 246, 0.45), 0 0 140px 20px rgba(135, 90, 240, 0.25);
   opacity: 0.25;
   transition: opacity 500ms var(--ease-out);
   animation: lp-breathe 5s ease-in-out infinite;
@@ -1168,7 +1253,7 @@ a.lp-brand:active {
 }
 .ring-track {
   fill: none;
-  stroke: rgba(52, 221, 239, 0.18);
+  stroke: rgba(167, 139, 250, 0.18);
   stroke-width: 2;
 }
 .ring-fill {
@@ -1193,15 +1278,15 @@ a.lp-brand:active {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: var(--px) var(--py);
-  transform-origin: var(--px) var(--py);
+  object-position: var(--scan-px) var(--scan-py);
+  transform-origin: var(--scan-px) var(--scan-py);
   /* Move the pupil to the centre of the circle, then zoom in on it */
-  transform: translate(calc(50% - var(--px)), calc(50% - var(--py))) scale(calc(1.3 + 0.4 * var(--hp)));
+  transform: translate(calc(50% - var(--scan-px)), calc(50% - var(--scan-py))) scale(calc(1.3 + 0.4 * var(--hp)));
 }
 .scanner-sweep {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 44%, rgba(205, 217, 255, 0.7) 50%, transparent 56%);
+  background: linear-gradient(to bottom, transparent 44%, rgba(220, 205, 255, 0.7) 50%, transparent 56%);
   opacity: 0;
   transform: translateY(-60%);
 }
@@ -1242,7 +1327,7 @@ a.lp-brand:active {
   gap: 8px;
   padding: 10px 16px;
   border-radius: 999px;
-  background: rgba(12, 18, 48, 0.7);
+  background: rgba(23, 12, 48, 0.7);
   border: 1px solid var(--line);
   font-weight: 600;
   font-size: 0.95rem;
@@ -1416,11 +1501,11 @@ a.lp-brand:active {
   }
 }
 .final-rings circle {
-  stroke: rgba(52, 221, 239, 0.28);
+  stroke: rgba(167, 139, 250, 0.28);
   stroke-width: 1;
 }
 .final-rings circle.faint {
-  stroke: rgba(52, 221, 239, 0.14);
+  stroke: rgba(167, 139, 250, 0.14);
 }
 
 /* Footer */
@@ -1428,7 +1513,7 @@ a.lp-brand:active {
   position: relative;
   z-index: 1;
   border-top: 1px solid var(--line);
-  background: rgba(6, 9, 24, 0.7);
+  background: rgba(11, 6, 24, 0.7);
 }
 .lp-footer-inner {
   display: flex;
@@ -1446,7 +1531,7 @@ a.lp-brand:active {
   margin-right: auto;
 }
 .lp-footer .muted {
-  color: #8a93bd;
+  color: #998abd;
 }
 
 /* ───────────── Black holes (real imagery: EHT photo of M87*, NASA Goddard simulation) ───────────── */
@@ -1559,14 +1644,19 @@ a.lp-brand:active {
   .lp-nav-cta {
     margin-left: auto;
   }
-  .steps {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  /* Timeline: the line moves to the left edge and every step sits to its right */
   .how-path {
-    display: none;
+    left: 10px;
   }
-  .steps {
-    margin-top: var(--s-5);
+  .step,
+  .step:nth-child(even) {
+    width: auto;
+    margin-left: 44px;
+  }
+  .step::before,
+  .step:nth-child(even)::before {
+    right: auto;
+    left: -40px;
   }
 }
 
@@ -1585,14 +1675,14 @@ a.lp-brand:active {
     margin-left: 0;
   }
   .lp .display {
-    font-size: clamp(2.4rem, 11vw, 3.2rem);
+    font-size: clamp(1.9rem, 8.4vw, 2.5rem);
   }
   .lp .display.big {
-    font-size: clamp(2.7rem, 12.5vw, 3.6rem);
+    font-size: clamp(2.1rem, 9.4vw, 2.8rem);
   }
   .reticle {
-    width: max(28vw, 28vh);
-    height: max(28vw, 28vh);
+    width: 30cqmin;
+    height: 30cqmin;
   }
   .risk {
     grid-template-columns: 1fr;
@@ -1624,8 +1714,15 @@ a.lp-brand:active {
 }
 
 @media (max-width: 480px) {
-  .steps {
+  .step {
     grid-template-columns: 1fr;
+  }
+  .step > .step-art,
+  .step > .step-num,
+  .step > .h3,
+  .step > .body {
+    grid-column: 1;
+    grid-row: auto;
   }
 }
 

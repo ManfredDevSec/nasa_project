@@ -1,4 +1,4 @@
-// Text and links for the Learn page and the body-map "Read more" links.
+// Text and links for the Learn page and the Home "Read more at NASA" link.
 //
 // HONESTY RULE: every health statement here must come from the team's sourced
 // "NASA facts" list (R1, R2, R3). Anything not yet sourced says "TODO: source needed".
@@ -33,8 +33,8 @@ export const NASA_LINKS = {
 export const SOURCES = [
   {
     id: 'R1',
-    label: 'NASA Human Research Roadmap: risk pages for eyes, heart, sleep and behavioral health (the body-map "Read more" links)',
-    urls: ['R1_SANS', 'R1_CARDIOVASCULAR', 'R1_SLEEP', 'R1_BEHAVIORAL'],
+    label: 'NASA Human Research Roadmap: SANS risk page (the Home "Read more at NASA" link)',
+    urls: ['R1_SANS'],
   },
   {
     id: 'R2',
