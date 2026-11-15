@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { LogoMark, StatusIcon } from '../components/Icons.jsx'
+import PlanetHorizon from '../components/PlanetHorizon.jsx'
 import { getToken, getUser, homePathFor } from '../utils/auth.js'
 import { initLanding } from '../landing/engine.js'
 import '../landing/landing.css'
@@ -297,7 +298,7 @@ export default function Landing() {
           {READOUTS.map((r) => (
             <div className="readout" key={r.label}>
               <span className="readout-num" data-count={r.value}>
-                {String(r.value).padStart(2, '0')}
+                {r.value}
               </span>
               <span className="readout-label">{r.label}</span>
             </div>
@@ -345,9 +346,9 @@ export default function Landing() {
             </p>
           </div>
 
-          {/* The scanner sits inside the first real image of a black hole (M87*, Event Horizon Telescope) */}
+          {/* The scanner rises over a planet's horizon, with a small moon gliding along its orbit */}
           <div className="scanner-stage">
-            <img className="blackhole-v" src={`${import.meta.env.BASE_URL}landing/blackhole-eht.webp`} alt="" aria-hidden="true" loading="lazy" />
+            <PlanetHorizon className="planet-scan" duration={18} />
           <button type="button" className="scanner" data-hold aria-describedby="try-status">
             <svg className="scanner-ring" viewBox="0 0 200 200" aria-hidden="true">
               <circle cx="100" cy="100" r="92" className="ring-track" />
@@ -416,15 +417,10 @@ export default function Landing() {
           <h2 className="display big">
             Your baseline starts <em>with the first check.</em>
           </h2>
-          {/* The call to action waits in the dark centre of NASA's black hole simulation */}
-          <div className="blackhole-stage">
-            <img className="blackhole-w" src={`${import.meta.env.BASE_URL}landing/blackhole-nasa.webp`} alt="" aria-hidden="true" loading="lazy" />
-            <svg className="final-rings" viewBox="-200 -200 400 400" aria-hidden="true">
-              <circle r="120" pathLength="1" data-scrolldraw />
-              <circle r="160" pathLength="1" data-scrolldraw className="faint" />
-              <circle r="196" pathLength="1" data-scrolldraw />
-            </svg>
-            <Link to={appPath} className="lp-btn lp-btn-primary lp-btn-lg blackhole-cta">
+          {/* The call to action waits above a planet's horizon */}
+          <div className="planet-stage">
+            <PlanetHorizon className="planet-cta" duration={20} />
+            <Link to={appPath} className="lp-btn lp-btn-primary lp-btn-lg planet-stage-cta">
               {ctaLabel}
             </Link>
           </div>
@@ -438,9 +434,6 @@ export default function Landing() {
             <span>Sightline</span>
           </span>
           <p>Prototype, not a medical device. Simulated data.</p>
-          <p className="muted">
-            Image credits: Hubble Ultra Deep Field, NASA/ESA. Scanner eye: Petr Novák, Wikipedia (CC BY-SA 2.5), mirrored. Black hole M87*: EHT Collaboration (CC BY 4.0). Black hole simulation: NASA’s Goddard Space Flight Center/Jeremy Schnittman. Astronaut photos used for demonstration.
-          </p>
         </div>
       </footer>
     </div>

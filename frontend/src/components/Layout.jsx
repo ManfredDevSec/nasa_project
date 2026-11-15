@@ -30,9 +30,12 @@ function navItemsFor(user) {
   return items
 }
 
-// "Cmdr. Ama Osei" -> "AO", "Dr. Yaw Boateng" -> "YB" (titles ending in a dot are skipped).
+// "Cmdr. Ama Osei" -> "AO", "Specialist Efua Adjei" -> "EA" (titles and words ending in a dot are skipped).
+const TITLES = new Set(['specialist', 'commander', 'captain', 'pilot', 'doctor', 'dr', 'cmdr'])
 function initialsOf(name = '') {
-  const words = name.split(/\s+/).filter((w) => w && !w.endsWith('.'))
+  const all = name.split(/\s+/).filter(Boolean)
+  const named = all.filter((w) => !w.endsWith('.') && !TITLES.has(w.toLowerCase()))
+  const words = named.length ? named : all
   return ((words[0]?.[0] ?? '') + (words.length > 1 ? words[words.length - 1][0] : '')).toUpperCase() || '?'
 }
 

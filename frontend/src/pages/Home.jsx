@@ -139,7 +139,7 @@ export default function Home() {
                 {badges.map((badge) => (
                   <li key={badge.code} className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm">
                     <AwardIcon className="size-4 text-sky-400" />
-                    {badgeName(badge.code)}
+                    {badge.name ?? badgeName(badge.code)}
                   </li>
                 ))}
               </ul>
