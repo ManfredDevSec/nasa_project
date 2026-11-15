@@ -80,11 +80,16 @@ const CHART = [
   { size: 12, letters: 'O K C N R V D' },
 ]
 
+// Start page (from homePathFor) -> nav button label for a signed-in visitor.
+const DESTINATION_LABELS = { '/home': 'My eye check', '/crew': 'Crew dashboard', '/learn': 'Learn' }
+
 export default function Landing() {
   const rootRef = useRef(null)
   const user = getToken() ? getUser() : null
   const appPath = user ? homePathFor(user) : '/login'
   const ctaLabel = 'Open Sightline'
+  // The nav button names where it goes: the sign-in page, or the signed-in user's own start page.
+  const navLabel = user ? (DESTINATION_LABELS[appPath] ?? 'Continue') : 'Sign in'
 
   useEffect(() => {
     const prevTitle = document.title
@@ -132,7 +137,7 @@ export default function Landing() {
             <a href="#crew">Crew</a>
           </nav>
           <Link to={appPath} className="lp-btn lp-btn-primary lp-nav-cta">
-            {user ? 'Open app' : 'Sign in'}
+            {navLabel}
           </Link>
         </div>
       </header>
