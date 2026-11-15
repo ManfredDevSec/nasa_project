@@ -206,6 +206,7 @@ def trends(astronaut, days, as_of):
 
     return {
         "astronaut_id": astronaut.pk,
+        "astronaut": {"id": astronaut.pk, "name": astronaut.full_name, "call_sign": astronaut.call_sign},
         "period": {"from": start, "to": end, "days": days},
         "baseline": (
             {f: getattr(baseline, f) for f in ("near_vision_left", "near_vision_right", "contrast_left", "contrast_right")}
@@ -321,7 +322,8 @@ def _crew_row(astronaut, as_of):
         part = next(n for n in ("HEART", "SLEEP", "MIND") if parts[n]["level"] == overall)
         headline = f"{part.capitalize()}: {parts[part]['summary']}"
     row = {
-        "astronaut_id": astronaut.pk, "call_sign": astronaut.call_sign, **levels, "overall": overall,
+        "astronaut_id": astronaut.pk, "call_sign": astronaut.call_sign, "name": astronaut.full_name,
+        **levels, "overall": overall,
         "headline": headline, "overdue": as_of > due, "next_test_due": due,
     }
     return row, parts
@@ -341,7 +343,8 @@ def _alerts_for(astronaut, row, parts):
     if row["overdue"]:
         alerts.append(("AMBER", f"{call}: eye test overdue", f"Was due {_short_date(row['next_test_due'])}.",
                        _day_start(row["next_test_due"])))
-    return [{"astronaut_id": astronaut.pk, "level": level, "text": text, "detail": detail, "created_at": when}
+    return [{"astronaut_id": astronaut.pk, "call_sign": call, "level": level, "text": text, "detail": detail,
+             "created_at": when}
             for level, text, detail, when in alerts]
 
 
@@ -356,13 +359,19 @@ def crew_overview(mission, as_of):
         "co2_5day_avg": _round1(sum(l.co2_mmhg for l in logs) / len(logs)) if logs else None,
     }
 
-    crew, alerts = [], []
+    crew, alerts, insights = [], [], []
     for astronaut in mission.astronauts.order_by("call_sign"):
         row, parts = _crew_row(astronaut, as_of)
         crew.append(row)
         alerts += _alerts_for(astronaut, row, parts)
+        latest = latest_assessment_on(astronaut, as_of)
+        if latest and latest.level in ("AMBER", "RED"):  # insights only exist for flagged results
+            for insight in latest.env_insights:
+                line = f"{astronaut.call_sign}: {insight['text']}"
+                if line not in insights:
+                    insights.append(line)
     if cabin["co2_level"] in ("AMBER", "RED"):
-        alerts.append({"astronaut_id": None, "level": cabin["co2_level"],
+        alerts.append({"astronaut_id": None, "call_sign": None, "level": cabin["co2_level"],
                        "text": f"Cabin CO₂ above normal ({co2_today} mmHg)",
                        "detail": "Ask for a CO₂ scrubber check.", "created_at": _day_start(as_of)})
 
@@ -375,6 +384,7 @@ def crew_overview(mission, as_of):
         "cabin": cabin,
         "crew": crew,
         "alerts": alerts,
+        "insights": insights,
     }
 
 
