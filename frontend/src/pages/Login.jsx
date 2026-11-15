@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { getErrorMessage, isMocked, login } from '../api/index.js'
+import { getErrorMessage, login } from '../api/index.js'
 import { ArrowRightIcon, LogoMark } from '../components/Icons.jsx'
 import { Disclaimer } from '../components/Layout.jsx'
 import SpaceBackdrop from '../components/SpaceBackdrop.jsx'

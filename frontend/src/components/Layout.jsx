@@ -1,6 +1,6 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { currentScreenUsedMocks, getMe, logout, subscribeToMockUsage } from '../api/index.js'
+import { getMe, logout } from '../api/index.js'
 import { ROLE_LABELS, canSeeCrew, clearSession, getToken, getUser, isAdmin, isAstronaut, saveSession } from '../utils/auth.js'
 import { BookIcon, ChartIcon, EyeIcon, HomeIcon, LockIcon, LogoMark, LogoutIcon, PrinterIcon, UsersIcon } from './Icons.jsx'
 import SpaceBackdrop from './SpaceBackdrop.jsx'
